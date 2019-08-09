@@ -1,0 +1,21 @@
+# input file for dustybox setup routine
+
+# gas properties
+                  cs =       1.000    ! sound speed (sets polyk)
+          npartx_gas =          64    ! number of particles in x direction
+         rhozero_gas =       1.000    ! initial density
+        ilattice_gas =           1    ! lattice type (1=cubic, 2=closepacked)
+
+# dust properties
+          ndustlarge =           2    ! number of dust species
+
+# dust:  1
+        npartx_dust1 =          64    ! number of particles in x direction
+       rhozero_dust1 =       1.000    ! initial density
+      ilattice_dust1 =           1    ! lattice type (1=cubic, 2=closepacked)
+
+# dust:  2
+        npartx_dust2 =          64    ! number of particles in x direction
+       rhozero_dust2 =       1.000    ! initial density
+      ilattice_dust2 =           1    ! lattice type (1=cubic, 2=closepacked)
+

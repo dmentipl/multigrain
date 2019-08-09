@@ -53,9 +53,10 @@ contains
 subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
                    hfact,time,fileprefix)
 
- use setup_params, only:npart_total
+ use kernel,       only:hfact_default
  use part,         only:igas,idust,ndustlarge
  use physcon,      only:solarm,au
+ use setup_params, only:npart_total
  use units,        only:set_units
 
  integer,           intent(in)    :: id
@@ -73,6 +74,8 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
  ! get user defined parameters from setup file or interactively
  call get_setup_parameters(id,fileprefix)
 
+ polyk = cs**2
+
  ! units (needed if physical drag is used)
  call set_units(mass=solarm,dist=au,G=1.d0)
 
@@ -80,7 +83,7 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
 
  ! parameters
  time = 0.
- hfact = 1.2
+ hfact = hfact_default
  gamma = 1.
 
  ! setup particles
@@ -315,14 +318,16 @@ end subroutine setup_interactive
 !
 !--------------------------------------------------------------------------
 subroutine write_setupfile(filename)
+ use fileutils,    only:make_tags_unique
  use infile_utils, only:write_inopt
  use part,         only:idust,ndustlarge
  character(len=*),    intent(in) :: filename
 
  integer, parameter :: iunit = 20
 
- integer :: itype
- integer :: idusttype
+ character(len=20) :: duststring(maxdustlarge)
+
+ integer :: i
 
  print "(/,a)",' writing setup options file '//trim(filename)
 
@@ -333,10 +338,10 @@ subroutine write_setupfile(filename)
 
  write(iunit,"(a)") '# gas properties'
  call write_inopt(cs,'cs','sound speed (sets polyk)',iunit)
- call write_inopt(fluid_params_gas%npartx,'npartx', &
+ call write_inopt(fluid_params_gas%npartx,'npartx_gas', &
                   'number of particles in x direction',iunit)
- call write_inopt(fluid_params_gas%rhozero,'rhozero','initial density',iunit)
- call write_inopt(fluid_params_gas%ilattice,'ilattice', &
+ call write_inopt(fluid_params_gas%rhozero,'rhozero_gas','initial density',iunit)
+ call write_inopt(fluid_params_gas%ilattice,'ilattice_gas', &
                   'lattice type (1=cubic, 2=closepacked)',iunit)
  write(iunit,"(a)") ''
 
@@ -344,16 +349,18 @@ subroutine write_setupfile(filename)
  call write_inopt(ndustlarge,'ndustlarge','number of dust species',iunit)
  write(iunit,"(a)") ''
 
- overdusttypes: do idusttype=1,ndustlarge
+ duststring = 'dust'
+ call make_tags_unique(ndustlarge,duststring)
 
-    write(iunit,"(a,i2)") '# dust: ',idusttype
-    itype = idust+idusttype-1
-    call write_inopt(fluid_params_gas%npartx,'npartx', &
+ overdusttypes: do i=1,ndustlarge
+    write(iunit,"(a,i2)") '# dust: ',i
+    call write_inopt(fluid_params_dust(i)%npartx,'npartx_'//trim(duststring(i)), &
                      'number of particles in x direction',iunit)
-    call write_inopt(fluid_params_gas%rhozero,'rhozero','initial density',iunit)
-    call write_inopt(fluid_params_gas%ilattice,'ilattice', &
+    call write_inopt(fluid_params_dust(i)%rhozero,'rhozero_'//trim(duststring(i)), &
+                     'initial density',iunit)
+    call write_inopt(fluid_params_dust(i)%ilattice,'ilattice_'//trim(duststring(i)), &
                      'lattice type (1=cubic, 2=closepacked)',iunit)
-
+    write(iunit,"(a)") ''
  enddo overdusttypes
 
  close(iunit)
@@ -366,14 +373,19 @@ end subroutine write_setupfile
 !
 !--------------------------------------------------------------------------
 subroutine read_setupfile(filename,ierr)
- use infile_utils,     only:open_db_from_file,inopts,read_inopt,close_db
+ use fileutils,    only:make_tags_unique
+ use infile_utils, only:open_db_from_file,inopts,read_inopt,close_db
+ use part,         only:idust,ndustlarge
  character(len=*), intent(in)  :: filename
  integer,          intent(out) :: ierr
 
  type(inopts), allocatable :: db(:)
  integer,      parameter   :: iunit = 21
 
+ character(len=20) :: duststring(maxdustlarge)
+
  integer :: nerr
+ integer :: idusttype
 
  nerr = 0
 
@@ -381,7 +393,26 @@ subroutine read_setupfile(filename,ierr)
 
  call open_db_from_file(db,filename,iunit,ierr)
 
- ! call read_inopt(mass_unit,'mass_unit',db,errcount=nerr)
+ call read_inopt(cs,'cs',db,errcount=nerr)
+ call read_inopt(fluid_params_gas%npartx,'npartx_gas',db,errcount=nerr)
+ call read_inopt(fluid_params_gas%rhozero,'rhozero_gas',db,errcount=nerr)
+ call read_inopt(fluid_params_gas%ilattice,'ilattice_gas',db,errcount=nerr)
+
+ call read_inopt(ndustlarge,'ndustlarge',db,errcount=nerr)
+
+ duststring = 'dust'
+ call make_tags_unique(ndustlarge,duststring)
+
+ overdusttypes: do idusttype=1,ndustlarge
+
+    call read_inopt(fluid_params_dust(idusttype)%npartx, &
+                    'npartx_'//trim(duststring(idusttype)),db,errcount=nerr)
+    call read_inopt(fluid_params_dust(idusttype)%rhozero, &
+                    'rhozero_'//trim(duststring(idusttype)),db,errcount=nerr)
+    call read_inopt(fluid_params_dust(idusttype)%ilattice, &
+                    'ilattice_'//trim(duststring(idusttype)),db,errcount=nerr)
+
+ enddo overdusttypes
 
  call close_db(db)
 

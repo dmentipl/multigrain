@@ -11,11 +11,11 @@
 
 # dust:  1
         npartx_dust1 =          64    ! number of particles in x direction
-       rhozero_dust1 =       1.000    ! initial density
+       rhozero_dust1 =       0.010    ! initial density
       ilattice_dust1 =           1    ! lattice type (1=cubic, 2=closepacked)
 
 # dust:  2
         npartx_dust2 =          64    ! number of particles in x direction
-       rhozero_dust2 =       1.000    ! initial density
+       rhozero_dust2 =       0.010    ! initial density
       ilattice_dust2 =           1    ! lattice type (1=cubic, 2=closepacked)
 

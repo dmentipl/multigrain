@@ -57,6 +57,7 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
  use part,         only:igas,idust,ndustlarge
  use physcon,      only:solarm,au
  use setup_params, only:npart_total
+ use timestep,     only:tmax,dtmax
  use units,        only:set_units
 
  integer,           intent(in)    :: id
@@ -71,6 +72,13 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
 
  integer :: idusttype
 
+ ! parameters
+ time  = 0.
+ hfact = hfact_default
+ gamma = 1.
+ tmax  = 0.1
+ dtmax = 0.001
+
  ! get user defined parameters from setup file or interactively
  call get_setup_parameters(id,fileprefix)
 
@@ -80,11 +88,6 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma, &
  call set_units(mass=solarm,dist=au,G=1.d0)
 
  maxvxyzu = size(vxyzu(:,1))
-
- ! parameters
- time = 0.
- hfact = hfact_default
- gamma = 1.
 
  ! setup particles
  npart = 0

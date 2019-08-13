@@ -52,6 +52,9 @@
 % overwriting existing commands. Example:
 %\newcommand{\pcm}{\,cm$^{-2}$} % per cm-squared
 
+% Use bold font for vectors
+\let\vec\mathbf
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%% TITLE PAGE %%%%%%%%%%%%%%%%%%%
@@ -103,6 +106,19 @@ keyword1 -- keyword2 -- keyword3
 \section{Introduction}
 
 \section{Methods}
+
+The equations of conservation of momentum for a multiple species dust and gas
+mixture are given by
+%
+\begin{align}
+   \rho_g \frac{d \vec{v}_g}{dt} &= - \nabla P + \sum_i K_i \left(\vec{v}_{d_i}
+                                    - \vec{v}_{g}\right), \\
+   \rho_{d_i} \frac{d \vec{v}_{d_i}}{dt} &= - K_i \left(\vec{v}_{d_i}
+                                                       - \vec{v}_{g}\right),
+\end{align}
+%
+where \ldots
+
 
 \section{Numerical tests}
 

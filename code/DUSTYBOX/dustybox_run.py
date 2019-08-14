@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-'''
-Script to run DUSTYBOX Phantom tests.
+"""
+DUSTYBOX run: run Phantom simulations.
 
 Daniel Mentiplay, 2019.
-'''
+"""
 
 import pathlib
 import subprocess

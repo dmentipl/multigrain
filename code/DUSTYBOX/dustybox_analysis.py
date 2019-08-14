@@ -1,26 +1,34 @@
 """
-DUSTYBOX test: compare simulations with analytic solutions.
+DUSTYBOX analysis: compare simulations with analytic solutions.
 
 Solutions from Laibe and Price (2011) MNRAS 418, 1491.
 
 Daniel Mentiplay, 2019.
 """
 
+import pathlib
+
 import matplotlib.pyplot as plt
 import numpy as np
 import plonk
 
+# ------------------------------------------------------------------------------------ #
+# Set parameters
+K = 1.0
+SUBDIRECTORY = 'some_sub_directory'
+# ------------------------------------------------------------------------------------ #
+
+run_directory = pathlib.Path('~/runs/multigrain/dustybox').expanduser() / SUBDIRECTORY
+
 I_GAS = 1
 I_DUST = 7
-
-K = 1.0
 
 
 def delta_vx_exact(t, K, rho_g, rho_d, delta_vx_init):
     return delta_vx_init * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
 
 
-def get_velocities(sim):
+def get_velocities():
 
     print('Getting velocity from dumps...')
 
@@ -61,7 +69,7 @@ def make_plot(time, vx_gas, vx_dust):
 
     fig, ax = plt.subplots()
 
-    dump_init = plonk.Simulation(prefix='dustybox').dumps[0]
+    dump_init = sim.dumps[0]
     ndustlarge = dump_init.header['ndustlarge']
 
     rho_g = dump_init.density[dump_init.particles.arrays['itype'][:] == I_GAS].mean()
@@ -106,8 +114,8 @@ def make_plot(time, vx_gas, vx_dust):
 if __name__ == '__main__':
 
     print('Loading simulation data with Plonk...')
-    sim = plonk.Simulation(prefix='dustybox')
+    sim = plonk.Simulation(prefix='dustybox', directory=run_directory)
 
-    time, vx_gas, vx_dust = get_velocities(sim)
+    time, vx_gas, vx_dust = get_velocities()
 
     make_plot(time, vx_gas, vx_dust)

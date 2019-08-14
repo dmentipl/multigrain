@@ -1,5 +1,9 @@
 """
-Plot v_x on dust for DUSTYBOX test.
+DUSTYBOX test: compare simulations with analytic solutions.
+
+Solutions from Laibe and Price (2011) MNRAS 418, 1491.
+
+Daniel Mentiplay, 2019.
 """
 
 import matplotlib.pyplot as plt
@@ -9,61 +13,101 @@ import plonk
 I_GAS = 1
 I_DUST = 7
 
-
-def v_x(t, K, rho_g, rho_d, delta_vx_0):
-    return delta_vx_0 * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
+K = 1.0
 
 
-def get_data():
+def delta_vx_exact(t, K, rho_g, rho_d, delta_vx_init):
+    return delta_vx_init * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
 
-    print('Loading simulation data...')
-    sim = plonk.Simulation(prefix='dustybox')
 
-    number_of_times = len(sim.dumps)
-    number_of_dust_particles = (
-        sim.dumps[0].particles.arrays['itype'][:] >= I_DUST
-    ).sum()
-
-    time = np.zeros((number_of_times))
-    vx_dust = np.zeros((number_of_times, number_of_dust_particles))
+def get_velocities(sim):
 
     print('Getting velocity from dumps...')
+
+    ndumps = len(sim.dumps)
+    ndustlarge = sim.dumps[0].header['ndustlarge']
+    npartoftype_gas = sim.dumps[0].header['npartoftype'][I_GAS - 1]
+    npartoftype_dust = sim.dumps[0].header['npartoftype'][
+        I_DUST - 1 : I_DUST + ndustlarge - 1
+    ]
+
+    time = np.zeros((ndumps))
+    vx_gas = np.zeros((ndumps, npartoftype_gas))
+    vx_dust = np.zeros((ndumps, ndustlarge, np.max(npartoftype_dust)))
+
     for index, dump in enumerate(sim.dumps):
 
         print(f'Time: {dump.header["time"]}')
         time[index] = dump.header['time']
 
-        vx_dust[index, :] = dump.particles.arrays['vxyz'][:, 0][
-            dump.particles.arrays['itype'][:] >= I_DUST
+        vx_gas[index, :] = dump.particles.arrays['vxyz'][:, 0][
+            dump.particles.arrays['itype'][:] == I_GAS
         ]
 
-    return time, vx_dust
+        for idust in range(ndustlarge):
+            vx_dust[index, idust, :] = dump.particles.arrays['vxyz'][:, 0][
+                dump.particles.arrays['itype'][:] == I_DUST + idust
+            ]
+
+    return time, vx_gas, vx_dust
 
 
-def make_plot(time, vx_dust):
+def make_plot(time, vx_gas, vx_dust):
+
+    prop_cycle = plt.rcParams['axes.prop_cycle']
+    colors = prop_cycle.by_key()['color']
 
     print('Making plot...')
 
     fig, ax = plt.subplots()
 
-    ax.errorbar(
-        time,
-        vx_dust.mean(axis=1),
-        yerr=vx_dust.var(axis=1),
-        fmt='.',
-        color='black',
-        ecolor='lightgray',
-    )
+    dump_init = plonk.Simulation(prefix='dustybox').dumps[0]
+    ndustlarge = dump_init.header['ndustlarge']
 
-    ax.plot(time, v_x(time, K=1.0, rho_g=1.0, rho_d=0.01, delta_vx_0=1.0))
+    rho_g = dump_init.density[dump_init.particles.arrays['itype'][:] == I_GAS].mean()
 
-    ax.set_xlabel('time')
-    ax.set_ylabel('dust x-velocity')
+    v_gas_init = dump_init.particles.arrays['vxyz'][:, 0][
+        dump_init.particles.arrays['itype'][:] == I_GAS
+    ].mean()
+
+    for idust, color in zip(range(ndustlarge), colors):
+
+        rho_d = dump_init.density[
+            dump_init.particles.arrays['itype'][:] == I_DUST + idust
+        ].mean()
+
+        v_dust_init = dump_init.particles.arrays['vxyz'][:, 0][
+            dump_init.particles.arrays['itype'][:] == I_DUST + idust
+        ].mean()
+
+        delta_vx_init = v_gas_init - v_dust_init
+
+        exact_solution = -delta_vx_exact(
+            time, K=K, rho_g=rho_g, rho_d=rho_d, delta_vx_init=delta_vx_init
+        )
+
+        delta_vx = -(vx_gas.mean(axis=1) - vx_dust[:, idust, :].mean(axis=1))
+        delta_vx_err = -(vx_gas.var(axis=1) - vx_dust[:, idust, :].var(axis=1))
+
+        ax.errorbar(
+            time, delta_vx, yerr=delta_vx_err, fmt='.', color=color, fillstyle='none'
+        )
+
+        ax.plot(time, exact_solution, color=color, label=f'dust species: {idust}')
+
+    ax.set_xlabel(r'$t$')
+    ax.set_ylabel(r'$-\Delta v_x$')
+    ax.set_title(f'DUSTYBOX: K={K} drag')
+    ax.legend()
 
     plt.show()
 
 
 if __name__ == '__main__':
 
-    time, vx_dust = get_data()
-    make_plot(time, vx_dust)
+    print('Loading simulation data with Plonk...')
+    sim = plonk.Simulation(prefix='dustybox')
+
+    time, vx_gas, vx_dust = get_velocities(sim)
+
+    make_plot(time, vx_gas, vx_dust)

@@ -15,9 +15,26 @@ NDUST = 'ndustlarge=2'
 EPS = ['eps1=0.01', 'eps2=0.02']
 # ------------------------------------------------------------------------------------ #
 
-# Phantom version
+# Check Phantom version
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 PHANTOM_GIT_SHA = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
+phantom_git_sha = (
+    subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PHANTOM_DIR)
+    .strip()
+    .decode()
+)
+if phantom_git_sha != PHANTOM_GIT_SHA:
+    subprocess.check_output(['git', 'checkout', '6666c55f'], cwd=PHANTOM_DIR)
+
+# Apply patch
+git_patch_output = subprocess.check_output(
+    [
+        'git',
+        'apply',
+        pathlib.Path('~/repos/multigrain/code/DUSTYBOX/dustybox.patch').expanduser(),
+    ],
+    cwd=PHANTOM_DIR,
+)
 
 # HDF5 library location
 if sys.platform == 'darwin':
@@ -37,16 +54,6 @@ run_directory = pathlib.Path('~/runs/multigrain/dustybox/').expanduser() / (
 run_directory.mkdir()
 
 # Build Phantom
-phantom_git_sha = (
-    subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PHANTOM_DIR)
-    .strip()
-    .decode()
-)
-if phantom_git_sha != PHANTOM_GIT_SHA:
-    print(f'Current Phantom git SHA is {phantom_git_sha}')
-    print(f'Expected Phantom git SHA is {PHANTOM_GIT_SHA}')
-    raise ValueError('Phantom version does not match expected version')
-
 with open(run_directory / 'Makefile', 'w') as fp:
     subprocess.run(
         [pathlib.Path('~/repos/phantom/scripts/writemake.sh').expanduser(), 'dustybox'],

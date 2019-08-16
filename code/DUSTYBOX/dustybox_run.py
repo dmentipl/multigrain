@@ -183,11 +183,6 @@ with open(run_directory / 'dustybox00.log', 'w') as fp:
         stderr=fp,
     )
 
-# ------------------------------------------------------------------------------------ #
-# Run calculation
-
-print('>>> Running calculation <<<')
-
 if IDRAG == 1:
     in_file = 'dustybox-Epstein-Stokes.in'
 elif IDRAG == 2:
@@ -195,7 +190,14 @@ elif IDRAG == 2:
 else:
     raise ValueError('Cannot determine drag type')
 
-subprocess.run(['cp', CODE_DIR / in_file, run_directory / 'dustybox.in'])
+config_dictionary = pc.read_config(in_file).to_ordered_dict()
+config_dictionary['K_code'][0] = K
+pc.read_dict(config_dictionary).write_phantom(run_directory / 'dustybox.in')
+
+# ------------------------------------------------------------------------------------ #
+# Run calculation
+
+print('>>> Running calculation <<<')
 
 with open(run_directory / 'dustybox01.log', 'w') as fp:
     subprocess.run(

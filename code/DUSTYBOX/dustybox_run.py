@@ -45,43 +45,51 @@ REQUIRED_PHANTOM_GIT_SHA = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 # ------------------------------------------------------------------------------------ #
 # Check Phantom version
 
+print('>>> Checking Phantom version <<<')
+
 phantom_git_sha = (
     subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PHANTOM_DIR)
     .strip()
     .decode()
 )
 if phantom_git_sha != REQUIRED_PHANTOM_GIT_SHA:
+    print(f'Checking out Phantom version: {REQUIRED_PHANTOM_GIT_SHA}')
     subprocess.check_output(['git', 'checkout', '6666c55f'], cwd=PHANTOM_DIR)
+else:
+    print('Required version of Phantom already checked out')
 
 # Apply patch
-modified = (
+git_status = (
     subprocess.check_output(
-        ['git', 'status', '--porcelain', 'setup_dustybox.f90'], cwd=PHANTOM_DIR
+        ['git', 'status', '--porcelain', '--', 'setup_dustybox.f90'],
+        cwd=PHANTOM_DIR / 'src/setup',
     )
     .strip()
     .decode()
 )
-if modified != '':
+if git_status == '':
+    print('Applying patch to Phantom')
     git_patch_output = subprocess.check_output(
         ['git', 'apply', CODE_DIR / 'dustybox.patch'], cwd=PHANTOM_DIR
     )
 else:
-    diff = (
+    try:
         subprocess.check_output(
             [
                 'diff',
+                '-I',
+                '!  $Id: ',
                 CODE_DIR / 'setup_dustybox.f90',
                 PHANTOM_DIR / 'src/setup/setup_dustybox.f90',
             ]
         )
-        .strip()
-        .decode()
-    )
-    if diff != '':
+    except subprocess.CalledProcessError:
         raise PatchError('Cannot apply patch')
 
 # ------------------------------------------------------------------------------------ #
 # Build Phantom
+
+print('>>> Building Phantom <<<')
 
 '_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
 if IDRAG == 1:
@@ -125,6 +133,8 @@ with open(run_directory / 'build-output.log', 'w') as fp:
 
 # ------------------------------------------------------------------------------------ #
 # Set up calculation
+
+print('>>> Setting up calculation <<<')
 
 params = {
     'cs': [CS, 'sound speed (sets polyk)', 'gas properties'],
@@ -175,6 +185,8 @@ with open(run_directory / 'dustybox00.log', 'w') as fp:
 
 # ------------------------------------------------------------------------------------ #
 # Run calculation
+
+print('>>> Running calculation <<<')
 
 if IDRAG == 1:
     in_file = 'dustybox-Epstein-Stokes.in'

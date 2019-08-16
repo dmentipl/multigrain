@@ -8,25 +8,32 @@ import pathlib
 import subprocess
 import sys
 
+import phantom_config as pc
+
 
 class PatchError(Exception):
+    """Error patching Phantom."""
+
     pass
 
 
 # ------------------------------------------------------------------------------------ #
 # DUSTYBOX parameters
-DRAG = 'Kdrag=1.0'
-EPS = ['eps1=0.01', 'eps2=0.02', 'eps2=0.03', 'eps2=0.04', 'eps2=0.05']
-NDUST = f'ndustlarge={len(EPS)}'
 
-# DUSTYBOX setup and in files
-SETUP_FILE = 'dustybox-Kdrag-N=5.setup'
-IN_FILE = 'dustybox-Kdrag.in'
+# Drag type: options (1) Epstein/Stokes (not implemented yet), and (2) K drag
+IDRAG = 2
 
-# Particular run sub-directory
-RUN_SUBDIR = DRAG + '_' + NDUST + '_' + '_'.join(EPS)
+# Gas properties
+CS = 1.0
+NPARTX_GAS = 32
+RHOZERO_GAS = 1.0
+ILATTICE = 2
 
-# ------------------------------------------------------------------------------------ #
+# Dust properties
+K = 1.0
+NPARTX_DUST = 32
+EPS_DUST = [0.01, 0.02, 0.03, 0.04, 0.05]
+
 # Directories
 RUN_DIR = pathlib.Path('~/runs/multigrain/dustybox').expanduser()
 CODE_DIR = pathlib.Path('~/repos/multigrain/code/DUSTYBOX').expanduser()
@@ -34,9 +41,10 @@ PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 
 # Phantom version
 REQUIRED_PHANTOM_GIT_SHA = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-# ------------------------------------------------------------------------------------ #
 
+# ------------------------------------------------------------------------------------ #
 # Check Phantom version
+
 phantom_git_sha = (
     subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PHANTOM_DIR)
     .strip()
@@ -72,7 +80,22 @@ else:
     if diff != '':
         raise PatchError('Cannot apply patch')
 
-# HDF5 library location
+# ------------------------------------------------------------------------------------ #
+# Build Phantom
+
+'_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
+if IDRAG == 1:
+    # TODO: implement Epstein drag in setup_dustybox.f90
+    run_subdir = '????'
+    raise NotImplementedError('Have not implemented Epstein/Stokes drag yet')
+elif IDRAG == 2:
+    run_subdir = f'K={K}_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
+else:
+    raise ValueError('Cannot determine drag type')
+
+run_directory = RUN_DIR / run_subdir
+run_directory.mkdir()
+
 if sys.platform == 'darwin':
     HDF5ROOT = '/usr/local/opt/hdf5'
 elif sys.platform == 'linux':
@@ -80,11 +103,6 @@ elif sys.platform == 'linux':
 if not pathlib.Path(HDF5ROOT).exists():
     raise FileNotFoundError('Cannot determine HDF5 library location')
 
-# Run directory
-run_directory = RUN_DIR / RUN_SUBDIR
-run_directory.mkdir()
-
-# Build Phantom
 with open(run_directory / 'Makefile', 'w') as fp:
     subprocess.run(
         [PHANTOM_DIR / 'scripts/writemake.sh', 'dustybox'], stdout=fp, stderr=fp
@@ -105,8 +123,48 @@ with open(run_directory / 'build-output.log', 'w') as fp:
         stderr=fp,
     )
 
+# ------------------------------------------------------------------------------------ #
 # Set up calculation
-subprocess.run(['cp', CODE_DIR / SETUP_FILE, run_directory])
+
+params = {
+    'cs': [CS, 'sound speed (sets polyk)', 'gas properties'],
+    'npartx_gas': [NPARTX_GAS, 'number of particles in x direction', 'gas properties'],
+    'rhozero_gas': [RHOZERO_GAS, 'initial density', 'gas properties'],
+    'ilattice_gas': [
+        ILATTICE,
+        'lattice type (1=cubic, 2=closepacked)',
+        'gas properties',
+    ],
+}
+
+rhozero_dust = [RHOZERO_GAS * eps for eps in EPS_DUST]
+ndustlarge = len(rhozero_dust)
+
+params.update({'ndustlarge': [ndustlarge, 'number of dust species', 'dust properties']})
+
+for idust in range(ndustlarge):
+    block = f'dust: {idust+1:2}'
+    dust_dict = {
+        f'npartx_dust{idust+1}': [
+            NPARTX_DUST,
+            'number of particles in x direction',
+            block,
+        ],
+        f'rhozero_dust{idust+1}': [rhozero_dust[idust], 'initial density', block],
+        f'ilattice_dust{idust+1}': [
+            ILATTICE,
+            'lattice type (1=cubic, 2=closepacked)',
+            block,
+        ],
+    }
+    params.update(dust_dict)
+
+cf = pc.read_dict(params)
+cf.header = ['input file for dustybox setup routine']
+cf.write_phantom('dustybox.setup')
+
+subprocess.run(['mv', 'dustybox.setup', run_directory])
+
 with open(run_directory / 'dustybox00.log', 'w') as fp:
     subprocess.run(
         [run_directory / 'phantomsetup', 'dustybox'],
@@ -115,8 +173,18 @@ with open(run_directory / 'dustybox00.log', 'w') as fp:
         stderr=fp,
     )
 
+# ------------------------------------------------------------------------------------ #
 # Run calculation
-subprocess.run(['cp', CODE_DIR / IN_FILE, run_directory])
+
+if IDRAG == 1:
+    in_file = 'dustybox-Epstein-Stokes.in'
+elif IDRAG == 2:
+    in_file = 'dustybox-Kdrag.in'
+else:
+    raise ValueError('Cannot determine drag type')
+
+subprocess.run(['cp', CODE_DIR / in_file, run_directory / 'dustybox.in'])
+
 with open(run_directory / 'dustybox01.log', 'w') as fp:
     subprocess.run(
         [run_directory / 'phantom', 'dustybox.in'],

@@ -91,7 +91,6 @@ else:
 
 print('>>> Building Phantom <<<')
 
-'_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
 if IDRAG == 1:
     # TODO: implement Epstein drag in setup_dustybox.f90
     run_subdir = '????'

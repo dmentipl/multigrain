@@ -12,8 +12,10 @@ import phantom_config as pc
 
 
 class PatchError(Exception):
-    """Error patching Phantom."""
+    pass
 
+
+class CompileError(Exception):
     pass
 
 
@@ -88,7 +90,7 @@ def check_phantom_version():
                 ]
             )
         except subprocess.CalledProcessError:
-            raise PatchError('Cannot apply patch')
+            raise PatchError('Cannot apply patch to Phantom')
 
 
 # ------------------------------------------------------------------------------------ #
@@ -106,14 +108,11 @@ def build_phantom():
     if not pathlib.Path(HDF5ROOT).exists():
         raise FileNotFoundError('Cannot determine HDF5 library location')
 
-    with open(RUN_DIRECTORY / 'Makefile', 'w') as fp:
-        subprocess.run(
-            [PHANTOM_DIR / 'scripts/writemake.sh', 'dustybox'], stdout=fp, stderr=fp
-        )
     with open(RUN_DIRECTORY / 'build-output.log', 'w') as fp:
-        subprocess.run(
+        result = subprocess.run(
             [
                 'make',
+                'SETUP=dustybox',
                 'SYSTEM=gfortran',
                 'HDF5=yes',
                 'HDF5ROOT=' + HDF5ROOT,
@@ -121,10 +120,16 @@ def build_phantom():
                 'phantom',
                 'setup',
             ],
-            cwd=RUN_DIRECTORY,
+            cwd=PHANTOM_DIR,
             stdout=fp,
             stderr=fp,
         )
+    if result.returncode != 0:
+        raise CompileError('Phantom failed compiling')
+
+    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom', RUN_DIRECTORY])
+    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantomsetup', RUN_DIRECTORY])
+    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom_version', RUN_DIRECTORY])
 
 
 # ------------------------------------------------------------------------------------ #

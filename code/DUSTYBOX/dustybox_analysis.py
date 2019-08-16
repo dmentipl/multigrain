@@ -6,19 +6,13 @@ Solutions from Laibe and Price (2011) MNRAS 418, 1491.
 Daniel Mentiplay, 2019.
 """
 
+import argparse
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
+import phantom_config as pc
 import plonk
-
-# ------------------------------------------------------------------------------------ #
-# Set parameters
-K = 1.0
-SUBDIRECTORY = 'some_sub_directory'
-# ------------------------------------------------------------------------------------ #
-
-run_directory = pathlib.Path('~/runs/multigrain/dustybox').expanduser() / SUBDIRECTORY
 
 I_GAS = 1
 I_DUST = 7
@@ -112,6 +106,22 @@ def make_plot(time, vx_gas, vx_dust):
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-d',
+        '--directory',
+        type=pathlib.Path,
+        help='Path to the data directory',
+        required=True,
+    )
+
+    p = parser.parse_args()
+    run_directory = p.directory
+
+    print(f'Reading data from {run_directory}')
+
+    K = pc.read_config(run_directory / 'dustybox.in').to_ordered_dict()['K_code'][0]
 
     print('Loading simulation data with Plonk...')
     sim = plonk.Simulation(prefix='dustybox', directory=run_directory)

@@ -89,7 +89,7 @@ if IDRAG == 1:
     run_subdir = '????'
     raise NotImplementedError('Have not implemented Epstein/Stokes drag yet')
 elif IDRAG == 2:
-    run_subdir = f'K={K}_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
+    run_subdir = f'K={K}_' + '_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
 else:
     raise ValueError('Cannot determine drag type')
 

@@ -1,1 +1,13 @@
 multigrain-paper.pdf
+
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.synctex*
+*.toc

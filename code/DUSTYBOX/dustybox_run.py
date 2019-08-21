@@ -1,5 +1,5 @@
 """
-DUSTYBOX run: run Phantom simulations.
+Write Phantom setup and in files for DUSTYBOX.
 
 Daniel Mentiplay, 2019.
 """
@@ -20,10 +20,15 @@ class CompileError(Exception):
 
 
 # ------------------------------------------------------------------------------------ #
-# DUSTYBOX parameters
 
-# Drag type: options (1) Epstein/Stokes (not implemented yet), and (2) K drag
-IDRAG = 2
+# Runs: there is one Phantom calculation per item in K_DRAG_LIST
+K_DRAG_LIST = [0.1, 1.0, 10.0]
+
+# Number of grains: there is one per item in EPS_FOR_K_IS_UNITY
+# This variable specifies the dust-to-gas ratio for K=1.0.
+EPS_FOR_K_IS_UNITY = [0.01, 0.02, 0.03, 0.04, 0.05]
+
+# ------------------------------------------------------------------------------------ #
 
 # Gas properties
 CS = 1.0
@@ -32,18 +37,15 @@ RHOZERO_GAS = 1.0
 ILATTICE = 2
 
 # Dust properties
-K = 1.0
 NPARTX_DUST = 32
-EPS_DUST = [0.01, 0.02, 0.03, 0.04, 0.05]
 
 # Directories
 RUN_ROOT_DIR = pathlib.Path('~/runs/multigrain/dustybox').expanduser()
-CODE_DIR = pathlib.Path('~/repos/multigrain/code/DUSTYBOX').expanduser()
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
+CODE_DIR = pathlib.Path('~/repos/multigrain/code/DUSTYBOX').expanduser()
 
 # Phantom version
 REQUIRED_PHANTOM_GIT_SHA = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-
 
 # ------------------------------------------------------------------------------------ #
 # Check Phantom version
@@ -91,6 +93,7 @@ def check_phantom_version():
             )
         except subprocess.CalledProcessError:
             raise PatchError('Cannot apply patch to Phantom')
+        print('Already patched')
 
 
 # ------------------------------------------------------------------------------------ #
@@ -108,7 +111,7 @@ def build_phantom():
     if not pathlib.Path(HDF5ROOT).exists():
         raise FileNotFoundError('Cannot determine HDF5 library location')
 
-    with open(RUN_DIRECTORY / 'build-output.log', 'w') as fp:
+    with open(PHANTOM_DIR / 'build' / 'build-output.log', 'w') as fp:
         result = subprocess.run(
             [
                 'make',
@@ -126,19 +129,47 @@ def build_phantom():
         )
     if result.returncode != 0:
         raise CompileError('Phantom failed compiling')
-
-    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom', RUN_DIRECTORY])
-    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantomsetup', RUN_DIRECTORY])
-    subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom_version', RUN_DIRECTORY])
+    print(f'Successfully built; see {PHANTOM_DIR / "build"} for make output')
 
 
 # ------------------------------------------------------------------------------------ #
-# Set up calculation
+# Set up calculations
 
 
-def setup_calculation():
+def setup_calculations(run_root_directory: pathlib.Path):
 
-    print('>>> Setting up calculation <<<')
+    print('>>> Setting up calculations <<<')
+
+    for K_drag in K_DRAG_LIST:
+
+        run_label = f'K={K_drag}'
+
+        print(f'Setting up {run_label}...')
+
+        run_directory = run_root_directory / run_label
+        run_directory.mkdir()
+
+        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom', run_directory])
+        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantomsetup', run_directory])
+        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom_version', run_directory])
+
+        setup_file = f'dustybox-{run_label}.setup'
+        dust_to_gas_ratio = [eps / K_drag for eps in EPS_FOR_K_IS_UNITY]
+        write_setup_file(K_drag, dust_to_gas_ratio, setup_file, run_directory)
+
+        with open(run_directory / 'dustybox00.log', 'w') as fp:
+            subprocess.run(
+                [run_directory / 'phantomsetup', setup_file],
+                cwd=run_directory,
+                stdout=fp,
+                stderr=fp,
+            )
+
+        in_file = f'dustybox-{run_label}.in'
+        write_in_file(K_drag, in_file, run_directory)
+
+
+def write_setup_file(K_drag: float, eps: list, filename: str, output_dir: pathlib.Path):
 
     params = {
         'cs': [CS, 'sound speed (sets polyk)', 'gas properties'],
@@ -155,7 +186,7 @@ def setup_calculation():
         ],
     }
 
-    rhozero_dust = [RHOZERO_GAS * eps for eps in EPS_DUST]
+    rhozero_dust = [RHOZERO_GAS * _ for _ in eps]
     ndustlarge = len(rhozero_dust)
 
     params.update(
@@ -181,66 +212,63 @@ def setup_calculation():
 
     cf = pc.read_dict(params)
     cf.header = ['input file for dustybox setup routine']
-    cf.write_phantom('dustybox.setup')
 
-    subprocess.run(['mv', 'dustybox.setup', RUN_DIRECTORY])
+    if not output_dir.exists():
+        raise FileExistsError(f'{output_dir} does not exist')
 
-    with open(RUN_DIRECTORY / 'dustybox00.log', 'w') as fp:
-        subprocess.run(
-            [RUN_DIRECTORY / 'phantomsetup', 'dustybox'],
-            cwd=RUN_DIRECTORY,
-            stdout=fp,
-            stderr=fp,
-        )
-
-    if IDRAG == 1:
-        in_file = 'dustybox-Epstein-Stokes.in'
-    elif IDRAG == 2:
-        in_file = 'dustybox-Kdrag.in'
-    else:
-        raise ValueError('Cannot determine drag type')
-
-    config_dictionary = pc.read_config(in_file).to_ordered_dict()
-    config_dictionary['K_code'][0] = K
-    pc.read_dict(config_dictionary).write_phantom(RUN_DIRECTORY / 'dustybox.in')
+    cf.write_phantom(output_dir / filename)
 
 
-# ------------------------------------------------------------------------------------ #
-# Run calculation
+def write_in_file(K_drag: float, filename: str, output_dir: pathlib.Path):
 
+    run_label = f'K={K_drag}'
 
-def run_calculation():
+    template_dir = pathlib.Path(__file__).resolve().parent / 'templates'
 
-    print('>>> Running calculation <<<')
+    config_dictionary = pc.read_config(
+        template_dir / 'dustybox-Kdrag.in-template'
+    ).to_ordered_dict()
 
-    with open(RUN_DIRECTORY / 'dustybox01.log', 'w') as fp:
-        subprocess.run(
-            [RUN_DIRECTORY / 'phantom', 'dustybox.in'],
-            cwd=RUN_DIRECTORY,
-            stdout=fp,
-            stderr=fp,
-        )
+    config_dictionary['K_code'][0] = K_drag
+    config_dictionary['dumpfile'][0] = f'dustybox-{run_label}_00000.tmp'
+
+    if not output_dir.exists():
+        raise FileExistsError(f'{output_dir} does not exist')
+
+    pc.read_dict(config_dictionary).write_phantom(output_dir / filename)
 
 
 # ------------------------------------------------------------------------------------ #
-# Main program
+# Run calculations
 
+
+def run_calculations(run_root_directory: pathlib.Path):
+
+    print('>>> Running calculations <<<')
+
+    for K_drag in K_DRAG_LIST:
+
+        run_label = f'K={K_drag}'
+
+        print(f'Running {run_label}...')
+
+        run_directory = run_root_directory / run_label
+        in_file = f'dustybox-{run_label}.in'
+
+        with open(run_directory / 'dustybox01.log', 'w') as fp:
+            subprocess.run(
+                [run_directory / 'phantom', in_file],
+                cwd=run_directory,
+                stdout=fp,
+                stderr=fp,
+            )
+
+
+# ------------------------------------------------------------------------------------ #
 
 if __name__ == '__main__':
 
-    if IDRAG == 1:
-        # TODO: implement Epstein drag in setup_dustybox.f90
-        run_subdir = '????'
-        raise NotImplementedError('Have not implemented Epstein/Stokes drag yet')
-    elif IDRAG == 2:
-        run_subdir = f'K={K}_' + '_'.join([f'eps={eps:.3g}' for eps in EPS_DUST])
-    else:
-        raise ValueError('Cannot determine drag type')
-
-    RUN_DIRECTORY = RUN_ROOT_DIR / run_subdir
-    RUN_DIRECTORY.mkdir()
-
     check_phantom_version()
     build_phantom()
-    setup_calculation()
-    run_calculation()
+    setup_calculations(RUN_ROOT_DIR)
+    run_calculations(RUN_ROOT_DIR)

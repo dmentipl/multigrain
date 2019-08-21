@@ -15,20 +15,17 @@ Here is a brief description of the contents of the `DUSTYBOX` directory:
 - `setup_dustybox.f90` contains the setup routine for `phantomsetup`
 - `dustybox.patch` is a git patch containing the same information as
   `setup_dustybox.f90` in patch form
-- `dustybox-Epstein-Stokes.in` and `dustybox-Kdrag.in` are the Phantom in files
-  for Epstein/Stokes drag, and constant K drag
+- `templates` contains Phantom in file templates
 - `dustybox_analysis.py` and `dustybox_run.py` are Python scripts to run and
   analyse the DUSTYBOX test
 
-### Run the test
+### Run the tests
 
-To run a DUSTYBOX test, modify `dustybox_run.py` with the required parameters, then run with 
+To run the DUSTYBOX tests
 
 ```
-python dustybox_run.py
+make dustybox-run
 ```
-
-The script points to the run directory, so it *does not* have to be run from the actual Phantom run directory.
 
 ### Analyse results
 

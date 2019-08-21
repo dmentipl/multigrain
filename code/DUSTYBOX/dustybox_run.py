@@ -19,6 +19,14 @@ class CompileError(Exception):
     pass
 
 
+class SetupError(Exception):
+    pass
+
+
+class RunError(Exception):
+    pass
+
+
 # ------------------------------------------------------------------------------------ #
 
 # Runs: there is one Phantom calculation per item in K_DRAG_LIST
@@ -129,7 +137,11 @@ def build_phantom():
         )
     if result.returncode != 0:
         raise CompileError('Phantom failed compiling')
-    print(f'Successfully built; see {PHANTOM_DIR / "build"} for make output')
+
+    print(
+        f'Successfully built; see {PHANTOM_DIR / "build" / "build-output.log"}'
+        ' for make output'
+    )
 
 
 # ------------------------------------------------------------------------------------ #
@@ -147,7 +159,10 @@ def setup_calculations(run_root_directory: pathlib.Path):
         print(f'Setting up {run_label}...')
 
         run_directory = run_root_directory / run_label
-        run_directory.mkdir()
+        try:
+            run_directory.mkdir()
+        except FileExistsError:
+            raise SetupError('Run directory already exists.')
 
         subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom', run_directory])
         subprocess.run(['cp', PHANTOM_DIR / 'bin/phantomsetup', run_directory])

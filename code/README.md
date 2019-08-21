@@ -7,6 +7,12 @@ This folder contains code for the three main test problems:
 + [DUSTYWAVE](DUSTYWAVE)
 + [DUSTYSHOCK](DUSTYSHOCK)
 
+To run all the Phantom tests
+
+```
+make run-tests
+```
+
 DUSTYBOX
 --------
 

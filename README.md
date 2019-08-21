@@ -31,8 +31,12 @@ conda activate multigrain
 Results
 -------
 
-### Running the tests
+### Running the Phantom multigrain tests
 
-To run, for example, the DUSTYBOX test, there is a Python script, `dustybox_run.py` found in the `code/DUSTYBOX` directory. For analysis of the simulation there is a Python script `dustybox_analysis.py` in the same directory. 
+There are several tests (TODO: so far, only DUSTYBOX). To all the tests
 
-- TODO: write Makefile to automate some of this.
+```
+make run-tests
+```
+
+This will compile Phantom for each problem, create multiple directories with different parameters, setup the Phantom calculations, then run them.

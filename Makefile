@@ -8,4 +8,8 @@ help:
 
 .PHONY: manuscript
 manuscript: ## Build the PDF of the manuscript.
-	make -C manuscript
+	make -C manuscript manuscript
+
+.PHONY: run-tests
+run-tests: ## Run the Phantom tests
+	make -C code run-tests

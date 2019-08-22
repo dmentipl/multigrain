@@ -236,21 +236,19 @@ def write_setup_file(K_drag: float, eps: list, filename: str, output_dir: pathli
 
 def write_in_file(K_drag: float, filename: str, output_dir: pathlib.Path):
 
+    if not output_dir.exists():
+        raise FileExistsError(f'{output_dir} does not exist')
+
     run_label = f'K={K_drag}'
 
     template_dir = pathlib.Path(__file__).resolve().parent / 'templates'
 
-    config_dictionary = pc.read_config(
-        template_dir / 'dustybox-Kdrag.in-template'
-    ).to_ordered_dict()
+    in_file = pc.read_config(template_dir / 'dustybox-Kdrag.in-template')
 
-    config_dictionary['K_code'][0] = K_drag
-    config_dictionary['dumpfile'][0] = f'dustybox-{run_label}_00000.tmp'
+    in_file.change_value('K_code', K_drag)
+    in_file.change_value('dumpfile', f'dustybox-{run_label}_00000.tmp')
 
-    if not output_dir.exists():
-        raise FileExistsError(f'{output_dir} does not exist')
-
-    pc.read_dict(config_dictionary).write_phantom(output_dir / filename)
+    in_file.write_phantom(output_dir / filename)
 
 
 # ------------------------------------------------------------------------------------ #

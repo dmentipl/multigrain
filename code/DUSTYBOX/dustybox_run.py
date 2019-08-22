@@ -5,6 +5,7 @@ Daniel Mentiplay, 2019.
 """
 
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -164,9 +165,9 @@ def setup_calculations(run_root_directory: pathlib.Path):
         except FileExistsError:
             raise SetupError('Run directory already exists.')
 
-        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom', run_directory])
-        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantomsetup', run_directory])
-        subprocess.run(['cp', PHANTOM_DIR / 'bin/phantom_version', run_directory])
+        shutil.copy(PHANTOM_DIR / 'bin/phantom', run_directory)
+        shutil.copy(PHANTOM_DIR / 'bin/phantomsetup', run_directory)
+        shutil.copy(PHANTOM_DIR / 'bin/phantom_version', run_directory)
 
         setup_file = f'dustybox-{run_label}.setup'
         dust_to_gas_ratio = [eps / K_drag for eps in EPS_FOR_K_IS_UNITY]

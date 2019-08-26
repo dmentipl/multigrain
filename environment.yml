@@ -7,4 +7,7 @@ dependencies:
     - matplotlib
     - numpy
     - plonk
-    - phantom_config
+    - pip
+    - pip:
+      - phantombuild
+      - phantomconfig

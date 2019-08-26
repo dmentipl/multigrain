@@ -9,15 +9,8 @@ import shutil
 import subprocess
 import sys
 
+import phantombuild as pb
 import phantomconfig as pc
-
-
-class PatchError(Exception):
-    pass
-
-
-class CompileError(Exception):
-    pass
 
 
 class SetupError(Exception):
@@ -54,169 +47,10 @@ PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 CODE_DIR = pathlib.Path('~/repos/multigrain/code/DUSTYBOX').expanduser()
 
 # Phantom version
-REQUIRED_PHANTOM_GIT_SHA = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
+REQUIRED_PHANTOM_GIT_COMMIT_HASH = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 
 # Phantom patch
 PHANTOM_PATCH = CODE_DIR / 'dustybox.patch'
-
-# ------------------------------------------------------------------------------------ #
-# Get Phantom
-
-
-def get_phantom(phantom_dir: pathlib.Path):
-    """
-    Get Phantom repository.
-
-    Parameters
-    ----------
-    phantom_dir : pathlib.Path
-        The path to the Phantom repository.
-    """
-
-    print('>>> Getting Phantom <<<')
-
-    if not phantom_dir.exists():
-        print('Cloning fresh copy of Phantom')
-        subprocess.check_output(
-            ['git', 'clone', 'git@bitbucket.org:danielprice/phantom'],
-            cwd=phantom_dir.parent,
-        )
-    else:
-        if not (
-            subprocess.check_output(
-                ['git', 'config', '--local', '--get', 'remote.origin.url'],
-                cwd=phantom_dir,
-            )
-            .strip()
-            .decode()
-            == 'git@bitbucket.org:danielprice/phantom'
-        ):
-            raise ValueError('phantom_dir is not Phantom')
-        else:
-            print('Phantom already cloned')
-
-
-# ------------------------------------------------------------------------------------ #
-# Check Phantom version
-
-
-def check_phantom_version(
-    phantom_dir: pathlib.Path,
-    required_phantom_git_sha: str,
-    phantom_patch: pathlib.Path,
-):
-    """
-    Check Phantom version, and apply patches if required.
-
-    Parameters
-    ----------
-    phantom_dir : pathlib.Path
-        The path to the Phantom repository.
-
-    required_phantom_git_sha : str
-        The required Phantom git SHA.
-
-    phantom_patch : pathlib.Path
-        The path to the patch file, if required.
-    """
-
-    print('>>> Checking Phantom version <<<')
-
-    # Check git commit SHA
-    phantom_git_sha = (
-        subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=phantom_dir)
-        .strip()
-        .decode()
-    )
-    if phantom_git_sha != required_phantom_git_sha:
-        print(f'Checking out Phantom version: {required_phantom_git_sha}')
-        subprocess.check_output(
-            ['git', 'checkout', required_phantom_git_sha], cwd=phantom_dir
-        )
-    else:
-        print('Required version of Phantom already checked out')
-
-    # Check if clean
-    git_status = (
-        subprocess.check_output(['git', 'status', '--porcelain'], cwd=phantom_dir)
-        .strip()
-        .decode()
-    )
-    if not git_status == '':
-        if phantom_patch is None:
-            print('Cleaning repository')
-        else:
-            print('Cleaning repository to apply patches')
-        subprocess.run(['git', 'reset', 'HEAD'], cwd=phantom_dir)
-        subprocess.run(['git', 'clean', '--force'], cwd=phantom_dir)
-        subprocess.run(['git', 'restore', '--', '*'], cwd=phantom_dir)
-
-    # Apply patch
-    if phantom_patch is not None:
-        print('Applying patch to Phantom')
-        subprocess.check_output(['git', 'apply', phantom_patch], cwd=phantom_dir)
-
-
-# ------------------------------------------------------------------------------------ #
-# Build Phantom
-
-
-def build_phantom(
-    phantom_dir: pathlib.Path,
-    setup: str,
-    system: str,
-    hdf5_location: pathlib.Path,
-    extra_makefile_options: dict,
-):
-    """
-    Build Phantom.
-
-    Parameters
-    ----------
-    phantom_dir : pathlib.Path
-        The path to the Phantom repository.
-
-    setup : str
-        The Phantom setup, e.g. 'disc', 'dustybox', etc.
-
-    system : str
-        The compiler as specified in the Phantom makefile, e.g.
-        'gfortran' or 'ifort'.
-
-    hdf5_location : pathlib.Path
-        The path to the HDF5 installation.
-
-    extra_makefile_options : dict
-        Extra options to pass to make. This values in this dictionary
-        should be strings only.
-    """
-
-    print('>>> Building Phantom <<<')
-
-    if not hdf5_location.exists():
-        raise FileNotFoundError('Cannot determine HDF5 library location')
-
-    make_command = [
-        'make',
-        'SETUP=' + setup,
-        'SYSTEM=' + system,
-        'HDF5=yes',
-        'HDF5ROOT=' + str(hdf5_location),
-        'phantom',
-        'setup',
-    ]
-
-    if extra_makefile_options is not None:
-        make_command += [key + '=' + val for key, val in extra_makefile_options.items()]
-
-    with open(phantom_dir / 'build' / 'build-output.log', 'w') as fp:
-        result = subprocess.run(make_command, cwd=phantom_dir, stdout=fp, stderr=fp)
-
-    if result.returncode != 0:
-        raise CompileError('Phantom failed compiling')
-
-    print('Phantom successfully built. See "build-output.log" in Phantom build dir.')
-
 
 # ------------------------------------------------------------------------------------ #
 # Set up calculations
@@ -355,9 +189,11 @@ def run_calculations(run_root_directory: pathlib.Path):
 
 if __name__ == '__main__':
 
-    get_phantom(PHANTOM_DIR)
+    pb.get_phantom(PHANTOM_DIR)
 
-    check_phantom_version(PHANTOM_DIR, REQUIRED_PHANTOM_GIT_SHA, PHANTOM_PATCH)
+    pb.check_phantom_version(PHANTOM_DIR, REQUIRED_PHANTOM_GIT_COMMIT_HASH)
+
+    pb.patch_phantom(PHANTOM_DIR, PHANTOM_PATCH)
 
     if sys.platform == 'darwin':
         hdf5_location = pathlib.Path('/usr/local/opt/hdf5')
@@ -366,7 +202,7 @@ if __name__ == '__main__':
 
     extra_makefile_options = {'MAXP': '10000000'}
 
-    build_phantom(
+    pb.build_phantom(
         PHANTOM_DIR, 'dustybox', 'gfortran', hdf5_location, extra_makefile_options
     )
 

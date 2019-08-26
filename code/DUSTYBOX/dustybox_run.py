@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import sys
 
-import phantom_config as pc
+import phantomconfig as pc
 
 
 class PatchError(Exception):

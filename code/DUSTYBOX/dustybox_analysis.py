@@ -11,11 +11,15 @@ import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import phantom_config as pc
+import phantomconfig as pc
 import plonk
 
 I_GAS = 1
 I_DUST = 7
+
+
+class InFileError(Exception):
+    pass
 
 
 def delta_vx_exact(t, K, rho_g, rho_d, delta_vx_init):
@@ -119,12 +123,20 @@ if __name__ == '__main__':
     p = parser.parse_args()
     run_directory = p.directory
 
+    if len(list(run_directory.glob('dustybox*.in'))) > 1:
+        raise InFileError('Cannot determine .in file')
+    elif len(list(run_directory.glob('dustybox*.in'))) == 0:
+        raise InFileError('Cannot find .in file')
+    else:
+        in_file = list(run_directory.glob('dustybox*.in'))[0]
+        prefix = in_file.stem
+
     print(f'Reading data from {run_directory}')
 
-    K = pc.read_config(run_directory / 'dustybox.in').to_ordered_dict()['K_code'][0]
+    K = pc.read_config(in_file).config['K_code'].value
 
     print('Loading simulation data with Plonk...')
-    sim = plonk.Simulation(prefix='dustybox', directory=run_directory)
+    sim = plonk.Simulation(prefix=prefix, directory=run_directory)
 
     time, vx_gas, vx_dust = get_velocities()
 

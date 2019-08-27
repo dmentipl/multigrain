@@ -218,12 +218,17 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
     ax.set_title(f'DUSTYBOX: K={K} drag')
     ax.legend()
 
+    print(f'Writing figure to {filename.name}...')
     plt.savefig(filename)
 
 
 # ------------------------------------------------------------------------------------ #
 
 if __name__ == '__main__':
+
+    print(72 * '=')
+    print(f'>>>  Run directory -- {str(ROOT_RUN_DIR):45}  <<<')
+    print(72 * '=')
 
     for label in LABELS:
 

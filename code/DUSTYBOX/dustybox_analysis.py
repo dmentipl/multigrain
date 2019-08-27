@@ -6,13 +6,21 @@ Solutions from Laibe and Price (2011) MNRAS 418, 1491.
 Daniel Mentiplay, 2019.
 """
 
-import argparse
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig as pc
 import plonk
+
+# ------------------------------------------------------------------------------------ #
+# PARAMETERS
+
+FORCE_RECOMPUTE = False
+ROOT_RUN_DIR = pathlib.Path('~/runs/multigrain/dustybox').expanduser()
+LABELS = ['K=0.1', 'K=1.0', 'K=10.0']
+
+# ------------------------------------------------------------------------------------ #
 
 I_GAS = 1
 I_DUST = 7
@@ -26,118 +34,222 @@ def delta_vx_exact(t, K, rho_g, rho_d, delta_vx_init):
     return delta_vx_init * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
 
 
-def get_velocities():
+def read_dumps_and_compute(prefix, run_directory, save_dir=None):
+    """
+    Read dumps, extract data, and compute quantities.
 
-    print('Getting velocity from dumps...')
+    Parameters
+    ----------
+    prefix : str
+        The simulation prefix to pass to plonk.Simulation.
+    run_directory : pathlib.Path
+        The simulation directory to pass to plonk.Simulation.
+    save_dir : pathlib.Path
+        Directory to save output to.
 
-    ndumps = len(sim.dumps)
-    ndustlarge = sim.dumps[0].header['ndustlarge']
-    npartoftype_gas = sim.dumps[0].header['npartoftype'][I_GAS - 1]
-    npartoftype_dust = sim.dumps[0].header['npartoftype'][
-        I_DUST - 1 : I_DUST + ndustlarge - 1
-    ]
+    Returns
+    -------
+    time : np.ndarray
+        The simulation time of the dumps
+    rho_gas : float
+        The initial gas density.
+    rho_dust : np.ndarray
+        The initial dust densities.
+    delta_vx_mean : np.ndarray
+        The mean of the difference between the gas velocity and dust
+        velocities at each time.
+    delta_vx_var
+        The variance of the difference between the gas velocity and dust
+        velocities at each time.
+    """
 
-    time = np.zeros((ndumps))
-    vx_gas = np.zeros((ndumps, npartoftype_gas))
-    vx_dust = np.zeros((ndumps, ndustlarge, np.max(npartoftype_dust)))
+    # ------------------------------------------------------------------
+    # Open dumps
 
-    for index, dump in enumerate(sim.dumps):
+    print('Loading simulation data with Plonk...')
+    sim = plonk.Simulation(prefix=prefix, directory=run_directory)
 
-        print(f'Time: {dump.header["time"]}')
-        time[index] = dump.header['time']
+    ntimes = len(sim.dumps)
+    ndusttypes = sim.dumps[0].header['ndustlarge']
 
-        vx_gas[index, :] = dump.particles.arrays['vxyz'][:, 0][
-            dump.particles.arrays['itype'][:] == I_GAS
-        ]
+    itype = sim.dumps[0].particles.arrays['itype'][:]
 
-        for idust in range(ndustlarge):
-            vx_dust[index, idust, :] = dump.particles.arrays['vxyz'][:, 0][
-                dump.particles.arrays['itype'][:] == I_DUST + idust
-            ]
+    npartoftype = list(sim.dumps[0].header['npartoftype'])
+    itypes = [idx + 1 for idx, np in enumerate(npartoftype) if np > 0]
 
-    return time, vx_gas, vx_dust
+    # ------------------------------------------------------------------
+    # Calculate initial density
+
+    rho = sim.dumps[0].density
+
+    rho_gas = rho[itype == I_GAS].mean()
+    rho_dust = np.array(
+        [rho[itype == ipart].mean() for ipart in itypes if ipart >= I_DUST]
+    )
+
+    # ------------------------------------------------------------------
+    # Calculate mean and variance in delta x-velocity
+
+    time = np.zeros((ntimes))
+
+    delta_vx_mean = np.zeros((ntimes, ndusttypes))
+    delta_vx_var = np.zeros((ntimes, ndusttypes))
+
+    for idx, dump in enumerate(sim.dumps):
+
+        print(f'  time: {dump.header["time"]}')
+        time[idx] = dump.header['time']
+
+        vx = dump.particles.arrays['vxyz'][:, 0]
+        itype = dump.particles.arrays['itype'][:]
+
+        vx_mean = np.array([vx[itype == ipart].mean() for ipart in itypes])
+        vx_var = np.array([vx[itype == ipart].var() for ipart in itypes])
+
+        delta_vx_mean[idx, :] = vx_mean[1:] - vx_mean[0]
+        delta_vx_var[idx, :] = vx_var[1:] - vx_var[0]
+
+    # ------------------------------------------------------------------
+    # Save data as .csv files
+
+    if save_dir is not None:
+        if not save_dir.exists():
+            save_dir.mkdir()
+        np.savetxt(save_dir / 'time.csv', time, delimiter=',')
+        np.savetxt(save_dir / 'rho_gas.csv', np.array([rho_gas]), delimiter=',')
+        np.savetxt(save_dir / 'rho_dust.csv', rho_dust, delimiter=',')
+        np.savetxt(save_dir / 'delta_vx_mean.csv', delta_vx_mean, delimiter=',')
+        np.savetxt(save_dir / 'delta_vx_var.csv', delta_vx_var, delimiter=',')
+
+    return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
 
 
-def make_plot(time, vx_gas, vx_dust):
+def read_processed_data(data_dir):
+    """
+    Parameters
+    ----------
+    data_dir : pathlib.Path
+        Directory containing the processed data.
+
+    Returns
+    -------
+    time : np.ndarray
+        The simulation time of the dumps
+    rho_gas : float
+        The initial gas density.
+    rho_dust : np.ndarray
+        The initial dust densities.
+    delta_vx_mean : np.ndarray
+        The mean of the difference between the gas velocity and dust
+        velocities at each time.
+    delta_vx_var
+        The variance of the difference between the gas velocity and dust
+        velocities at each time.
+    """
+
+    if not data_dir.exists():
+        raise FileExistsError('Cannot find data_dir')
+
+    print('Reading processed data...')
+
+    time = np.loadtxt(data_dir / 'time.csv', delimiter=',')
+    rho_gas = np.loadtxt(data_dir / 'rho_gas.csv', delimiter=',')
+    rho_dust = np.loadtxt(data_dir / 'rho_dust.csv', delimiter=',')
+    delta_vx_mean = np.loadtxt(data_dir / 'delta_vx_mean.csv', delimiter=',')
+    delta_vx_var = np.loadtxt(data_dir / 'delta_vx_var.csv', delimiter=',')
+
+    return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
+
+
+def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var):
+    """
+    Parameters
+    ----------
+    filename : pathlib.Path
+        The file name to save the figure to.
+    K : float
+        The dust drag constant.
+    time : np.ndarray
+        The simulation time of the dumps
+    rho_gas : float
+        The initial gas density.
+    rho_dust : np.ndarray
+        The initial dust densities.
+    delta_vx_mean : np.ndarray
+        The mean of the difference between the gas velocity and dust
+        velocities at each time.
+    delta_vx_var
+        The variance of the difference between the gas velocity and dust
+        velocities at each time.
+    """
+
+    print('Making plot...')
 
     prop_cycle = plt.rcParams['axes.prop_cycle']
     colors = prop_cycle.by_key()['color']
 
-    print('Making plot...')
-
     fig, ax = plt.subplots()
 
-    dump_init = sim.dumps[0]
-    ndustlarge = dump_init.header['ndustlarge']
+    ndusttypes = delta_vx_mean.shape[1]
 
-    rho_g = dump_init.density[dump_init.particles.arrays['itype'][:] == I_GAS].mean()
+    for idx, color in zip(range(ndusttypes), colors):
 
-    v_gas_init = dump_init.particles.arrays['vxyz'][:, 0][
-        dump_init.particles.arrays['itype'][:] == I_GAS
-    ].mean()
-
-    for idust, color in zip(range(ndustlarge), colors):
-
-        rho_d = dump_init.density[
-            dump_init.particles.arrays['itype'][:] == I_DUST + idust
-        ].mean()
-
-        v_dust_init = dump_init.particles.arrays['vxyz'][:, 0][
-            dump_init.particles.arrays['itype'][:] == I_DUST + idust
-        ].mean()
-
-        delta_vx_init = v_gas_init - v_dust_init
-
-        exact_solution = -delta_vx_exact(
-            time, K=K, rho_g=rho_g, rho_d=rho_d, delta_vx_init=delta_vx_init
+        exact_solution = delta_vx_exact(
+            np.array(time),
+            K=K,
+            rho_g=rho_gas,
+            rho_d=rho_dust[idx],
+            delta_vx_init=delta_vx_mean[:, idx],
         )
-
-        delta_vx = -(vx_gas.mean(axis=1) - vx_dust[:, idust, :].mean(axis=1))
-        delta_vx_err = -(vx_gas.var(axis=1) - vx_dust[:, idust, :].var(axis=1))
 
         ax.errorbar(
-            time, delta_vx, yerr=delta_vx_err, fmt='.', color=color, fillstyle='none'
+            time,
+            delta_vx_mean[:, idx],
+            yerr=delta_vx_var[:, idx],
+            fmt='.',
+            color=color,
+            fillstyle='none',
         )
 
-        ax.plot(time, exact_solution, color=color, label=f'dust species: {idust}')
+        ax.plot(time, exact_solution, color=color, label=f'dust species: {idx+1}')
 
     ax.set_xlabel(r'$t$')
     ax.set_ylabel(r'$-\Delta v_x$')
     ax.set_title(f'DUSTYBOX: K={K} drag')
     ax.legend()
 
-    plt.show()
+    plt.savefig(filename)
 
+
+# ------------------------------------------------------------------------------------ #
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-d',
-        '--directory',
-        type=pathlib.Path,
-        help='Path to the data directory',
-        required=True,
-    )
+    for label in LABELS:
 
-    p = parser.parse_args()
-    run_directory = p.directory
+        prefix = f'dustybox-{label}'
 
-    if len(list(run_directory.glob('dustybox*.in'))) > 1:
-        raise InFileError('Cannot determine .in file')
-    elif len(list(run_directory.glob('dustybox*.in'))) == 0:
-        raise InFileError('Cannot find .in file')
-    else:
-        in_file = list(run_directory.glob('dustybox*.in'))[0]
-        prefix = in_file.stem
+        run_directory = ROOT_RUN_DIR / label
+        in_file = run_directory / f'dustybox-{label}.in'
 
-    print(f'Reading data from {run_directory}')
+        print(72 * '-')
+        print(f'--- Data from {run_directory.name} ---')
+        print(72 * '-')
 
-    K = pc.read_config(in_file).config['K_code'].value
+        processed_data_dir = run_directory / 'processed_data_dir'
+        fig_filename = processed_data_dir / f'delta_vx_{label}.pdf'
 
-    print('Loading simulation data with Plonk...')
-    sim = plonk.Simulation(prefix=prefix, directory=run_directory)
+        if FORCE_RECOMPUTE:
+            data = read_dumps_and_compute(
+                prefix, run_directory, save_dir=processed_data_dir
+            )
+        else:
+            if processed_data_dir.exists():
+                data = read_processed_data(processed_data_dir)
+            else:
+                data = read_dumps_and_compute(
+                    prefix, run_directory, save_dir=processed_data_dir
+                )
 
-    time, vx_gas, vx_dust = get_velocities()
-
-    make_plot(time, vx_gas, vx_dust)
+        K = pc.read_config(in_file).config['K_code'].value
+        make_plot(fig_filename, K, *data)

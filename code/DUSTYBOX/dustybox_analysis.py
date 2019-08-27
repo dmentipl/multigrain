@@ -199,7 +199,7 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
             K=K,
             rho_g=rho_gas,
             rho_d=rho_dust[idx],
-            delta_vx_init=delta_vx_mean[:, idx],
+            delta_vx_init=delta_vx_mean[0, idx],
         )
 
         ax.errorbar(

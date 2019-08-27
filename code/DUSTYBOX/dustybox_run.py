@@ -191,7 +191,7 @@ if __name__ == '__main__':
 
     pb.get_phantom(PHANTOM_DIR)
 
-    pb.check_phantom_version(PHANTOM_DIR, REQUIRED_PHANTOM_GIT_COMMIT_HASH)
+    pb.checkout_phantom_version(PHANTOM_DIR, REQUIRED_PHANTOM_GIT_COMMIT_HASH)
 
     pb.patch_phantom(PHANTOM_DIR, PHANTOM_PATCH)
 

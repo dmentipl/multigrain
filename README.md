@@ -33,10 +33,20 @@ Results
 
 ### Running the Phantom multigrain tests
 
-There are several tests (TODO: so far, only DUSTYBOX). To all the tests
+To run the Phantom multigrain dust tests:
 
 ```
 make run-tests
 ```
 
-This will compile Phantom for each problem, create multiple directories with different parameters, setup the Phantom calculations, then run them.
+This will compile Phantom for each problem, create directories with different parameters, setup the Phantom calculations, then run them.
+
+### Performing analysis on the tests
+
+To perform analysis on the Phantom output:
+
+```
+make analyse-tests
+```
+
+For the DUSTYBOX test, this computes the differential velocity of the dust for each species to compare with exact solutions.

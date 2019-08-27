@@ -100,11 +100,11 @@ def read_dumps_and_compute(prefix, run_directory, save_dir=None):
         print(f'  time: {dump.header["time"]}')
         time[idx] = dump.header['time']
 
-        vx = dump.particles.arrays['vxyz'][:, 0]
+        v = dump.particles.arrays['vxyz'][:]
         itype = dump.particles.arrays['itype'][:]
 
-        vx_mean = np.array([vx[itype == ipart].mean() for ipart in itypes])
-        vx_var = np.array([vx[itype == ipart].var() for ipart in itypes])
+        vx_mean = np.array([v[:, 0][itype == ipart].mean() for ipart in itypes])
+        vx_var = np.array([v[:, 0][itype == ipart].var() for ipart in itypes])
 
         delta_vx_mean[idx, :] = vx_mean[1:] - vx_mean[0]
         delta_vx_var[idx, :] = vx_var[1:] - vx_var[0]

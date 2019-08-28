@@ -62,6 +62,9 @@ def setup_calculations(run_root_directory: pathlib.Path, phantom_dir: pathlib.Pa
     print('>>> Setting up calculations <<<')
     print(72*'-' + '\n')
 
+    if not run_root_directory.exists():
+        run_root_directory.mkdir(parents=True)
+
     for K_drag in K_DRAG_LIST:
 
         run_label = f'K={K_drag}'

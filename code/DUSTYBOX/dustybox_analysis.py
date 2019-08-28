@@ -235,7 +235,7 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
         )
 
     ax.set_xlabel(r'$t$')
-    ax.set_ylabel(r'$-\Delta v_x$')
+    ax.set_ylabel(r'$\Delta v_x$')
     ax.set_title(f'DUSTYBOX: K={K} drag')
 
     print(f'Writing figure to {filename.name}...')

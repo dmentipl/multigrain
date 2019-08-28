@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - plonk
   - pip
+  - scipy
   - pip:
     - phantombuild>=0.1.3
     - phantomconfig>=0.2.1

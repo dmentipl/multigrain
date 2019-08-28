@@ -58,7 +58,9 @@ PHANTOM_PATCH = CODE_DIR / 'dustybox.patch'
 
 def setup_calculations(run_root_directory: pathlib.Path, phantom_dir: pathlib.Path):
 
+    print('\n' + 72*'-')
     print('>>> Setting up calculations <<<')
+    print(72*'-' + '\n')
 
     for K_drag in K_DRAG_LIST:
 
@@ -165,7 +167,9 @@ def write_in_file(K_drag: float, filename: str, output_dir: pathlib.Path):
 
 def run_calculations(run_root_directory: pathlib.Path):
 
+    print('\n' + 72*'-')
     print('>>> Running calculations <<<')
+    print(72*'-' + '\n')
 
     for K_drag in K_DRAG_LIST:
 

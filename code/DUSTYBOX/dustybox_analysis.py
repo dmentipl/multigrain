@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig as pc
 import plonk
+from dustybox_exact_solutions import delta_vx_multiple_species, delta_vx_single_species
 
 # ------------------------------------------------------------------------------------ #
 # PARAMETERS
@@ -28,10 +29,6 @@ I_DUST = 7
 
 class InFileError(Exception):
     pass
-
-
-def delta_vx_exact(t, K, rho_g, rho_d, delta_vx_init):
-    return delta_vx_init * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
 
 
 def read_dumps_and_compute(prefix, run_directory, save_dir=None):
@@ -192,15 +189,28 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
 
     ndusttypes = delta_vx_mean.shape[1]
 
-    for idx, color in zip(range(ndusttypes), colors):
+    rho = rho_gas + np.sum(rho_dust)
+    eps = rho_dust / rho_gas
+    K_i = np.full_like(eps, K)
+    delta_vx_init = delta_vx_mean[0, :]
 
-        exact_solution = delta_vx_exact(
+    exact_solution_with_back_reaction = np.zeros((len(time), ndusttypes))
+    exact_solution_without_back_reaction = np.zeros((len(time), ndusttypes))
+
+    for idx, t in enumerate(time):
+        exact_solution_with_back_reaction[idx, :] = delta_vx_multiple_species(
+            t, K_i, rho, eps, delta_vx_init
+        )
+    for idx in range(ndusttypes):
+        exact_solution_without_back_reaction[:, idx] = delta_vx_single_species(
             np.array(time),
             K=K,
             rho_g=rho_gas,
             rho_d=rho_dust[idx],
             delta_vx_init=delta_vx_mean[0, idx],
         )
+
+    for idx, color in zip(range(ndusttypes), colors):
 
         ax.errorbar(
             time,
@@ -211,12 +221,22 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
             fillstyle='none',
         )
 
-        ax.plot(time, exact_solution, color=color, label=f'dust species: {idx+1}')
+        ax.plot(
+            time,
+            exact_solution_with_back_reaction[:, idx],
+            color=color,
+        )
+
+        ax.plot(
+            time,
+            exact_solution_without_back_reaction[:, idx],
+            '--',
+            color=color,
+        )
 
     ax.set_xlabel(r'$t$')
     ax.set_ylabel(r'$-\Delta v_x$')
     ax.set_title(f'DUSTYBOX: K={K} drag')
-    ax.legend()
 
     print(f'Writing figure to {filename.name}...')
     plt.savefig(filename)

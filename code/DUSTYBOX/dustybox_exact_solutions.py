@@ -98,4 +98,4 @@ def delta_vx_multiple_species(t, K, rho, eps, delta_vx_init):
 
     omega = drag_matrix(K, rho, eps)
 
-    return np.matmul(scipy.linalg.expm(-omega*t), delta_vx_init)
+    return scipy.linalg.expm(-omega * t) @ delta_vx_init

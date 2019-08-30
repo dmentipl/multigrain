@@ -27,10 +27,6 @@ I_GAS = 1
 I_DUST = 7
 
 
-class InFileError(Exception):
-    pass
-
-
 def read_dumps_and_compute(prefix, run_directory, save_dir=None):
     """
     Read dumps, extract data, and compute quantities.
@@ -190,7 +186,7 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
     ndusttypes = delta_vx_mean.shape[1]
 
     rho = rho_gas + np.sum(rho_dust)
-    eps = rho_dust / rho_gas
+    eps = rho_dust / rho
     K_i = np.full_like(eps, K)
     delta_vx_init = delta_vx_mean[0, :]
 
@@ -205,8 +201,8 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
         exact_solution_without_back_reaction[:, idx] = delta_vx_single_species(
             np.array(time),
             K=K,
-            rho_g=rho_gas,
-            rho_d=rho_dust[idx],
+            rho=rho,
+            eps=eps[idx],
             delta_vx_init=delta_vx_mean[0, idx],
         )
 
@@ -221,18 +217,9 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
             fillstyle='none',
         )
 
-        ax.plot(
-            time,
-            exact_solution_with_back_reaction[:, idx],
-            color=color,
-        )
+        ax.plot(time, exact_solution_with_back_reaction[:, idx], color=color)
 
-        ax.plot(
-            time,
-            exact_solution_without_back_reaction[:, idx],
-            '--',
-            color=color,
-        )
+        ax.plot(time, exact_solution_without_back_reaction[:, idx], '--', color=color)
 
     ax.set_xlabel(r'$t$')
     ax.set_ylabel(r'$\Delta v_x$')

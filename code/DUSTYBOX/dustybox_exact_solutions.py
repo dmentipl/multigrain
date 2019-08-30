@@ -16,7 +16,7 @@ import numpy as np
 import scipy.linalg
 
 
-def delta_vx_single_species(t, K, rho_g, rho_d, delta_vx_init):
+def delta_vx_single_species(t, K, rho, eps, delta_vx_init):
     """
     Differential velocity for linear drag on a single dust species.
 
@@ -26,10 +26,10 @@ def delta_vx_single_species(t, K, rho_g, rho_d, delta_vx_init):
         Time at which to evaluate the expression.
     K : float
         Drag constant.
-    rho_g : float
-        Gas density, assuming constant.
-    rho_d : float
-        Dust density, assuming constant.
+    rho : float
+        Total density, assuming constant.
+    eps : float
+        Dust fraction, assuming constant.
     delta_vx_init : float
         Initial differential velocity between the dust and gas.
 
@@ -37,6 +37,8 @@ def delta_vx_single_species(t, K, rho_g, rho_d, delta_vx_init):
     ----------
     See Table (1) in Laibe and Price (2011) MNRAS, 418, 1491.
     """
+
+    rho_g, rho_d = (1 - eps) * rho, eps * rho
 
     return delta_vx_init * np.exp(-K * (1 / rho_g + 1 / rho_d) * t)
 
@@ -52,7 +54,7 @@ def drag_matrix(K, rho, eps):
     rho : float
         Total density, assuming constant.
     eps : np.ndarray
-        The dust-to-gas ratio for each dust species.
+        The dust fraction for each dust species.
 
     References
     ----------
@@ -87,7 +89,7 @@ def delta_vx_multiple_species(t, K, rho, eps, delta_vx_init):
     rho : float
         Total density, assuming constant.
     eps : np.ndarray
-        The dust-to-gas ratio for each dust species.
+        The dust fraction for each dust species.
     delta_vx_init : float
         Initial differential velocity between the dust and gas.
 

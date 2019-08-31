@@ -1,8 +1,6 @@
 """
 DUSTYBOX analysis: compare simulations with analytic solutions.
 
-Solutions from Laibe and Price (2011) MNRAS 418, 1491.
-
 Daniel Mentiplay, 2019.
 """
 
@@ -12,7 +10,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig as pc
 import plonk
-from dustybox_exact_solutions import delta_vx_multiple_species, delta_vx_single_species
+
+import exact_solutions as exact
 
 # ------------------------------------------------------------------------------------ #
 # PARAMETERS
@@ -193,18 +192,14 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
     exact_solution_with_back_reaction = np.zeros((len(time), ndusttypes))
     exact_solution_without_back_reaction = np.zeros((len(time), ndusttypes))
 
-    for idx, t in enumerate(time):
-        exact_solution_with_back_reaction[idx, :] = delta_vx_multiple_species(
+    for idxi, t in enumerate(time):
+        exact_solution_with_back_reaction[idxi, :] = exact.dustybox.delta_vx(
             t, K_i, rho, eps, delta_vx_init
         )
-    for idx in range(ndusttypes):
-        exact_solution_without_back_reaction[:, idx] = delta_vx_single_species(
-            np.array(time),
-            K=K,
-            rho=rho,
-            eps=eps[idx],
-            delta_vx_init=delta_vx_mean[0, idx],
-        )
+        for idxj in range(ndusttypes):
+            exact_solution_without_back_reaction[idxi, idxj] = exact.dustybox.delta_vx(
+                t, K, rho, eps[idxj], delta_vx_mean[0, idxj]
+            )
 
     for idx, color in zip(range(ndusttypes), colors):
 

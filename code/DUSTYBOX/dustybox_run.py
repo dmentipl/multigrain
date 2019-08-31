@@ -30,8 +30,6 @@ K_DRAG_LIST = [0.1, 1.0, 10.0]
 # This variable specifies the dust-to-gas ratio for K=1.0.
 EPS_FOR_K_IS_UNITY = [0.01, 0.02, 0.03, 0.04, 0.05]
 
-# ------------------------------------------------------------------------------------ #
-
 # Gas properties
 CS = 1.0
 NPARTX_GAS = 32

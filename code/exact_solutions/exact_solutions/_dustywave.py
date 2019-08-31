@@ -1,8 +1,10 @@
 """
-Exact solution for DUSTYWAVE.
+DUSTYWAVE exact solution
 
 See the following references:
 - Laibe and Price (2011) MNRAS, 418, 1491
+- Laibe and Price (2014) MNRAS, 444, 1940
+- Splash source code src/exact_dustywave.f90
 
 Daniel Mentiplay, 2019.
 """
@@ -10,9 +12,7 @@ Daniel Mentiplay, 2019.
 import numpy as np
 
 
-def exact_dustywave(
-    time, ampl, cs, Kdrag, wavelength, x0, rhog0, rhod0, xposition
-):
+def exact_dustywave(time, ampl, cs, Kdrag, wavelength, x0, rhog0, rhod0, xposition):
     """
     Exact solution to DUSTYWAVE.
 

@@ -1,20 +1,63 @@
 """
 Exact solution for DUSTYWAVE.
+
+See the following references:
+- Laibe and Price (2011) MNRAS, 418, 1491
+
+Daniel Mentiplay, 2019.
 """
 
 import numpy as np
 
 
 def exact_dustywave(
-    time, ampl, cs, Kdragin, lambda_, x0, rhog0, rhod0, xplot
+    time, ampl, cs, Kdrag, wavelength, x0, rhog0, rhod0, xposition
 ):
+    """
+    Exact solution to DUSTYWAVE.
 
-    Kdrag = Kdragin
+    Parameters
+    ----------
+    time : float
+        Time to evaluate exact solution.
+    ampl : float
+        Amplitude of wave.
+    cs : float
+        Sound speed.
+    Kdrag : float
+        Drag constant.
+    wavelength : float
+        Wavelength of wave.
+    x0 : float
+        Phase of wave in space.
+    rhog0 : float
+        Initial gas density.
+    rhod0 : float
+        Initial dust density.
+    xposition : (N,) ndarray
+        Spatial domain on which to evaluate the solution.
+
+    Returns
+    -------
+    rhogas : (N,) ndarray
+        Gas density.
+    rhodust : (N,) ndarray
+        Dust density.
+    vgas : (N,) ndarray
+        Gas velocity.
+    vdust : (N,) ndarray
+        Dust velocity.
+
+    References
+    ----------
+    See Laibe and Price (2011) MNRAS, 418, 1491, and see in Splash
+    source code src/exact_dustywave.f90.
+    """
 
     if ampl < 0.0:
         raise ValueError('amplitude < 0 on input')
-    if lambda_ <= 0.0:
-        raise ValueError('error: lambda_ <= 0 on input')
+    if wavelength <= 0.0:
+        raise ValueError('error: wavelength <= 0 on input')
     if cs <= 0:
         raise ValueError('error: sound speed <= 0 on input')
     if rhog0 < 0:
@@ -24,19 +67,26 @@ def exact_dustywave(
     if Kdrag < 0:
         raise ValueError('error: drag coefficient < 0 on input')
     elif np.abs(Kdrag) < 1.0e-8:
-        print('WARNING: Kdrag = 0 on input; using tiny to avoid divergence')
+        print('WARNING: Kdrag < 1.0e-8 on input; using zero to avoid divergence')
         Kdrag = 0.0
 
-    rhodeq = rhod0  # initial dust density
-    rhogeq = rhog0  # initial gas density
+    # initial gas and dust density
+    rhodeq = rhod0
+    rhogeq = rhog0
 
-    rhodsol = ampl * rhod0  # amplitude of dust density perturbation
-    rhogsol = ampl * rhog0  # amplitude of gas density perturbation
+    # amplitude of gas and dust density perturbation
+    rhodsol = ampl * rhod0
+    rhogsol = ampl * rhog0
+
     vdeq = 0.0
     vgeq = 0.0
-    vgsol = ampl  # amplitude of gas velocity perturbation
-    vdsol = ampl  # amplitude of dust velocity perturbation
-    k = 2.0 * np.pi / lambda_  # wavenumber
+
+    # amplitude of gas and dust velocity perturbation
+    vgsol = ampl
+    vdsol = ampl
+
+    # wavenumber
+    k = 2.0 * np.pi / wavelength
 
     vd1r = 0.0
     vd1i = 0.0
@@ -50,11 +100,11 @@ def exact_dustywave(
     rhod2i = 0.0
     rhod3r = 0.0
     rhod3i = 0.0
-    #
-    # --solve cubic to get the 3 solutions for omega
-    #  (these each have both real and imaginary components,
-    #   labelled w1r, w1i etc.)
-    #
+
+    # Solve cubic to get the 3 solutions for omega.
+    # These each have both real and imaginary components,
+    # labelled w1r, w1i etc.
+
     tdust1 = Kdrag / rhodeq
     tgas1 = Kdrag / rhogeq
     aa = tdust1 + tgas1
@@ -62,21 +112,21 @@ def exact_dustywave(
     cc = bb * tdust1
 
     xc = np.roots([1, aa, bb, cc])
-    # --get solutions for (w = iy instead of y)
+
+    # get solutions for (w = iy instead of y)
     xc = xc * 1j
-    # print(' roots are ',xc)
 
-    w1r = xc(1).real
-    w2r = xc(2).real
-    w3r = xc(3).real
+    w1r = xc[0].real
+    w2r = xc[1].real
+    w3r = xc[2].real
 
-    w1i = xc(1).imag
-    w2i = xc(2).imag
-    w3i = xc(3).imag
+    w1i = xc[0].imag
+    w2i = xc[1].imag
+    w3i = xc[2].imag
 
-    # -  ------------------------------
-    #   G A S  V E L O C I T I E S
-    # -  ------------------------------
+    # ------------------------------------------------------------------
+    # GAS VELOCITIES
+    # ------------------------------------------------------------------
     vg3r = (
         (
             k * Kdrag * vdsol * w3r ** 2 * w2r
@@ -564,9 +614,9 @@ def exact_dustywave(
         / k
     )
 
-    # -  ------------------------------
-    #   D U S T  V E L O C I T I E S
-    # -  ------------------------------
+    # ------------------------------------------------------------------
+    # DUST VELOCITIES
+    # ------------------------------------------------------------------
     if Kdrag > 0.0:
 
         vd3r = (
@@ -1962,9 +2012,9 @@ def exact_dustywave(
             / k
         )
 
-    # -  ------------------------------
-    #   G A S  D E N S I T I E S
-    # -  ------------------------------
+    # ------------------------------------------------------------------
+    # GAS DENSITIES
+    # ------------------------------------------------------------------
     rhog3r = (
         (
             w3r ** 2 * k * rhogeq * vgsol * w1i
@@ -2334,9 +2384,9 @@ def exact_dustywave(
         / (w2r ** 2 + w1r ** 2 + w2i ** 2 - 2 * w2i * w1i - 2 * w2r * w1r + w1i ** 2)
     )
 
-    # -  ------------------------------
-    #   D U S T  D E N S I T I E S
-    # -  ------------------------------
+    # ------------------------------------------------------------------
+    # DUST DENSITIES
+    # ------------------------------------------------------------------
     if Kdrag > 0.0:
 
         rhod3r = -rhodeq * (
@@ -2463,7 +2513,7 @@ def exact_dustywave(
             - 2 * w3r * w3i * cs ** 2 * k ** 2 * rhogeq * rhogsol * w1i * w2i ** 2
             - 2 * w3r * w3i * cs ** 2 * k ** 2 * rhogeq * rhogsol * w2r ** 2 * w1i
         )
-        #      --break to avoid too many continuation lines
+
         rhod3r = rhod3r - rhodeq * (
             2 * w3r * w3i ** 3 * Kdrag * rhogsol * w2i * w1i
             - 2 * w3r * w3i ** 3 * Kdrag * rhogsol * w2r * w1r
@@ -2549,7 +2599,7 @@ def exact_dustywave(
             + rhogeq * w3i ** 4 * w1i ** 2 * w2r * rhogsol
             - rhogeq ** 2 * w3i ** 4 * w2i ** 2 * k * vgsol
         )
-        #      --break to avoid too many continuation lines
+
         rhod3r = rhod3r - rhodeq * (
             rhogeq ** 2 * w3i ** 5 * w2i * k * vgsol
             + rhogeq * w3i ** 3 * w2r * w1r * k * Kdrag * vdsol
@@ -2754,7 +2804,7 @@ def exact_dustywave(
             - w3i ** 3 * Kdrag * rhogsol * k ** 2 * cs ** 2 * w2i
             - w3i ** 2 * cs ** 2 * k ** 3 * rhogeq * Kdrag * vgsol * w1r
         )
-        #      --break to avoid too many continuation lines
+
         rhod3i = rhod3i - rhodeq * (
             w3i ** 3 * Kdrag * rhogsol * w2i * w1i ** 2
             - w3i ** 2 * cs ** 2 * k ** 3 * rhogeq * Kdrag * vgsol * w2r
@@ -2840,7 +2890,7 @@ def exact_dustywave(
             - 2 * w3i * w3r ** 3 * Kdrag * rhogsol * w1i * w2r
             + 2 * w3i * w3r ** 3 * rhogeq * w1i * k * Kdrag * vgsol
         )
-        #      --break to avoid too many continuation lines
+
         rhod3i = rhod3i - rhodeq * (
             w3i * w3r ** 2 * rhogeq * w2r * w1i * k * Kdrag * vgsol
             + w3i * w3r ** 2 * Kdrag * rhogsol * w2i * w1i ** 2
@@ -3056,7 +3106,7 @@ def exact_dustywave(
             - 2 * w3r * rhogeq ** 2 * w2r ** 4 * k * w1r * vgsol
             - 2 * w3r * rhogeq * w2r ** 3 * w1r * rhogsol * w2i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod2r = rhod2r - rhodeq * (
             2 * w3r * rhogeq ** 2 * w2i ** 2 * k * vgsol * w2r ** 3
             - w3r ** 2 * rhogeq ** 2 * w2r ** 4 * vgsol * k
@@ -3163,7 +3213,7 @@ def exact_dustywave(
             - 2 * w3i * cs ** 2 * k ** 2 * rhogeq * rhogsol * w2i * w2r * w1r ** 2
             - 2 * rhogeq ** 2 * k * vgsol * w2i ** 2 * w2r ** 2 * w1r ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod2r = rhod2r - rhodeq * (
             rhogeq ** 2 * k * vgsol * w2r * w2i ** 4 * w1r
             - Kdrag * w2r ** 2 * k * rhogeq * vgsol * w2i * w3i * w1i
@@ -3388,7 +3438,7 @@ def exact_dustywave(
             + rhogeq ** 2 * k * vgsol * w3i * w1r ** 2 * w2r ** 3
             - rhogeq * cs ** 4 * k ** 4 * w2r ** 2 * rhogsol * w1i
         )
-        # --break to avoid too many continuation lines
+
         rhod2i = rhod2i + rhodeq * (
             rhogeq * cs ** 2 * k ** 3 * Kdrag * vgsol * w2r ** 3
             + rhogeq * w2r ** 2 * w3i ** 2 * cs ** 2 * k ** 2 * rhogsol * w1i
@@ -3476,7 +3526,7 @@ def exact_dustywave(
             - w3r * Kdrag * k * rhogeq * vgsol * w1r ** 2 * w2r ** 2
             - w3i * cs ** 2 * k ** 2 * rhogeq * rhogsol * w2i ** 2 * w1i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod2i = rhod2i + rhodeq * (
             w3i * cs ** 4 * k ** 4 * rhogeq * rhogsol * w2i ** 2
             + rhogeq * cs ** 4 * k ** 4 * w2i ** 2 * w1i * rhogsol
@@ -3750,7 +3800,7 @@ def exact_dustywave(
             - rhogeq * cs ** 2 * k ** 3 * w3i * Kdrag * vgsol * w2r * w1r * w2i ** 2
             + rhogeq ** 2 * cs ** 2 * k ** 3 * w3i * w1i * vgsol * w2r ** 4
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             2
             * w2r
@@ -3895,7 +3945,7 @@ def exact_dustywave(
             + w1r ** 2 * w2i * rhogeq ** 2 * k * vgsol * w2r ** 2 * w1i * w3i ** 2
             + k * Kdrag ** 2 * vgsol * w2i ** 3 * w1i * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             k * Kdrag ** 2 * vgsol * w2i ** 3 * w1i * w3r ** 2
             + w3r ** 3 * w2r ** 3 * k * Kdrag ** 2 * vgsol
@@ -4023,7 +4073,7 @@ def exact_dustywave(
             + w3i ** 4 * Kdrag * rhogsol * w2i ** 3 * w1r
             - w3r * rhogeq * cs ** 4 * k ** 4 * w2r ** 2 * rhogsol * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             2 * w3r * rhogeq ** 2 * k * vgsol * w2r * w2i ** 2 * w1i ** 2 * w3i ** 2
             + w3i ** 4 * rhogeq * rhogsol * w2i ** 4 * w1r
@@ -4173,7 +4223,7 @@ def exact_dustywave(
             - rhogeq * cs ** 2 * k ** 3 * w3i ** 3 * Kdrag * vgsol * w2r * w1r
             + w2r * w3r ** 3 * w2i ** 2 * k * Kdrag ** 2 * vgsol
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             rhogeq ** 2 * w3i * w2r ** 4 * w1i * k * vgsol * w3r ** 2
             + rhogeq ** 2 * w2r ** 3 * w3i ** 4 * k * w1r * vgsol
@@ -4375,7 +4425,7 @@ def exact_dustywave(
             - 2 * w3r ** 3 * rhogeq * w2r ** 2 * w1i * k * Kdrag * vgsol * w1r
             - w3i * rhogsol * k ** 4 * cs ** 4 * rhogeq * w2r * w1i * w3r ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             w3i * vdsol * k * Kdrag ** 2 * w2i * w2r ** 2 * w3r ** 2
             + 2 * rhogeq * w2r ** 2 * w3i ** 3 * w1r ** 2 * k * Kdrag * vgsol
@@ -4539,7 +4589,7 @@ def exact_dustywave(
             - rhogeq * w1i ** 2 * w2i ** 2 * rhogsol * w2r * w3i ** 4
             - Kdrag * w2r ** 3 * rhogsol * w3i * w1r ** 2 * w3r ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             Kdrag * w2r ** 2 * k * rhogeq * vgsol * w2i * w3i ** 3 * w1i
             - 2 * rhogeq * w1i ** 2 * w2r ** 3 * rhogsol * w3i ** 2 * w3r ** 2
@@ -4651,7 +4701,7 @@ def exact_dustywave(
             + w1r ** 2 * vgsol * k * rhogeq ** 2 * w2i ** 3 * w1i * w3r ** 2
             + w1r ** 2 * vgsol * k * rhogeq ** 2 * w2i ** 3 * w1i * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             w1r ** 2 * w3r * rhogeq * rhogsol * w2i ** 3 * w1i * w3i ** 2
             - 2 * w2i * Kdrag * rhogsol * w2r ** 2 * w1r * w3i ** 3 * w1i
@@ -4754,7 +4804,7 @@ def exact_dustywave(
             - w3r ** 3 * Kdrag * rhogsol * k ** 2 * cs ** 2 * w1i * w2i ** 2
             - w3r * rhogeq * cs ** 4 * k ** 4 * rhogsol * w2i * w1i * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             w3r * rhogeq * cs ** 4 * k ** 4 * rhogsol * w2i ** 2 * w3i ** 2
             - 2 * w3r ** 2 * rhogeq ** 2 * w1i ** 2 * k * vgsol * w2r ** 2 * w1r ** 2
@@ -4869,7 +4919,7 @@ def exact_dustywave(
             - w1i ** 3 * Kdrag * k * rhogeq * vgsol * w2i ** 2 * w3r ** 2
             - w1i ** 3 * Kdrag * k * rhogeq * vgsol * w2i ** 2 * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1r = rhod1r + (
             rhogeq ** 2 * w3i ** 3 * w1i * k * vgsol * w2r ** 2 * w1r ** 2
             + w3r ** 2 * rhogeq * w1i * k * Kdrag * vdsol * w2r ** 2 * w1r ** 2
@@ -5316,7 +5366,7 @@ def exact_dustywave(
             * w3i ** 3
             * w2i
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             w1r
             * vdsol
@@ -5653,7 +5703,7 @@ def exact_dustywave(
             * w2r ** 2
             * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2
             * w1r
@@ -5844,7 +5894,7 @@ def exact_dustywave(
             + w1i * vdsol * k * Kdrag ** 2 * rhodeq * w3r * w2r ** 2 * w3i ** 2
             + w1i * vdsol * k * Kdrag ** 2 * rhodeq * w2r ** 3 * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             w1i * vdsol * k * Kdrag ** 2 * rhodeq * w2r * w2i ** 2 * w3i ** 2
             + Kdrag
@@ -6090,7 +6140,7 @@ def exact_dustywave(
             * w2r
             - w1r * rhogsol * rhogeq * w1i ** 2 * rhodeq * w2r * w2i ** 2 * w3i ** 3
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             rhogsol * w1r * k ** 4 * cs ** 4 * rhogeq * w1i ** 2 * rhodeq * w2r * w3i
             - vgsol * Kdrag * rhogeq * k ** 3 * cs ** 2 * w1i ** 3 * rhodeq * w2i * w3r
@@ -6171,7 +6221,7 @@ def exact_dustywave(
             - 4 * w1r ** 2 * Kdrag * rhogeq * rhodsol * w3r ** 3 * w2r ** 3
             + 2 * w1r * Kdrag * rhogeq * rhodsol * w2r * w3i ** 4 * w2i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             4 * w1r * Kdrag * rhogeq * rhodsol * w3r ** 3 * w2r ** 2 * w2i ** 2
             + 4 * w1r * Kdrag * rhogeq * rhodsol * w2r ** 3 * w3i ** 2 * w3r ** 2
@@ -6477,7 +6527,7 @@ def exact_dustywave(
             * w2r
             * w3i
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             w1i
             * vdsol
@@ -6780,7 +6830,7 @@ def exact_dustywave(
             + rhogsol * w1i * k ** 4 * cs ** 4 * rhogeq * w1r ** 2 * rhodeq * w3r * w2r
             - rhogsol * w1i * k ** 4 * cs ** 4 * rhogeq * w1r ** 2 * rhodeq * w2i * w3i
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2 * w1i ** 2 * rhogsol * Kdrag * rhodeq * w3i ** 2 * w2i ** 2 * w2r ** 2
             - vgsol * k * w1r * rhogeq ** 2 * rhodeq * w2i ** 3 * w3r ** 4
@@ -7068,7 +7118,7 @@ def exact_dustywave(
             * w2i
             * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2
             * vgsol
@@ -7513,7 +7563,7 @@ def exact_dustywave(
             * w2i ** 2
             * w3i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2
             * vgsol
@@ -7793,7 +7843,7 @@ def exact_dustywave(
             * w2i
             * w3r ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2
             * w1i ** 2
@@ -8136,7 +8186,7 @@ def exact_dustywave(
             * w3i ** 2
             * w2i ** 2
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             w1i * rhogsol * k ** 4 * cs ** 4 * rhogeq * rhodeq * w2r ** 2 * w3i ** 2
             + 2 * w1r ** 2 * rhogsol * Kdrag * w1i ** 2 * rhodeq * w3r ** 2 * w2r ** 2
@@ -8470,7 +8520,7 @@ def exact_dustywave(
             * w3r
             * w2i ** 3
         )
-        # --break to avoid too many continuation lines
+
         rhod1i = rhod1i - (
             2
             * vgsol
@@ -8842,15 +8892,20 @@ def exact_dustywave(
             / (w2i ** 2 + w2r ** 2)
         )
 
-    # -  ------------------------------
-    #   F I N A L  S O L U T I O N
-    # -  ------------------------------
-    for i in range(1, xplot.shape[0]):
-        xk = 2.0 * np.pi / lambda_ * (xplot(i) - x0)
+    # ------------------------------------------------------------------
+    # FINALIZE RETURN ARRAYS
+    # ------------------------------------------------------------------
+
+    vgas = vdust = rhogas = rhodust = np.zeros_like(xposition)
+
+    for i in range(xposition.shape[0]):
+
+        xk = 2.0 * np.pi / wavelength * (xposition[i] - x0)
         arg1 = xk - w1r * time
         arg2 = xk - w2r * time
         arg3 = xk - w3r * time
-        vgas = (
+
+        vgas[i] = (
             vgeq
             + vg1r * np.exp(w1i * time) * np.cos(arg1)
             - vg1i * np.exp(w1i * time) * np.sin(arg1)
@@ -8860,7 +8915,7 @@ def exact_dustywave(
             - vg3i * np.exp(w3i * time) * np.sin(arg3)
         )
 
-        vdust = (
+        vdust[i] = (
             vdeq
             + vd1r * np.exp(w1i * time) * np.cos(arg1)
             - vd1i * np.exp(w1i * time) * np.sin(arg1)
@@ -8870,7 +8925,7 @@ def exact_dustywave(
             - vd3i * np.exp(w3i * time) * np.sin(arg3)
         )
 
-        rhogas = (
+        rhogas[i] = (
             rhogeq
             + rhog1r * np.exp(w1i * time) * np.cos(arg1)
             - rhog1i * np.exp(w1i * time) * np.sin(arg1)
@@ -8880,7 +8935,7 @@ def exact_dustywave(
             - rhog3i * np.exp(w3i * time) * np.sin(arg3)
         )
 
-        rhodust = (
+        rhodust[i] = (
             rhodeq
             + rhod1r * np.exp(w1i * time) * np.cos(arg1)
             - rhod1i * np.exp(w1i * time) * np.sin(arg1)
@@ -8890,4 +8945,4 @@ def exact_dustywave(
             - rhod3i * np.exp(w3i * time) * np.sin(arg3)
         )
 
-        return rhogas, rhodust, vgas, vdust
+    return rhogas, rhodust, vgas, vdust

@@ -1,11 +1,11 @@
 #
-# Makefile to setup and run Phantom multigrain tests
+# Makefile to run Phantom multigrain tests and perform analysis.
 
-.PHONY: run-tests
-run-tests: dustybox-run
+.PHONY: run
+run: dustybox-run # dustywave-run dustyshock-run
 
-.PHONY: analyse-tests
-analyse-tests: dustybox-analyse
+.PHONY: analysis
+analysis: dustybox-analysis # dustywave-analysis dustyshock-analysis
 
 # ----------------------------------------------------------------------
 # DUSTYBOX
@@ -14,6 +14,28 @@ analyse-tests: dustybox-analyse
 dustybox-run:
 	python DUSTYBOX/dustybox_run.py
 
-.PHONY: dustybox-analyse
-dustybox-analyse:
+.PHONY: dustybox-analysis
+dustybox-analysis:
 	python DUSTYBOX/dustybox_analysis.py
+
+# ----------------------------------------------------------------------
+# DUSTYWAVE
+
+.PHONY: dustywave-run
+dustywave-run:
+	python DUSTYWAVE/dustywave_run.py
+
+.PHONY: dustywave-analysis
+dustywave-analysis:
+	python DUSTYWAVE/dustywave_analysis.py
+
+# ----------------------------------------------------------------------
+# DUSTYSHOCK
+
+.PHONY: dustyshock-run
+dustyshock-run:
+	python DUSTYSHOCK/dustyshock_run.py
+
+.PHONY: dustyshock-analysis
+dustyshock-analysis:
+	python DUSTYSHOCK/dustyshock_analysis.py

@@ -1,3 +1,6 @@
+#
+# Makefile to build the manuscript.
+
 .PHONY: manuscript clean
 
 manuscript: multigrain-paper.pdf

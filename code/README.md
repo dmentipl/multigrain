@@ -1,20 +1,16 @@
-Code
-====
+Code for producing results and figures
+======================================
 
 This folder contains code for the three main test problems:
 
-+ [DUSTYBOX](DUSTYBOX)
-+ [DUSTYWAVE](DUSTYWAVE)
-+ [DUSTYSHOCK](DUSTYSHOCK)
+* DUSTYBOX
+* DUSTYWAVE
+* DUSTYSHOCK
 
-To run all the Phantom tests
+as well as a Python library `exact_solutions`.
 
-```
-make run-tests
-```
-
-Exact solutions
----------------
+Exact solutions library
+-----------------------
 
 This directory contains a Python library `exact_solutions` with exact solutions to the test problems. To build the package type
 
@@ -22,8 +18,27 @@ This directory contains a Python library `exact_solutions` with exact solutions 
 cd exact_solutions && pip install --no-deps -e .
 ```
 
-DUSTYBOX
---------
+This may be open-sourced in the future.
+
+Scripts
+-------
+
+To run all the Phantom tests
+
+```
+make run
+```
+
+To analyse the results of the tests, i.e. produce figures, etc.
+
+```
+make analysis
+```
+
+Test problems
+-------------
+
+### DUSTYBOX
 
 Here is a brief description of the contents of the `DUSTYBOX` directory:
 
@@ -34,24 +49,6 @@ Here is a brief description of the contents of the `DUSTYBOX` directory:
 - `dustybox_analysis.py` and `dustybox_run.py` are Python scripts to run and
   analyse the DUSTYBOX test
 
-### Run the tests
+### DUSTYWAVE
 
-To run the DUSTYBOX tests
-
-```
-make dustybox-run
-```
-
-### Analyse results
-
-To run the analysis, i.e. produce figures
-
-```
-python dustybox_analysis.py --directory /path/to/dustybox/run
-```
-
-DUSTYWAVE
----------
-
-DUSTYSHOCK
-----------
+### DUSTYSHOCK

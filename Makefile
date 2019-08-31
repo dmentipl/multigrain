@@ -1,3 +1,4 @@
+#
 # Master Makefile to run Makefiles in subdirectories.
 
 .PHONY: help
@@ -10,10 +11,10 @@ help:
 manuscript: ## Build the PDF of the manuscript.
 	make -C manuscript manuscript
 
-.PHONY: run-tests
-run-tests: ## Run the Phantom tests
-	make -C code run-tests
+.PHONY: run
+run: ## Run the Phantom tests
+	make -C code run
 
-.PHONY: analyse-tests
-analyse-tests: ## Analyse the output of the Phantom tests
-	make -C code analyse-tests
+.PHONY: analysis
+analysis: ## Analyse the output of the Phantom tests
+	make -C code analysis

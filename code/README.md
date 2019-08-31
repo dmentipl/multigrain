@@ -13,6 +13,15 @@ To run all the Phantom tests
 make run-tests
 ```
 
+Exact solutions
+---------------
+
+This directory contains a Python library `exact_solutions` with exact solutions to the test problems. To build the package type
+
+```
+cd exact_solutions && pip install --no-deps -e .
+```
+
 DUSTYBOX
 --------
 

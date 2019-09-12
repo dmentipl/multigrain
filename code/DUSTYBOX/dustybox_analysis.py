@@ -237,7 +237,7 @@ if __name__ == '__main__':
         prefix = f'dustybox-{label}'
 
         run_directory = ROOT_RUN_DIR / label
-        in_file = run_directory / f'dustybox-{label}.in'
+        in_file = run_directory / f'{prefix}.in'
 
         print(72 * '-')
         print(f'--- Data from {run_directory.name} ---')

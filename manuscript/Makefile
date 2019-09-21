@@ -6,7 +6,7 @@
 manuscript: multigrain-paper.pdf
 
 multigrain-paper.pdf: multigrain-paper.tex
-	latexmk multigrain-paper.tex
+	@latexmk multigrain-paper.tex
 
 clean:
-	latexmk -c
+	@latexmk -c

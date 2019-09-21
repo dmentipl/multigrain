@@ -12,8 +12,8 @@ analysis: dustybox-analysis
 .PHONY: dustybox-run dustybox-analysis
 
 dustybox-run:
-	python DUSTYBOX/dustybox_setup.py
-	python DUSTYBOX/dustybox_run.py
+	@python DUSTYBOX/dustybox_setup.py
+	@python DUSTYBOX/dustybox_run.py
 
 dustybox-analysis:
-	python DUSTYBOX/dustybox_analysis.py
+	@python DUSTYBOX/dustybox_analysis.py

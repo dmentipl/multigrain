@@ -8,7 +8,7 @@ import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-import phantomconfig as pc
+import phantomconfig
 import plonk
 
 import exact_solutions as exact
@@ -18,12 +18,44 @@ import exact_solutions as exact
 
 FORCE_RECOMPUTE = False
 ROOT_RUN_DIR = pathlib.Path('~/runs/multigrain/dustybox').expanduser()
-LABELS = ['K=0.1', 'K=1.0', 'K=10.0']
 
 # ------------------------------------------------------------------------------------ #
 
 I_GAS = 1
 I_DUST = 7
+
+
+def main():
+
+    print(72 * '=')
+    print(f'>>>  Run directory -- {str(ROOT_RUN_DIR):45}  <<<')
+    print(72 * '=')
+
+    for directory in sorted(ROOT_RUN_DIR.iterdir()):
+
+        print(72 * '-')
+        print(f'--- Data from {directory.name} ---')
+        print(72 * '-')
+
+        processed_data_dir = directory / 'processed_data_dir'
+        fig_filename = processed_data_dir / f'delta_vx_{directory.name}.pdf'
+
+        if FORCE_RECOMPUTE:
+            data = read_dumps_and_compute(
+                prefix='dustybox', run_directory=directory, save_dir=processed_data_dir
+            )
+        else:
+            if processed_data_dir.exists():
+                data = read_processed_data(processed_data_dir)
+            else:
+                data = read_dumps_and_compute(
+                    prefix='dustybox',
+                    run_directory=directory,
+                    save_dir=processed_data_dir,
+                )
+
+        K = phantomconfig.read_config(directory / 'dustybox.in').config['K_code'].value
+        make_plot(fig_filename, K, *data)
 
 
 def read_dumps_and_compute(prefix, run_directory, save_dir=None):
@@ -223,40 +255,10 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
     print(f'Writing figure to {filename.name}...')
     plt.savefig(filename)
 
+    return fig, ax
+
 
 # ------------------------------------------------------------------------------------ #
 
 if __name__ == '__main__':
-
-    print(72 * '=')
-    print(f'>>>  Run directory -- {str(ROOT_RUN_DIR):45}  <<<')
-    print(72 * '=')
-
-    for label in LABELS:
-
-        prefix = f'dustybox-{label}'
-
-        run_directory = ROOT_RUN_DIR / label
-        in_file = run_directory / f'{prefix}.in'
-
-        print(72 * '-')
-        print(f'--- Data from {run_directory.name} ---')
-        print(72 * '-')
-
-        processed_data_dir = run_directory / 'processed_data_dir'
-        fig_filename = processed_data_dir / f'delta_vx_{label}.pdf'
-
-        if FORCE_RECOMPUTE:
-            data = read_dumps_and_compute(
-                prefix, run_directory, save_dir=processed_data_dir
-            )
-        else:
-            if processed_data_dir.exists():
-                data = read_processed_data(processed_data_dir)
-            else:
-                data = read_dumps_and_compute(
-                    prefix, run_directory, save_dir=processed_data_dir
-                )
-
-        K = pc.read_config(in_file).config['K_code'].value
-        make_plot(fig_filename, K, *data)
+    main()

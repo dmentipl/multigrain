@@ -118,7 +118,9 @@ def setup_dustybox(
     setup.prefix = parameters.prefix
 
     setup.set_compile_option('IND_TIMESTEPS', False)
-    setup.set_output(tmax=parameters.maximum_time, ndumps=parameters.number_of_dumps)
+    setup.set_output(
+        tmax=parameters.maximum_time, ndumps=parameters.number_of_dumps, nfulldump=1
+    )
 
     length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
     mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)

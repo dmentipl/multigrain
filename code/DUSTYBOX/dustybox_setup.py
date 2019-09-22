@@ -62,6 +62,8 @@ class Parameters:
     drag_method: str = 'K_const'
     K_drag: float = 1.0
     velocity_delta: float = 1.0
+    maximum_time: float = 0.1
+    number_of_dumps: int = 20
 
 
 def main():
@@ -90,7 +92,8 @@ def setup_all(run_root_directory: pathlib.Path):
         run_label = f'K={K_drag}'
         print(f'Setting up {run_label}...')
 
-        parameters = Parameters(K_drag=K_drag)
+        maximum_time = 0.1 / K_drag
+        parameters = Parameters(K_drag=K_drag, maximum_time=maximum_time)
 
         run_directory = run_root_directory / run_label
         run_directory.mkdir()
@@ -115,6 +118,7 @@ def setup_dustybox(
     setup.prefix = parameters.prefix
 
     setup.set_compile_option('IND_TIMESTEPS', False)
+    setup.set_output(tmax=parameters.maximum_time, ndumps=parameters.number_of_dumps)
 
     length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
     mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)

@@ -268,10 +268,16 @@ def setup_dustybox(
 
     if isinstance(parameters.length_unit, str):
         length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
+    else:
+        length_unit = parameters.length_unit
     if isinstance(parameters.mass_unit, str):
         mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)
+    else:
+        mass_unit = parameters.mass_unit
     if isinstance(parameters.time_unit, str):
         time_unit = phantomsetup.units.unit_string_to_cgs(parameters.time_unit)
+    else:
+        time_unit = parameters.time_unit
     setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
 
     setup.set_equation_of_state(ieos=parameters.ieos, polyk=parameters.sound_speed ** 2)

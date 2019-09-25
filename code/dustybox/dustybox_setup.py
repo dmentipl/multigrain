@@ -29,9 +29,9 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 import numpy as np
-import tomlkit
 import phantombuild
 import phantomsetup
+import tomlkit
 
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 REQUIRED_PHANTOM_GIT_COMMIT_HASH = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
@@ -46,10 +46,15 @@ class Parameters:
     """
     Dusty box parameters.
 
-    If drag_method is set to 'Epstein/Stokes' you must set grain_size
-    and grain_density. If drag_method is set to 'K_drag' you must set
-    K_drag. Note that the length of dust_to_gas_ratio must match
-    grain_size and grain_density.
+    If drag_method is set to 'Epstein/Stokes' you must set
+    - grain_size
+    - grain_density
+
+    If drag_method is set to 'K_drag' you must set
+    - K_drag
+
+    Note that the length of dust_to_gas_ratio must match grain_size
+    and grain_density
     """
 
     prefix: str = 'dustybox'
@@ -66,8 +71,8 @@ class Parameters:
     dust_method: str = 'largegrains'
     drag_method: str = 'Epstein/Stokes'
     K_drag: float = 1.0
-    grain_size: tuple = (0.01, 0.03, 0.1, 0.3, 1.0)
-    grain_density: float = 3.0
+    grain_size: tuple = ()
+    grain_density: float = 1.0
     velocity_delta: float = 1.0
     maximum_time: float = 0.1
     number_of_dumps: int = 20
@@ -261,9 +266,12 @@ def setup_dustybox(
         tmax=parameters.maximum_time, ndumps=parameters.number_of_dumps, nfulldump=1
     )
 
-    length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
-    mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)
-    time_unit = phantomsetup.units.unit_string_to_cgs(parameters.time_unit)
+    if isinstance(parameters.length_unit, str):
+        length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
+    if isinstance(parameters.mass_unit, str):
+        mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)
+    if isinstance(parameters.time_unit, str):
+        time_unit = phantomsetup.units.unit_string_to_cgs(parameters.time_unit)
     setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
 
     setup.set_equation_of_state(ieos=parameters.ieos, polyk=parameters.sound_speed ** 2)

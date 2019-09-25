@@ -1,7 +1,7 @@
 prefix = "dustybox"
-length_unit = "au"
-mass_unit = "solarm"
-time_unit = "year"
+length_unit = 1.0
+mass_unit = 1.0
+time_unit = 1.0
 ieos = 1
 sound_speed = 1.0
 box_boundary = [-0.5, 0.5, -0.5, 0.5, -0.5, 0.5]

@@ -13,6 +13,7 @@ import pathlib
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
     run(run_root_dir)
 
 
-def run(run_root_dir: pathlib.Path):
+def run(run_root_dir: Path):
 
     print('\n' + 72 * '-')
     print('>>> Running calculations <<<')
@@ -48,7 +49,7 @@ def get_command_line():
     run_root_dir : Path
         The path to the root directory for the calculations.
     """
-    parser = argparse.ArgumentParser(description='Set up dustybox calculations')
+    parser = argparse.ArgumentParser(description='Run the dustybox calculations')
     parser.add_argument(
         '-r',
         '--run_root_dir',

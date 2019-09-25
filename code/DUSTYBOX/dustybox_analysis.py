@@ -4,7 +4,10 @@ DUSTYBOX analysis: compare simulations with analytic solutions.
 Daniel Mentiplay, 2019.
 """
 
+import argparse
 import pathlib
+from pathlib import Path
+from typing import Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,25 +16,48 @@ import plonk
 
 import exact_solutions as exact
 
-# ------------------------------------------------------------------------------------ #
-# PARAMETERS
-
-FORCE_RECOMPUTE = False
-ROOT_RUN_DIR = pathlib.Path('~/runs/multigrain/dustybox').expanduser()
-
-# ------------------------------------------------------------------------------------ #
-
-I_GAS = 1
-I_DUST = 7
-
 
 def main():
+    run_root_dir, force_recompute = get_command_line()
+    do_analysis(run_root_dir, force_recompute)
+
+
+def get_command_line() -> Tuple[Path, bool]:
+    """
+    Get command line options.
+
+    Returns
+    -------
+    run_root_dir : Path
+        The path to the root directory for the calculations.
+    force_recompute : bool
+        Whether to force recomputing quantities written to .csv files.
+    """
+    parser = argparse.ArgumentParser(description='Analyse dustybox calculations')
+    parser.add_argument(
+        '-r',
+        '--run_root_dir',
+        help='the root directory for the calculations',
+        required=True,
+    )
+    parser.add_argument(
+        '-f',
+        '--force_recompute',
+        help='force recomputing of quantities written to .csv files',
+        required=True,
+    )
+    args = parser.parse_args()
+    run_root_dir = pathlib.Path(args.run_root_dir).resolve()
+    return run_root_dir, args.force_recompute
+
+
+def do_analysis(run_root_dir: Path, force_recompute: bool = False):
 
     print(72 * '=')
-    print(f'>>>  Run directory -- {str(ROOT_RUN_DIR):45}  <<<')
+    print(f'>>>  Run directory -- {str(run_root_dir):45}  <<<')
     print(72 * '=')
 
-    for directory in sorted(ROOT_RUN_DIR.iterdir()):
+    for directory in sorted(run_root_dir.iterdir()):
 
         print(72 * '-')
         print(f'--- Data from {directory.name} ---')
@@ -40,7 +66,7 @@ def main():
         processed_data_dir = directory / 'processed_data_dir'
         fig_filename = processed_data_dir / f'delta_vx_{directory.name}.pdf'
 
-        if FORCE_RECOMPUTE:
+        if force_recompute:
             data = read_dumps_and_compute(
                 prefix='dustybox', run_directory=directory, save_dir=processed_data_dir
             )
@@ -54,21 +80,37 @@ def main():
                     save_dir=processed_data_dir,
                 )
 
-        K = phantomconfig.read_config(directory / 'dustybox.in').config['K_code'].value
+        try:
+            K = phantomconfig.read_config(directory / 'dustybox.in').get_value('K_code')
+        except KeyError:
+            header = (
+                plonk.Simulation(prefix='dustybox', directory=directory).dumps[0].header
+            )
+            gamma = header['gamma']
+            sound_speed = np.sqrt(2 / 3 * header['RK2'])
+            grain_density = header['graindens'][0]
+            grain_size = header['grainsize'][header['grainsize'] > 0]
+            K = (
+                sound_speed
+                / (grain_density * grain_size)
+                * np.sqrt(8 / (np.pi * gamma))
+            )
         make_plot(fig_filename, K, *data)
 
 
-def read_dumps_and_compute(prefix, run_directory, save_dir=None):
+def read_dumps_and_compute(
+    prefix: str, run_directory: Path, save_dir: Path = None
+) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray, np.ndarray]:
     """
     Read dumps, extract data, and compute quantities.
 
     Parameters
     ----------
-    prefix : str
+    prefix
         The simulation prefix to pass to plonk.Simulation.
-    run_directory : pathlib.Path
+    run_directory
         The simulation directory to pass to plonk.Simulation.
-    save_dir : pathlib.Path
+    save_dir
         Directory to save output to.
 
     Returns
@@ -82,7 +124,7 @@ def read_dumps_and_compute(prefix, run_directory, save_dir=None):
     delta_vx_mean : np.ndarray
         The mean of the difference between the gas velocity and dust
         velocities at each time.
-    delta_vx_var
+    delta_vx_var : np.ndarray
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
@@ -92,13 +134,15 @@ def read_dumps_and_compute(prefix, run_directory, save_dir=None):
 
     print('Loading simulation data with Plonk...')
     sim = plonk.Simulation(prefix=prefix, directory=run_directory)
+    header = sim.dumps[0].header
 
     ntimes = len(sim.dumps)
-    ndusttypes = sim.dumps[0].header['ndustlarge']
+    ndusttypes = header['ndustlarge']
+    idust = header['idust']
 
     itype = sim.dumps[0].particles.arrays['itype'][:]
 
-    npartoftype = list(sim.dumps[0].header['npartoftype'])
+    npartoftype = list(header['npartoftype'])
     itypes = [idx + 1 for idx, np in enumerate(npartoftype) if np > 0]
 
     # ------------------------------------------------------------------
@@ -106,9 +150,10 @@ def read_dumps_and_compute(prefix, run_directory, save_dir=None):
 
     rho = sim.dumps[0].density
 
-    rho_gas = rho[itype == I_GAS].mean()
+    igas = 1
+    rho_gas = rho[itype == igas].mean()
     rho_dust = np.array(
-        [rho[itype == ipart].mean() for ipart in itypes if ipart >= I_DUST]
+        [rho[itype == ipart].mean() for ipart in itypes if ipart >= idust]
     )
 
     # ------------------------------------------------------------------
@@ -148,11 +193,13 @@ def read_dumps_and_compute(prefix, run_directory, save_dir=None):
     return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
 
 
-def read_processed_data(data_dir):
+def read_processed_data(
+    data_dir: Path
+) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray, np.ndarray]:
     """
     Parameters
     ----------
-    data_dir : pathlib.Path
+    data_dir
         Directory containing the processed data.
 
     Returns
@@ -166,7 +213,7 @@ def read_processed_data(data_dir):
     delta_vx_mean : np.ndarray
         The mean of the difference between the gas velocity and dust
         velocities at each time.
-    delta_vx_var
+    delta_vx_var : np.ndarray
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
@@ -185,13 +232,21 @@ def read_processed_data(data_dir):
     return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
 
 
-def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var):
+def make_plot(
+    filename: Path,
+    K: Union[float, np.ndarray],
+    time: np.ndarray,
+    rho_gas: np.ndarray,
+    rho_dust: np.ndarray,
+    delta_vx_mean: np.ndarray,
+    delta_vx_var: np.ndarray,
+):
     """
     Parameters
     ----------
     filename : pathlib.Path
         The file name to save the figure to.
-    K : float
+    K : float or np.ndarray
         The dust drag constant.
     time : np.ndarray
         The simulation time of the dumps
@@ -202,7 +257,7 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
     delta_vx_mean : np.ndarray
         The mean of the difference between the gas velocity and dust
         velocities at each time.
-    delta_vx_var
+    delta_vx_var: np.ndarray
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
@@ -218,19 +273,21 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
 
     rho = rho_gas + np.sum(rho_dust)
     eps = rho_dust / rho
-    K_i = np.full_like(eps, K)
     delta_vx_init = delta_vx_mean[0, :]
+
+    if isinstance(K, float):
+        K = np.full_like(eps, K)
 
     exact_solution_with_back_reaction = np.zeros((len(time), ndusttypes))
     exact_solution_without_back_reaction = np.zeros((len(time), ndusttypes))
 
     for idxi, t in enumerate(time):
         exact_solution_with_back_reaction[idxi, :] = exact.dustybox.delta_vx(
-            t, K_i, rho, eps, delta_vx_init
+            t, K, rho, eps, delta_vx_init
         )
         for idxj in range(ndusttypes):
             exact_solution_without_back_reaction[idxi, idxj] = exact.dustybox.delta_vx(
-                t, K, rho, eps[idxj], delta_vx_mean[0, idxj]
+                t, K[idxj], rho, eps[idxj], delta_vx_mean[0, idxj]
             )
 
     for idx, color in zip(range(ndusttypes), colors):
@@ -250,7 +307,6 @@ def make_plot(filename, K, time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var)
 
     ax.set_xlabel(r'$t$')
     ax.set_ylabel(r'$\Delta v_x$')
-    ax.set_title(f'DUSTYBOX: K={K} drag')
 
     print(f'Writing figure to {filename.name}...')
     plt.savefig(filename)

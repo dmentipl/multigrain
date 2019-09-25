@@ -7,17 +7,17 @@ run: dustybox-run
 analysis: dustybox-analysis
 
 # ----------------------------------------------------------------------
-# DUSTYBOX
+# dustybox
 
 .PHONY: dustybox-run dustybox-analysis
 
 dustybox-run:
-	@python DUSTYBOX/dustybox_setup.py \
+	@python dustybox/dustybox_setup.py \
 		--run_root_dir ~/runs/multigrain/dustybox \
-		--parameters DUSTYBOX/*.toml
-	@python DUSTYBOX/dustybox_run.py \
+		--parameters dustybox/parameters/*.toml
+	@python dustybox/dustybox_run.py \
 		--run_root_dir ~/runs/multigrain/dustybox
 
 dustybox-analysis:
-	@python DUSTYBOX/dustybox_analysis.py \
+	@python dustybox/dustybox_analysis.py \
 		--run_root_dir ~/runs/multigrain/dustybox

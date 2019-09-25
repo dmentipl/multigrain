@@ -44,7 +44,7 @@ def get_command_line() -> Tuple[Path, bool]:
         '-f',
         '--force_recompute',
         help='force recomputing of quantities written to .csv files',
-        required=True,
+        required=False,
     )
     args = parser.parse_args()
     run_root_dir = pathlib.Path(args.run_root_dir).resolve()

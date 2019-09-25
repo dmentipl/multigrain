@@ -63,6 +63,7 @@ class Parameters:
     number_of_particles_dust: int = 10_000
     density_gas: float = 1.0
     dust_to_gas_ratio: tuple = (0.01, 0.01, 0.01, 0.01, 0.01)
+    dust_method: str = 'largegrains'
     drag_method: str = 'Epstein/Stokes'
     K_drag: float = 1.0
     grain_size: tuple = (0.01, 0.03, 0.1, 0.3, 1.0)
@@ -273,15 +274,15 @@ def setup_dustybox(
     ]
     if parameters.drag_method == 'Epstein/Stokes':
         setup.set_dust(
-            dust_method='largegrains',
-            drag_method='Epstein/Stokes',
+            dust_method=parameters.dust_method,
+            drag_method=parameters.drag_method,
             grain_size=parameters.grain_size,
             grain_density=parameters.grain_density,
         )
-    elif parameters.drag_method == 'K_drag':
+    elif parameters.drag_method == 'K_const':
         setup.set_dust(
-            dust_method='largegrains',
-            drag_method='K_drag',
+            dust_method=parameters.dust_method,
+            drag_method=parameters.drag_method,
             drag_constant=parameters.K_drag,
             number_of_dust_species=number_of_dust_species,
         )

@@ -103,8 +103,6 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False):
 
         t_s = rho / K
 
-        print(f't_s = {t_s}')
-        print(f'eps = {eps}')
         make_plot(fig_filename, time, eps, t_s, delta_vx_mean, delta_vx_var)
 
 

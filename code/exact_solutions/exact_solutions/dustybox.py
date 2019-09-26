@@ -13,21 +13,21 @@ import numpy as np
 import scipy.linalg
 
 
-def delta_vx(time, K, rho, eps, delta_vx_init):
+def delta_vx(
+    time: float, t_s: np.ndarray, eps: np.ndarray, delta_vx_init: float
+) -> np.ndarray:
     """
     Differential velocity for linear drag on multiple dust species.
 
     Parameters
     ----------
-    time : float
+    time
         Time at which to evaluate the expression.
-    K : (N,) ndarray
-        Drag constants for each dust species.
-    rho : float
-        Total density, assuming constant.
-    eps : (N,) ndarray
+    t_s
+        Stopping time for each dust species.
+    eps
         The dust fraction for each dust species.
-    delta_vx_init : float
+    delta_vx_init
         Initial differential velocity between the dust and gas.
 
     Returns
@@ -41,24 +41,22 @@ def delta_vx(time, K, rho, eps, delta_vx_init):
     see Equation (64) in Laibe and Price (2014) MNRAS, 444, 1940.
     """
 
-    omega = drag_matrix(K, rho, eps)
+    omega = drag_matrix(t_s, eps)
 
     if omega.size > 1:
         return scipy.linalg.expm(-omega * time) @ delta_vx_init
     return np.exp(-omega[0, 0] * time) * delta_vx_init
 
 
-def drag_matrix(K, rho, eps):
+def drag_matrix(t_s: np.ndarray, eps: np.ndarray) -> np.ndarray:
     """
     Drag matrix for multiple dust species.
 
     Parameters
     ----------
-    K : (N,) array_like
-        Drag constant for each dust species.
-    rho : float
-        Total density, assuming constant.
-    eps : (N,) array_like
+    t_s
+        Stopping time for each dust species.
+    eps
         The dust fraction for each dust species.
 
     Returns
@@ -71,19 +69,18 @@ def drag_matrix(K, rho, eps):
     See Equation (65) in Laibe and Price (2014) MNRAS, 444, 1940.
     """
 
-    K = np.array(K)
+    t_s = np.array(t_s)
     eps = np.array(eps)
-    ts = rho / K
 
-    N = K.size
+    N = t_s.size
     omega = np.zeros((N, N))
 
     if N > 1:
         for idx in range(N):
-            omega[idx, :] = 1.0 / (ts * (1.0 - np.sum(eps)))
-        omega += np.diag(1.0 / (ts * eps))
+            omega[idx, :] = 1.0 / (t_s * (1.0 - np.sum(eps)))
+        omega += np.diag(1.0 / (t_s * eps))
 
     else:
-        omega[:] = 1.0 / (ts * eps * (1 - eps))
+        omega[:] = 1.0 / (t_s * eps * (1 - eps))
 
     return omega

@@ -67,35 +67,45 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False):
         fig_filename = processed_data_dir / f'delta_vx_{directory.name}.pdf'
 
         if force_recompute:
-            data = read_dumps_and_compute(
+
+            time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_dumps_and_compute(
                 prefix='dustybox', run_directory=directory, save_dir=processed_data_dir
             )
         else:
             if processed_data_dir.exists():
-                data = read_processed_data(processed_data_dir)
+                time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_processed_data(
+                    processed_data_dir
+                )
             else:
-                data = read_dumps_and_compute(
+                time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_dumps_and_compute(
                     prefix='dustybox',
                     run_directory=directory,
                     save_dir=processed_data_dir,
                 )
 
+        rho = rho_gas + np.sum(rho_dust)
+        eps = rho_dust / rho
+
         try:
-            K = phantomconfig.read_config(directory / 'dustybox.in').get_value('K_code')
+            K = np.ones_like(rho_dust)
+            K *= phantomconfig.read_config(directory / 'dustybox.in').get_value(
+                'K_code'
+            )
         except KeyError:
             header = (
                 plonk.Simulation(prefix='dustybox', directory=directory).dumps[0].header
             )
             gamma = header['gamma']
-            sound_speed = np.sqrt(2 / 3 * header['RK2'])
-            grain_density = header['graindens'][0]
-            grain_size = header['grainsize'][header['grainsize'] > 0]
-            K = (
-                sound_speed
-                / (grain_density * grain_size)
-                * np.sqrt(8 / (np.pi * gamma))
-            )
-        make_plot(fig_filename, K, *data)
+            c_s = np.sqrt(2 / 3 * header['RK2'])
+            rho_m = header['graindens'][0]
+            s = header['grainsize'][header['grainsize'] > 0]
+            K = rho_gas * rho_dust * c_s / (np.sqrt(np.pi * gamma / 8) * rho_m * s)
+
+        t_s = rho / K
+
+        print(f't_s = {t_s}')
+        print(f'eps = {eps}')
+        make_plot(fig_filename, time, eps, t_s, delta_vx_mean, delta_vx_var)
 
 
 def read_dumps_and_compute(
@@ -234,30 +244,27 @@ def read_processed_data(
 
 def make_plot(
     filename: Path,
-    K: Union[float, np.ndarray],
     time: np.ndarray,
-    rho_gas: np.ndarray,
-    rho_dust: np.ndarray,
+    eps: np.ndarray,
+    t_s: np.ndarray,
     delta_vx_mean: np.ndarray,
     delta_vx_var: np.ndarray,
 ):
     """
     Parameters
     ----------
-    filename : pathlib.Path
+    filename
         The file name to save the figure to.
-    K : float or np.ndarray
-        The dust drag constant.
-    time : np.ndarray
+    time
         The simulation time of the dumps
-    rho_gas : float
-        The initial gas density.
-    rho_dust : np.ndarray
-        The initial dust densities.
-    delta_vx_mean : np.ndarray
+    eps
+        The dust-to-gas ratio for each dust species.
+    t_s
+        The stopping time for each dust species.
+    delta_vx_mean
         The mean of the difference between the gas velocity and dust
         velocities at each time.
-    delta_vx_var: np.ndarray
+    delta_vx_var
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
@@ -270,24 +277,18 @@ def make_plot(
     fig, ax = plt.subplots()
 
     ndusttypes = delta_vx_mean.shape[1]
-
-    rho = rho_gas + np.sum(rho_dust)
-    eps = rho_dust / rho
     delta_vx_init = delta_vx_mean[0, :]
-
-    if isinstance(K, float):
-        K = np.full_like(eps, K)
 
     exact_solution_with_back_reaction = np.zeros((len(time), ndusttypes))
     exact_solution_without_back_reaction = np.zeros((len(time), ndusttypes))
 
     for idxi, t in enumerate(time):
         exact_solution_with_back_reaction[idxi, :] = exact.dustybox.delta_vx(
-            t, K, rho, eps, delta_vx_init
+            t, t_s, eps, delta_vx_init
         )
         for idxj in range(ndusttypes):
             exact_solution_without_back_reaction[idxi, idxj] = exact.dustybox.delta_vx(
-                t, K[idxj], rho, eps[idxj], delta_vx_mean[0, idxj]
+                t, t_s[idxj], eps[idxj], delta_vx_mean[0, idxj]
             )
 
     for idx, color in zip(range(ndusttypes), colors):

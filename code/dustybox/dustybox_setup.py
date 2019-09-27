@@ -19,12 +19,9 @@ The following global variables are set.
 - HDF5ROOT
 """
 
-from __future__ import annotations
-
 import argparse
 import pathlib
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -33,97 +30,14 @@ import phantombuild
 import phantomsetup
 import tomlkit
 
+from dustybox_parameters import Parameters, set_parameters
+
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 REQUIRED_PHANTOM_GIT_COMMIT_HASH = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 if sys.platform == 'darwin':
     HDF5ROOT = pathlib.Path('/usr/local/opt/hdf5')
 elif sys.platform == 'linux':
     HDF5ROOT = pathlib.Path('/usr/lib/x86_64-linux-gnu/hdf5/serial')
-
-
-@dataclass
-class Parameters:
-    """
-    Dusty box parameters.
-
-    If drag_method is set to 'Epstein/Stokes' you must set
-    - grain_size
-    - grain_density
-
-    If drag_method is set to 'K_drag' you must set
-    - K_drag
-
-    Note that the length of dust_to_gas_ratio must match grain_size
-    and grain_density
-    """
-
-    prefix: str = 'dustybox'
-    length_unit: str = 'au'
-    mass_unit: str = 'solarm'
-    time_unit: str = 'year'
-    ieos: int = 1
-    sound_speed: float = 1.0
-    box_boundary: tuple = (-0.5, 0.5, -0.5, 0.5, -0.5, 0.5)
-    number_of_particles_gas: int = 50_000
-    number_of_particles_dust: int = 10_000
-    density_gas: float = 1.0
-    dust_to_gas_ratio: tuple = (0.01, 0.01, 0.01, 0.01, 0.01)
-    dust_method: str = 'largegrains'
-    drag_method: str = 'Epstein/Stokes'
-    K_drag: float = 1.0
-    grain_size: tuple = ()
-    grain_density: float = 1.0
-    velocity_delta: float = 1.0
-    maximum_time: float = 0.1
-    number_of_dumps: int = 20
-
-    def write_to_file(self, filename: Union[str, Path]) -> Parameters:
-        """
-        Write the parameters to TOML file.
-
-        Parameters
-        ----------
-        filename : str or Path
-            The name of the file to write. Should have extension
-            '.toml'.
-        """
-        document = tomlkit.document()
-        for key, value in self.__dict__.items():
-            if isinstance(value, tuple):
-                value = list(value)
-            document.add(key, value)
-        with open(filename, 'w') as fp:
-            fp.write(tomlkit.dumps(document))
-        return self
-
-    def read_from_file(self, filename: Union[str, Path]) -> Parameters:
-        """
-        Read parameters from TOML file.
-
-        Parameters
-        ----------
-        filename : str or Path
-            The name of the file to read. Should have extension '.toml'.
-
-        Returns
-        -------
-        Parameters
-            The Parameters object generated from the parameters file.
-        """
-
-        if not pathlib.Path(filename).exists():
-            raise ValueError('parameter file does not exist')
-
-        with open(filename, 'r') as fp:
-            t = tomlkit.loads(fp.read())
-
-        d = dict()
-        for key, val in t.items():
-            if isinstance(val, list):
-                val = tuple(val)
-            d[key] = val
-
-        return Parameters(**d)
 
 
 def main():
@@ -280,7 +194,7 @@ def setup_dustybox(
         time_unit = parameters.time_unit
     setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
 
-    setup.set_equation_of_state(ieos=parameters.ieos, polyk=parameters.sound_speed ** 2)
+    setup.set_equation_of_state(ieos=1, polyk=parameters.sound_speed ** 2)
 
     number_of_dust_species = len(parameters.dust_to_gas_ratio)
     density_dust = [

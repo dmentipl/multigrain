@@ -23,8 +23,8 @@ def main():
         required_phantom_git_commit_hash=REQUIRED_PHANTOM_GIT_COMMIT_HASH,
     )
 
-    parameters = parameters_for_Epstein_tests()
-    setup_all(run_root_dir, parameters)
+    parameters_all = parameters_for_Epstein_tests()
+    setup_all(run_root_dir, parameters_all)
     run_all(run_root_dir)
 
 

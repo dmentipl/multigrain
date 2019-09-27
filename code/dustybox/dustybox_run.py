@@ -16,18 +16,15 @@ import sys
 from pathlib import Path
 
 
-def main():
-    run_root_dir = get_command_line()
-    run(run_root_dir)
-
-
-def run(run_root_dir: Path):
+def run_all(run_root_dir: Path):
 
     print('\n' + 72 * '-')
     print('>>> Running calculations <<<')
     print(72 * '-' + '\n')
 
     for directory in sorted(run_root_dir.iterdir()):
+        if not directory.is_dir():
+            continue
         print(f'Running {directory.name}...')
         in_files = list(directory.glob('*.in'))
         if len(in_files) > 1:
@@ -38,28 +35,3 @@ def run(run_root_dir: Path):
             subprocess.run(
                 [directory / 'phantom', in_file], cwd=directory, stdout=fp, stderr=fp
             )
-
-
-def get_command_line():
-    """
-    Get command line options.
-
-    Returns
-    -------
-    run_root_dir : Path
-        The path to the root directory for the calculations.
-    """
-    parser = argparse.ArgumentParser(description='Run the dustybox calculations')
-    parser.add_argument(
-        '-r',
-        '--run_root_dir',
-        help='the root directory for the calculations',
-        required=True,
-    )
-    args = parser.parse_args()
-    run_root_dir = pathlib.Path(args.run_root_dir).resolve()
-    return run_root_dir
-
-
-if __name__ == '__main__':
-    main()

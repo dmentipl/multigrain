@@ -15,100 +15,25 @@ Phantom is compiled with HDF5. So the library must be available.
 The following global variables are set.
 
 - PHANTOM_DIR
-- REQUIRED_PHANTOM_GIT_COMMIT_HASH
 - HDF5ROOT
 """
 
-import argparse
 import pathlib
 import sys
 from pathlib import Path
 from typing import Dict, List, Union
 
 import numpy as np
-import phantombuild
 import phantomsetup
-import tomlkit
+from numpy import ndarray
 
-from dustybox_parameters import Parameters, set_parameters
+from dustybox_parameters import Parameters
 
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
-REQUIRED_PHANTOM_GIT_COMMIT_HASH = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 if sys.platform == 'darwin':
     HDF5ROOT = pathlib.Path('/usr/local/opt/hdf5')
 elif sys.platform == 'linux':
     HDF5ROOT = pathlib.Path('/usr/lib/x86_64-linux-gnu/hdf5/serial')
-
-
-def main():
-
-    run_root_dir, parameter_files = get_command_line()
-    parameters_dict = get_parameters(parameter_files)
-
-    phantombuild.get_phantom(phantom_dir=PHANTOM_DIR)
-    phantombuild.checkout_phantom_version(
-        phantom_dir=PHANTOM_DIR,
-        required_phantom_git_commit_hash=REQUIRED_PHANTOM_GIT_COMMIT_HASH,
-    )
-
-    setups = setup_all(run_root_dir, parameters_dict)
-    return setups
-
-
-def get_command_line():
-    """
-    Get command line options.
-
-    Returns
-    -------
-    run_root_dir : Path
-        The path to the root directory for the calculations.
-    parameter_files : List[Path]
-        The path to the parameter files.
-    """
-    parser = argparse.ArgumentParser(description='Set up dustybox calculations')
-    parser.add_argument(
-        '-r',
-        '--run_root_dir',
-        help='the root directory for the calculations',
-        required=True,
-    )
-    parser.add_argument(
-        '-p', '--parameters', nargs='+', help='a list of parameter files', required=True
-    )
-    args = parser.parse_args()
-    run_root_dir = pathlib.Path(args.run_root_dir).resolve()
-    parameter_files = [
-        pathlib.Path(parameter_file).resolve() for parameter_file in args.parameters
-    ]
-    for parameter_file in parameter_files:
-        if not parameter_file.exists():
-            raise ValueError('parameter_file does not exist')
-    return run_root_dir, parameter_files
-
-
-def get_parameters(parameter_files: List[Path]) -> Dict[str, Parameters]:
-    """
-    Get Parameter objects from parameter files.
-
-    Parameters
-    ----------
-    parameter_files
-        The list of parameter files.
-
-    Returns
-    -------
-    Dict[str, Parameters]   
-        A dictionary of Parameters. The key is the "run label" which
-        will be the sub-directory of the root directory. The value is
-        the Parameters data object for the run.
-    """
-    parameters_dict = {}
-    for parameter_file in parameter_files:
-        parameters_dict[parameter_file.stem] = Parameters().read_from_file(
-            parameter_file
-        )
-    return parameters_dict
 
 
 def setup_all(run_root_directory: pathlib.Path, parameters_dict: Dict[str, Parameters]):
@@ -219,7 +144,7 @@ def setup_dustybox(
 
     setup.set_boundary(parameters.box_boundary, periodic=True)
 
-    def velocity_gas(xyz: np.ndarray) -> np.ndarray:
+    def velocity_gas(xyz: ndarray) -> ndarray:
         """Gas has zero initial velocity."""
         vxyz = np.zeros_like(xyz)
         return vxyz
@@ -233,7 +158,7 @@ def setup_dustybox(
     )
     setup.add_box(box)
 
-    def velocity_dust(xyz: np.ndarray) -> np.ndarray:
+    def velocity_dust(xyz: ndarray) -> ndarray:
         """Dust has uniform initial velocity."""
         vxyz = np.zeros_like(xyz)
         vxyz[:, 0] = parameters.velocity_delta
@@ -263,7 +188,3 @@ def setup_dustybox(
 
     # Return setup
     return setup
-
-
-if __name__ == '__main__':
-    main()

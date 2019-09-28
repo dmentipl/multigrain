@@ -12,12 +12,11 @@ analysis: dustybox-analysis
 .PHONY: dustybox-run dustybox-analysis
 
 dustybox-run:
-	@python dustybox/dustybox_setup.py \
-		--run_root_dir ~/runs/multigrain/dustybox \
-		--parameters dustybox/parameters/*.toml
-	@python dustybox/dustybox_run.py \
+	@python dustybox/cli.py setup \
+		--run_root_dir ~/runs/multigrain/dustybox
+	@python dustybox/cli.py run \
 		--run_root_dir ~/runs/multigrain/dustybox
 
 dustybox-analysis:
-	@python dustybox/dustybox_analysis.py \
+	@python dustybox/cli.py analysis \
 		--run_root_dir ~/runs/multigrain/dustybox

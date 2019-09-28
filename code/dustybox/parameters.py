@@ -46,4 +46,4 @@ for val in _dust_to_gas_ratio:
     f = val / len(_dust_to_gas_ratio)
     _parameters_asdict['dust_to_gas_ratio'] = (f, f, f, f, f)
     _parameters_asdataclass = set_parameters({**_parameters_asdict})
-    parameters[f'Epstein-f={f}'] = _parameters_asdataclass
+    parameters[f'Epstein-f={val}'] = _parameters_asdataclass

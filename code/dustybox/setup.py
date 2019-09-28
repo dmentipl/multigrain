@@ -9,8 +9,9 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 import pint
-import phantomsetup
 from numpy import ndarray
+
+import phantomsetup
 
 
 @dataclass
@@ -169,7 +170,6 @@ def set_parameters(parameter_dict: Dict[str, Any]) -> Parameters:
                 dict_[key] = value
 
     return Parameters(**dict_)
-
 
 
 def do_setup(

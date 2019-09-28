@@ -11,9 +11,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig
-import plonk
 
 import exact_solutions as exact
+import plonk
 
 
 def do_analysis(run_root_dir: Path, force_recompute: bool = False) -> None:

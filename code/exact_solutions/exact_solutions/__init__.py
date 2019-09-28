@@ -5,8 +5,7 @@ This library contains exact solutions to astrophysical problems for
 testing hydrodynamical codes.
 """
 
-from . import dustybox
-from . import dustywave
+from . import dustybox, dustywave
 
 __version__ = '0.0.1'
 

@@ -6,8 +6,8 @@ import phantombuild
 
 from analysis import do_analysis
 from parameters import parameters
-from setup import do_setup
 from run import do_run
+from setup import do_setup
 
 PHANTOM_DIR = '~/repos/phantom'
 PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'

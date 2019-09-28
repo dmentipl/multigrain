@@ -8,15 +8,11 @@ sequentially.
 Daniel Mentiplay, 2019.
 """
 
-import argparse
-import pathlib
-import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 
-def run_all(run_root_dir: Path):
+def do_run(run_root_dir: Path):
 
     print('\n' + 72 * '-')
     print('>>> Running calculations <<<')

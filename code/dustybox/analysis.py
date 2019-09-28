@@ -17,40 +17,6 @@ import plonk
 import exact_solutions as exact
 
 
-def main():
-    run_root_dir, force_recompute = get_command_line()
-    do_analysis(run_root_dir, force_recompute)
-
-
-def get_command_line() -> Tuple[Path, bool]:
-    """
-    Get command line options.
-
-    Returns
-    -------
-    run_root_dir : Path
-        The path to the root directory for the calculations.
-    force_recompute : bool
-        Whether to force recomputing quantities written to .csv files.
-    """
-    parser = argparse.ArgumentParser(description='Analyse dustybox calculations')
-    parser.add_argument(
-        '-r',
-        '--run_root_dir',
-        help='the root directory for the calculations',
-        required=True,
-    )
-    parser.add_argument(
-        '-f',
-        '--force_recompute',
-        help='force recomputing of quantities written to .csv files',
-        required=False,
-    )
-    args = parser.parse_args()
-    run_root_dir = pathlib.Path(args.run_root_dir).resolve()
-    return run_root_dir, args.force_recompute
-
-
 def do_analysis(run_root_dir: Path, force_recompute: bool = False):
 
     print(72 * '=')
@@ -311,9 +277,3 @@ def make_plot(
     plt.savefig(filename)
 
     return fig, ax
-
-
-# ------------------------------------------------------------------------------------ #
-
-if __name__ == '__main__':
-    main()

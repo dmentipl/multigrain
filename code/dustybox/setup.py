@@ -5,7 +5,7 @@ Setup dustybox calculations.
 import pathlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import pint
@@ -107,8 +107,35 @@ class Parameters:
         self.validate_input()
 
 
-def set_parameters(parameter_dict):
-    # TODO: docstring
+def set_parameters(parameter_dict: Dict[str, Any]) -> Parameters:
+    """
+    Generate Parameters object from dictionary.
+
+    Parameters
+    ----------
+    parameters_dict
+        A dictionary with keys the same as attributes in Parameters. The
+        values can be float, int, list, tuple, str. Tuples are special.
+        They indicate a numerical value (or array_like of values), with
+        the last element of the tuple a str with the units.
+
+    Returns
+    -------
+    Parameters
+        The Parameters object.
+
+    Examples
+    --------
+    >>> _parameters_asdict = {
+    ...    'prefix': 'dustybox',
+    ...    'length_unit': 'cm',
+    ...    'mass_unit': 'g',
+    ...    'time_unit': 's',
+    ...    'sound_speed': (1.0, 'cm / s'),
+    ...    'box_boundary': ([-0.5, 0.5, -0.5, 0.5, -0.5, 0.5], 'cm'),
+    ... }
+    >>> set_parameters(_parameters_asdict)
+    """
 
     units = pint.UnitRegistry(system='cgs')
 
@@ -150,7 +177,7 @@ def do_setup(
     parameters_dict: Dict[str, Parameters],
     phantom_dir: Path,
     hdf5root: Path,
-):
+) -> List[phantomsetup.Setup]:
     """
     Setup multiple calculations.
 

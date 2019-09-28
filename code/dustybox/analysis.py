@@ -1,7 +1,5 @@
 """
-DUSTYBOX analysis: compare simulations with analytic solutions.
-
-Daniel Mentiplay, 2019.
+Dustybox analysis: compare simulations with analytic solutions.
 """
 
 import argparse
@@ -9,6 +7,7 @@ import pathlib
 from pathlib import Path
 from typing import Tuple, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig
@@ -17,7 +16,7 @@ import plonk
 import exact_solutions as exact
 
 
-def do_analysis(run_root_dir: Path, force_recompute: bool = False):
+def do_analysis(run_root_dir: Path, force_recompute: bool = False) -> None:
 
     print(72 * '=')
     print(f'>>>  Run directory -- {str(run_root_dir):45}  <<<')
@@ -33,30 +32,34 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False):
         fig_filename = processed_data_dir / f'delta_vx_{directory.name}.pdf'
 
         if force_recompute:
-
-            time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_dumps_and_compute(
+            read_dumps_and_compute(
                 prefix='dustybox', run_directory=directory, save_dir=processed_data_dir
+            )
+            time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
+                processed_data_dir
             )
         else:
             if processed_data_dir.exists():
-                time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_processed_data(
+                time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
                     processed_data_dir
                 )
             else:
-                time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var = read_dumps_and_compute(
+                read_dumps_and_compute(
                     prefix='dustybox',
                     run_directory=directory,
                     save_dir=processed_data_dir,
                 )
+                time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
+                    processed_data_dir
+                )
 
-        rho = rho_gas + np.sum(rho_dust)
-        eps = rho_dust / rho
+        rho = rho_g + np.sum(rho_d)
+        eps = rho_d / rho
 
         try:
-            K = np.ones_like(rho_dust)
-            K *= phantomconfig.read_config(directory / 'dustybox.in').get_value(
-                'K_code'
-            )
+            in_file = directory / 'dustybox.in'
+            K = np.ones_like(rho_d)
+            K *= phantomconfig.read_config(in_file).get_value('K_code')
         except KeyError:
             header = (
                 plonk.Simulation(prefix='dustybox', directory=directory).dumps[0].header
@@ -65,7 +68,7 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False):
             c_s = np.sqrt(2 / 3 * header['RK2'])
             rho_m = header['graindens'][0]
             s = header['grainsize'][header['grainsize'] > 0]
-            K = rho_gas * rho_dust * c_s / (np.sqrt(np.pi * gamma / 8) * rho_m * s)
+            K = rho_g * rho_d * c_s / (np.sqrt(np.pi * gamma / 8) * rho_m * s)
 
         t_s = rho / K
 
@@ -74,9 +77,23 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False):
 
 def read_dumps_and_compute(
     prefix: str, run_directory: Path, save_dir: Path = None
-) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray, np.ndarray]:
+) -> None:
     """
     Read dumps, extract data, and compute quantities.
+
+    It writes the following to CSV files:
+        time : np.ndarray
+            The simulation time of the dumps
+        rho_gas : float
+            The initial gas density.
+        rho_dust : np.ndarray
+            The initial dust densities.
+        delta_vx_mean : np.ndarray
+            The mean of the difference between the gas velocity and dust
+            velocities at each time.
+        delta_vx_var : np.ndarray
+            The variance of the difference between the gas velocity and
+            dust velocities at each time.
 
     Parameters
     ----------
@@ -86,21 +103,6 @@ def read_dumps_and_compute(
         The simulation directory to pass to plonk.Simulation.
     save_dir
         Directory to save output to.
-
-    Returns
-    -------
-    time : np.ndarray
-        The simulation time of the dumps
-    rho_gas : float
-        The initial gas density.
-    rho_dust : np.ndarray
-        The initial dust densities.
-    delta_vx_mean : np.ndarray
-        The mean of the difference between the gas velocity and dust
-        velocities at each time.
-    delta_vx_var : np.ndarray
-        The variance of the difference between the gas velocity and dust
-        velocities at each time.
     """
 
     # ------------------------------------------------------------------
@@ -164,7 +166,7 @@ def read_dumps_and_compute(
         np.savetxt(save_dir / 'delta_vx_mean.csv', delta_vx_mean, delimiter=',')
         np.savetxt(save_dir / 'delta_vx_var.csv', delta_vx_var, delimiter=',')
 
-    return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
+    return
 
 
 def read_processed_data(
@@ -213,7 +215,7 @@ def make_plot(
     t_s: np.ndarray,
     delta_vx_mean: np.ndarray,
     delta_vx_var: np.ndarray,
-):
+) -> Tuple[matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot]:
     """
     Parameters
     ----------

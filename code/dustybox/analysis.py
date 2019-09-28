@@ -215,7 +215,7 @@ def make_plot(
     t_s: np.ndarray,
     delta_vx_mean: np.ndarray,
     delta_vx_var: np.ndarray,
-) -> Tuple[matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot]:
+):
     """
     Parameters
     ----------

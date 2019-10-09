@@ -1,3 +1,4 @@
+"""Command line interface to dusty-box test problem."""
 import pathlib
 import sys
 
@@ -21,7 +22,7 @@ else:
 
 @click.group()
 def cli():
-    pass
+    """Click group for CLI."""
 
 
 @cli.command()
@@ -50,6 +51,7 @@ def cli():
     show_default=True,
 )
 def setup(run_root_dir, phantom_dir, phantom_version, hdf5_root_dir):
+    """Set up dusty-box calculations."""
     run_root_dir = pathlib.Path(run_root_dir).expanduser().resolve()
     phantom_dir = pathlib.Path(phantom_dir).expanduser().resolve()
     hdf5_root_dir = pathlib.Path(hdf5_root_dir).expanduser().resolve()
@@ -68,6 +70,7 @@ def setup(run_root_dir, phantom_dir, phantom_version, hdf5_root_dir):
     help='the root directory for the calculations',
 )
 def run(run_root_dir):
+    """Run dusty-box calculations."""
     run_root_dir = pathlib.Path(run_root_dir).expanduser().resolve()
     do_run(run_root_dir)
 
@@ -86,6 +89,7 @@ def run(run_root_dir):
     is_flag=True,
 )
 def analysis(run_root_dir, force_recompute):
+    """Analyse dusty-box calculations."""
     print(f'force_recompute={force_recompute}')
     run_root_dir = pathlib.Path(run_root_dir).expanduser().resolve()
     do_analysis(run_root_dir, force_recompute)

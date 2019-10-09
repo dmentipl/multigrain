@@ -1,5 +1,5 @@
 """
-Generate a dictionary of Parameter objects for the dustybox tests
+Generate a dictionary of Parameter objects for the dustybox tests.
 
 The dictionary is as follows:
     {

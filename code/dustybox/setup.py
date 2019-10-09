@@ -1,8 +1,5 @@
-"""
-Setup dustybox calculations.
-"""
+"""Setup dustybox calculations."""
 
-import pathlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -19,43 +16,19 @@ class Parameters:
     """
     Dusty box parameters.
 
-        prefix: str
-        length_unit: float
-        mass_unit: float
-        time_unit: float
-        sound_speed: float
-        box_boundary: tuple
-        number_of_particles_gas: int
-        number_of_particles_dust: int
-        density_gas: float
-        dust_to_gas_ratio: tuple
-        dust_method: str
-        drag_method: str
-        velocity_delta: float
-        maximum_time: float
-        K_drag: float = 0.0
-        grain_size: tuple = ()
-        grain_density: float = 0.0
-        number_of_dumps: int = 100
-
     All dimensional quantities are in terms of the base units:
 
     - length_unit
     - mass_unit
     - time_unit
 
-    Options for dust_method are:
-    
-    - 'largegrains'
-    - 'smallgrains'
-
     Options for drag_method are:
-    
+
     - 'Epstein/Stokes'
     - 'K_const'
 
     If drag_method is set to 'Epstein/Stokes' you must set
-    
+
     - grain_size
     - grain_density
 
@@ -70,12 +43,11 @@ class Parameters:
     mass_unit: float
     time_unit: float
     sound_speed: float
-    box_boundary: tuple
+    box_width: float
     number_of_particles_gas: int
     number_of_particles_dust: int
     density_gas: float
     dust_to_gas_ratio: tuple
-    dust_method: str
     drag_method: str
     velocity_delta: float
     maximum_time: float
@@ -85,10 +57,7 @@ class Parameters:
     number_of_dumps: int = 100
 
     def validate_input(self):
-        if self.dust_method not in ('largegrains', 'smallgrains'):
-            raise ValueError(
-                'dust_method unavailable: choose "largegrains" or "smallgrains"'
-            )
+        """Check that user input is consistent."""
         if self.drag_method not in ('Epstein/Stokes', 'K_const'):
             raise ValueError(
                 'drag_method unavailable: choose "Epstein/Stokes" or "K_const"'
@@ -105,6 +74,7 @@ class Parameters:
                 raise ValueError('must set K_drag if using K_const drag')
 
     def __post_init__(self):
+        """Validate input after initialization."""
         self.validate_input()
 
 
@@ -122,7 +92,7 @@ def set_parameters(parameter_dict: Dict[str, Any]) -> Parameters:
 
     Returns
     -------
-    Parameters
+    setup.Parameters
         The Parameters object.
 
     Examples
@@ -133,11 +103,10 @@ def set_parameters(parameter_dict: Dict[str, Any]) -> Parameters:
     ...    'mass_unit': 'g',
     ...    'time_unit': 's',
     ...    'sound_speed': (1.0, 'cm / s'),
-    ...    'box_boundary': ([-0.5, 0.5, -0.5, 0.5, -0.5, 0.5], 'cm'),
+    ...    'box_width': (1.0, 'cm'),
     ... }
     >>> set_parameters(_parameters_asdict)
     """
-
     units = pint.UnitRegistry(system='cgs')
 
     length_unit = units(parameter_dict.pop('length_unit'))
@@ -179,7 +148,7 @@ def do_setup(
     hdf5root: Path,
 ) -> List[phantomsetup.Setup]:
     """
-    Setup multiple calculations.
+    Set up multiple calculations.
 
     Parameters
     ----------
@@ -199,7 +168,6 @@ def do_setup(
     List[phantomsetup.Setup]
         A list of Setup objects.
     """
-
     print('\n' + 72 * '-')
     print('>>> Setting up calculations <<<')
     print(72 * '-' + '\n')
@@ -208,13 +176,13 @@ def do_setup(
         run_root_directory.mkdir(parents=True)
 
     setups = list()
-    for run_label, parameters in parameters_dict.items():
+    for run_label, params in parameters_dict.items():
         print(f'Setting up {run_label}...')
         run_directory = run_root_directory / run_label
         run_directory.mkdir()
         setups.append(
             setup_dustybox(
-                parameters=parameters,
+                params=params,
                 run_directory=run_directory,
                 phantom_dir=phantom_dir,
                 hdf5root=hdf5root,
@@ -225,17 +193,17 @@ def do_setup(
 
 
 def setup_dustybox(
-    parameters: Parameters,
+    params: Parameters,
     run_directory: Union[str, Path],
     phantom_dir: Path,
     hdf5root: Path,
 ) -> phantomsetup.Setup:
     """
-    Setup a Phantom dustybox calculation.
+    Set up a Phantom dustybox calculation.
 
     Parameters
     ----------
-    parameters
+    params
         The parameters for this calculation.
     run_directory
         The path to the directory containing the run.
@@ -248,84 +216,90 @@ def setup_dustybox(
     -------
     phantomsetup.Setup
     """
-
     # Constants
     igas = phantomsetup.defaults.PARTICLE_TYPE['igas']
     idust = phantomsetup.defaults.PARTICLE_TYPE['idust']
 
     # Setup
     setup = phantomsetup.Setup()
-    setup.prefix = parameters.prefix
+    setup.prefix = params.prefix
 
     setup.set_compile_option('IND_TIMESTEPS', False)
     setup.set_output(
-        tmax=parameters.maximum_time, ndumps=parameters.number_of_dumps, nfulldump=1
+        tmax=params.maximum_time, ndumps=params.number_of_dumps, nfulldump=1
     )
 
-    if isinstance(parameters.length_unit, str):
-        length_unit = phantomsetup.units.unit_string_to_cgs(parameters.length_unit)
+    if isinstance(params.length_unit, str):
+        length_unit = phantomsetup.units.unit_string_to_cgs(params.length_unit)
     else:
-        length_unit = parameters.length_unit
-    if isinstance(parameters.mass_unit, str):
-        mass_unit = phantomsetup.units.unit_string_to_cgs(parameters.mass_unit)
+        length_unit = params.length_unit
+    if isinstance(params.mass_unit, str):
+        mass_unit = phantomsetup.units.unit_string_to_cgs(params.mass_unit)
     else:
-        mass_unit = parameters.mass_unit
-    if isinstance(parameters.time_unit, str):
-        time_unit = phantomsetup.units.unit_string_to_cgs(parameters.time_unit)
+        mass_unit = params.mass_unit
+    if isinstance(params.time_unit, str):
+        time_unit = phantomsetup.units.unit_string_to_cgs(params.time_unit)
     else:
-        time_unit = parameters.time_unit
+        time_unit = params.time_unit
     setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
 
-    setup.set_equation_of_state(ieos=1, polyk=parameters.sound_speed ** 2)
+    setup.set_equation_of_state(ieos=1, polyk=params.sound_speed ** 2)
 
-    number_of_dust_species = len(parameters.dust_to_gas_ratio)
-    density_dust = [
-        eps * parameters.density_gas for eps in parameters.dust_to_gas_ratio
-    ]
-    if parameters.drag_method == 'Epstein/Stokes':
+    number_of_dust_species = len(params.dust_to_gas_ratio)
+    density_dust = [eps * params.density_gas for eps in params.dust_to_gas_ratio]
+    if params.drag_method == 'Epstein/Stokes':
         setup.set_dust(
-            dust_method=parameters.dust_method,
-            drag_method=parameters.drag_method,
-            grain_size=parameters.grain_size,
-            grain_density=parameters.grain_density,
+            dust_method='largegrains',
+            drag_method=params.drag_method,
+            grain_size=params.grain_size,
+            grain_density=params.grain_density,
         )
-    elif parameters.drag_method == 'K_const':
+    elif params.drag_method == 'K_const':
         setup.set_dust(
-            dust_method=parameters.dust_method,
-            drag_method=parameters.drag_method,
-            drag_constant=parameters.K_drag,
+            dust_method='largegrains',
+            drag_method=params.drag_method,
+            drag_constant=params.K_drag,
             number_of_dust_species=number_of_dust_species,
         )
     else:
         raise ValueError('Cannot set up dust')
 
-    setup.set_boundary(parameters.box_boundary, periodic=True)
+    box_boundary = (
+        -params.box_width / 2,
+        params.box_width / 2,
+        -params.box_width / 2,
+        params.box_width / 2,
+        -params.box_width / 2,
+        params.box_width / 2,
+    )
+
+    setup.set_boundary(box_boundary, periodic=True)
 
     def velocity_gas(xyz: ndarray) -> ndarray:
         """Gas has zero initial velocity."""
-        vxyz = np.zeros_like(xyz)
+        vxyz = np.zeros(xyz.shape)
         return vxyz
 
-    box = phantomsetup.Box(*parameters.box_boundary)
+    box = phantomsetup.Box(*box_boundary)
     box.add_particles(
         particle_type=igas,
-        number_of_particles=parameters.number_of_particles_gas,
-        density=parameters.density_gas,
+        number_of_particles=params.number_of_particles_gas,
+        density=params.density_gas,
         velocity_distribution=velocity_gas,
     )
     setup.add_box(box)
 
     def velocity_dust(xyz: ndarray) -> ndarray:
         """Dust has uniform initial velocity."""
-        vxyz = np.zeros_like(xyz)
-        vxyz[:, 0] = parameters.velocity_delta
+        vxyz = np.zeros(xyz.shape)
+        vxyz[:, 0] = params.velocity_delta
         return vxyz
 
     for idx in range(number_of_dust_species):
-        box = phantomsetup.Box(*parameters.box_boundary)
+        box = phantomsetup.Box(*box_boundary)
         box.add_particles(
             particle_type=idust + idx,
-            number_of_particles=parameters.number_of_particles_dust,
+            number_of_particles=params.number_of_particles_dust,
             density=density_dust[idx],
             velocity_distribution=velocity_dust,
         )

@@ -12,7 +12,19 @@ from typing import List
 
 
 def do_run(run_root_dir: Path) -> List[subprocess.CompletedProcess]:
+    """
+    Run dustybox calculations.
 
+    Parameters
+    ----------
+    run_root_dir
+        Root directory containing the run directories.
+
+    Returns
+    -------
+    List[subprocess.CompletedProcess]
+        A list with the outputs from each completed process.
+    """
     print('\n' + 72 * '-')
     print('>>> Running calculations <<<')
     print(72 * '-' + '\n')

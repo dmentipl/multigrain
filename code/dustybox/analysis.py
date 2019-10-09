@@ -1,13 +1,8 @@
-"""
-Dustybox analysis: compare simulations with analytic solutions.
-"""
+"""Dustybox analysis: compare simulations with analytic solutions."""
 
-import argparse
-import pathlib
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Tuple
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import phantomconfig
@@ -17,7 +12,16 @@ import plonk
 
 
 def do_analysis(run_root_dir: Path, force_recompute: bool = False) -> None:
+    """
+    Run the analysis on dustybox.
 
+    Parameters
+    ----------
+    run_root_dir
+        The root directory containing the runs.
+    force_recompute : bool, optional
+        Force recomputing and writing data to csv, by default False.
+    """
     print(72 * '=')
     print(f'>>>  Run directory -- {str(run_root_dir):45}  <<<')
     print(72 * '=')
@@ -78,8 +82,7 @@ def do_analysis(run_root_dir: Path, force_recompute: bool = False) -> None:
 def read_dumps_and_compute(
     prefix: str, run_directory: Path, save_dir: Path = None
 ) -> None:
-    """
-    Read dumps, extract data, and compute quantities.
+    """Read dumps, extract data, and compute quantities.
 
     It writes the following to CSV files:
         time : np.ndarray
@@ -104,7 +107,6 @@ def read_dumps_and_compute(
     save_dir
         Directory to save output to.
     """
-
     # ------------------------------------------------------------------
     # Open dumps
 
@@ -173,6 +175,8 @@ def read_processed_data(
     data_dir: Path
 ) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray, np.ndarray]:
     """
+    Read the processed data from CSV files.
+
     Parameters
     ----------
     data_dir
@@ -193,7 +197,6 @@ def read_processed_data(
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
-
     if not data_dir.exists():
         raise FileExistsError('Cannot find data_dir')
 
@@ -216,7 +219,8 @@ def make_plot(
     delta_vx_mean: np.ndarray,
     delta_vx_var: np.ndarray,
 ):
-    """
+    """Make the plot and save to file.
+
     Parameters
     ----------
     filename
@@ -234,7 +238,6 @@ def make_plot(
         The variance of the difference between the gas velocity and dust
         velocities at each time.
     """
-
     print('Making plot...')
 
     prop_cycle = plt.rcParams['axes.prop_cycle']

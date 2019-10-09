@@ -10,12 +10,11 @@ Daniel Mentiplay, 2019.
 """
 
 import numpy as np
-import scipy.linalg
+from numpy import ndarray
+from scipy.linalg import expm
 
 
-def delta_vx(
-    time: float, t_s: np.ndarray, eps: np.ndarray, delta_vx_init: float
-) -> np.ndarray:
+def delta_vx(time: float, t_s: ndarray, eps: ndarray, delta_vx_init: float) -> ndarray:
     """
     Differential velocity for linear drag on multiple dust species.
 
@@ -44,11 +43,11 @@ def delta_vx(
     omega = drag_matrix(t_s, eps)
 
     if omega.size > 1:
-        return scipy.linalg.expm(-omega * time) @ delta_vx_init
+        return expm(-omega * time) @ delta_vx_init
     return np.exp(-omega[0, 0] * time) * delta_vx_init
 
 
-def drag_matrix(t_s: np.ndarray, eps: np.ndarray) -> np.ndarray:
+def drag_matrix(t_s: ndarray, eps: ndarray) -> ndarray:
     """
     Drag matrix for multiple dust species.
 

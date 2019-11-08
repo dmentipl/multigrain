@@ -1,284 +1,174 @@
-"""Dustybox analysis: compare simulations with analytic solutions."""
+"""Dusty box analysis."""
 
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-import phantomconfig
-
-import exact_solutions as exact
+import pandas as pd
 import plonk
+from numpy import ndarray
+from pandas import DataFrame
+from plonk import Simulation
+
+import exact_solutions
 
 
-def do_analysis(run_root_dir: Path, force_recompute: bool = False) -> None:
-    """
-    Run the analysis on dustybox.
-
-    Parameters
-    ----------
-    run_root_dir
-        The root directory containing the runs.
-    force_recompute : bool, optional
-        Force recomputing and writing data to csv, by default False.
-    """
-    print(72 * '=')
-    print(f'>>>  Run directory -- {str(run_root_dir):45}  <<<')
-    print(72 * '=')
-
-    for directory in sorted(run_root_dir.iterdir()):
-
-        print(72 * '-')
-        print(f'--- Data from {directory.name} ---')
-        print(72 * '-')
-
-        processed_data_dir = directory / 'processed_data_dir'
-        fig_filename = processed_data_dir / f'delta_vx_{directory.name}.pdf'
-
-        if force_recompute:
-            read_dumps_and_compute(
-                prefix='dustybox', run_directory=directory, save_dir=processed_data_dir
-            )
-            time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
-                processed_data_dir
-            )
-        else:
-            if processed_data_dir.exists():
-                time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
-                    processed_data_dir
-                )
-            else:
-                read_dumps_and_compute(
-                    prefix='dustybox',
-                    run_directory=directory,
-                    save_dir=processed_data_dir,
-                )
-                time, rho_g, rho_d, delta_vx_mean, delta_vx_var = read_processed_data(
-                    processed_data_dir
-                )
-
-        rho = rho_g + np.sum(rho_d)
-        eps = rho_d / rho
-
-        try:
-            in_file = directory / 'dustybox.in'
-            K = np.ones_like(rho_d)
-            K *= phantomconfig.read_config(in_file).get_value('K_code')
-        except KeyError:
-            header = (
-                plonk.Simulation(prefix='dustybox', directory=directory).dumps[0].header
-            )
-            gamma = header['gamma']
-            c_s = np.sqrt(2 / 3 * header['RK2'])
-            rho_m = header['graindens'][0]
-            s = header['grainsize'][header['grainsize'] > 0]
-            K = rho_g * rho_d * c_s / (np.sqrt(np.pi * gamma / 8) * rho_m * s)
-
-        t_s = rho / K
-
-        make_plot(fig_filename, time, eps, t_s, delta_vx_mean, delta_vx_var)
-
-
-def read_dumps_and_compute(
-    prefix: str, run_directory: Path, save_dir: Path = None
-) -> None:
-    """Read dumps, extract data, and compute quantities.
-
-    It writes the following to CSV files:
-        time : np.ndarray
-            The simulation time of the dumps
-        rho_gas : float
-            The initial gas density.
-        rho_dust : np.ndarray
-            The initial dust densities.
-        delta_vx_mean : np.ndarray
-            The mean of the difference between the gas velocity and dust
-            velocities at each time.
-        delta_vx_var : np.ndarray
-            The variance of the difference between the gas velocity and
-            dust velocities at each time.
+def load_data(root_directory: Path) -> List[Simulation]:
+    """Load simulation data.
 
     Parameters
     ----------
-    prefix
-        The simulation prefix to pass to plonk.Simulation.
-    run_directory
-        The simulation directory to pass to plonk.Simulation.
-    save_dir
-        Directory to save output to.
-    """
-    # ------------------------------------------------------------------
-    # Open dumps
-
-    print('Loading simulation data with Plonk...')
-    sim = plonk.Simulation(prefix=prefix, directory=run_directory)
-    header = sim.dumps[0].header
-
-    ntimes = len(sim.dumps)
-    ndusttypes = header['ndustlarge']
-    idust = header['idust']
-
-    itype = sim.dumps[0].particles.arrays['itype'][:]
-
-    npartoftype = list(header['npartoftype'])
-    itypes = [idx + 1 for idx, np in enumerate(npartoftype) if np > 0]
-
-    # ------------------------------------------------------------------
-    # Calculate initial density
-
-    rho = sim.dumps[0].density
-
-    igas = 1
-    rho_gas = rho[itype == igas].mean()
-    rho_dust = np.array(
-        [rho[itype == ipart].mean() for ipart in itypes if ipart >= idust]
-    )
-
-    # ------------------------------------------------------------------
-    # Calculate mean and variance in delta x-velocity
-
-    time = np.zeros((ntimes))
-
-    delta_vx_mean = np.zeros((ntimes, ndusttypes))
-    delta_vx_var = np.zeros((ntimes, ndusttypes))
-
-    for idx, dump in enumerate(sim.dumps):
-
-        print(f'  time: {dump.header["time"]}')
-        time[idx] = dump.header['time']
-
-        v = dump.particles.arrays['vxyz'][:]
-        itype = dump.particles.arrays['itype'][:]
-
-        vx_mean = np.array([v[:, 0][itype == ipart].mean() for ipart in itypes])
-        vx_var = np.array([v[:, 0][itype == ipart].var() for ipart in itypes])
-
-        delta_vx_mean[idx, :] = vx_mean[1:] - vx_mean[0]
-        delta_vx_var[idx, :] = vx_var[1:] - vx_var[0]
-
-    # ------------------------------------------------------------------
-    # Save data as .csv files
-
-    if save_dir is not None:
-        if not save_dir.exists():
-            save_dir.mkdir()
-        np.savetxt(save_dir / 'time.csv', time, delimiter=',')
-        np.savetxt(save_dir / 'rho_gas.csv', np.array([rho_gas]), delimiter=',')
-        np.savetxt(save_dir / 'rho_dust.csv', rho_dust, delimiter=',')
-        np.savetxt(save_dir / 'delta_vx_mean.csv', delta_vx_mean, delimiter=',')
-        np.savetxt(save_dir / 'delta_vx_var.csv', delta_vx_var, delimiter=',')
-
-    return
-
-
-def read_processed_data(
-    data_dir: Path
-) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Read the processed data from CSV files.
-
-    Parameters
-    ----------
-    data_dir
-        Directory containing the processed data.
+    root_directory
+        The root directory containing the simulation directories.
 
     Returns
     -------
-    time : np.ndarray
-        The simulation time of the dumps
-    rho_gas : float
-        The initial gas density.
-    rho_dust : np.ndarray
-        The initial dust densities.
-    delta_vx_mean : np.ndarray
-        The mean of the difference between the gas velocity and dust
-        velocities at each time.
-    delta_vx_var : np.ndarray
-        The variance of the difference between the gas velocity and dust
-        velocities at each time.
+    A list of Simulation objects.
     """
-    if not data_dir.exists():
-        raise FileExistsError('Cannot find data_dir')
-
-    print('Reading processed data...')
-
-    time = np.loadtxt(data_dir / 'time.csv', delimiter=',')
-    rho_gas = np.loadtxt(data_dir / 'rho_gas.csv', delimiter=',')
-    rho_dust = np.loadtxt(data_dir / 'rho_dust.csv', delimiter=',')
-    delta_vx_mean = np.loadtxt(data_dir / 'delta_vx_mean.csv', delimiter=',')
-    delta_vx_var = np.loadtxt(data_dir / 'delta_vx_var.csv', delimiter=',')
-
-    return time, rho_gas, rho_dust, delta_vx_mean, delta_vx_var
+    paths = sorted(list(root_directory.glob('*')))
+    sims = [plonk.load_sim(prefix='dustybox', directory=p) for p in paths]
+    return sims
 
 
-def make_plot(
-    filename: Path,
-    time: np.ndarray,
-    eps: np.ndarray,
-    t_s: np.ndarray,
-    delta_vx_mean: np.ndarray,
-    delta_vx_var: np.ndarray,
-):
-    """Make the plot and save to file.
+def _get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
+    """Get dust properties.
+
+    Calculate the dust-to-gas ratio and stopping times.
 
     Parameters
     ----------
-    filename
-        The file name to save the figure to.
-    time
-        The simulation time of the dumps
-    eps
-        The dust-to-gas ratio for each dust species.
-    t_s
-        The stopping time for each dust species.
-    delta_vx_mean
-        The mean of the difference between the gas velocity and dust
-        velocities at each time.
-    delta_vx_var
-        The variance of the difference between the gas velocity and dust
-        velocities at each time.
+    sim
+        The Simulation object.
+
+    Returns
+    -------
+    dust_to_gas
+        The dust-to-gas ratio on each species.
+    stopping_time
+        The stopping time on each species.
     """
-    print('Making plot...')
+    snap = sim.snaps[0]
+    dust_ids = sorted(np.unique(snap['dust_id']))
+    species = [snap[snap['dust_id'] == idx] for idx in dust_ids]
+    density = np.array([specie['density'].mean() for specie in species])
+    sound_speed = np.sqrt(snap.properties['polyk'])
+    gamma = snap.properties['gamma']
+    grain_size = snap.properties['grain size']
+    grain_dens = snap.properties['grain density']
+    drag_coeff = (
+        density[0]
+        * density[1:]
+        * sound_speed
+        / (np.sqrt(np.pi * gamma / 8) * grain_size * grain_dens)
+    )
+    dust_to_gas = density[1:] / density[0]
+    stopping_time = density.sum() / drag_coeff
 
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    colors = prop_cycle.by_key()['color']
+    return dust_to_gas, stopping_time
 
-    fig, ax = plt.subplots()
 
-    ndusttypes = delta_vx_mean.shape[1]
-    delta_vx_init = delta_vx_mean[0, :]
+def generate_results(sim: Simulation) -> DataFrame:
+    """Generate results.
 
-    exact_solution_with_back_reaction = np.zeros((len(time), ndusttypes))
-    exact_solution_without_back_reaction = np.zeros((len(time), ndusttypes))
+    The results for each simulation is a DataFrame of differential
+    velocities for each dust species. The columns are for the
+    differential velocity at each time:
+        - from the simulation data
+        - from the analytic solution with back reaction
+        - from the analytic solution without back reaction
 
+    Parameters
+    ----------
+    sim
+        The simulation object.
+
+    Returns
+    -------
+    The velocity differential DataFrame.
+    """
+    dust_ids = sorted(np.unique(sim.snaps[0]['dust_id']))
+    n_dust = len(dust_ids) - 1
+
+    dust_to_gas, stopping_time = _get_dust_properties(sim)
+
+    # Snapshot times
+    _time = list()
+    for snap in sim.snaps:
+        _time.append(snap.properties['time'])
+    time = np.array(_time)
+
+    # Velocity differential: simulation data
+    data = np.zeros((len(time), n_dust))
+    for idx, snap in enumerate(sim.snaps):
+        species = [snap[snap['dust_id'] == idx] for idx in dust_ids]
+        v_mean = np.array([specie['vx'].mean() for specie in species])
+        data[idx, :] = v_mean[1:] - v_mean[0]
+
+    # Velocity differential: analytical solutions
+    delta_vx_init = data[0, :]
+    exact1 = np.zeros((len(time), n_dust))
+    exact2 = np.zeros((len(time), n_dust))
     for idxi, t in enumerate(time):
-        exact_solution_with_back_reaction[idxi, :] = exact.dustybox.delta_vx(
-            t, t_s, eps, delta_vx_init
+        exact1[idxi, :] = exact_solutions.dustybox.delta_vx(
+            t, stopping_time, dust_to_gas, delta_vx_init
         )
-        for idxj in range(ndusttypes):
-            exact_solution_without_back_reaction[idxi, idxj] = exact.dustybox.delta_vx(
-                t, t_s[idxj], eps[idxj], delta_vx_mean[0, idxj]
+        for idxj in range(n_dust):
+            exact2[idxi, idxj] = exact_solutions.dustybox.delta_vx(
+                t, stopping_time[idxj], dust_to_gas[idxj], delta_vx_init[idxj]
             )
 
-    for idx, color in zip(range(ndusttypes), colors):
+    # Generate DataFrame
+    arrays = np.hstack((time[:, np.newaxis], data, exact1, exact2))
+    columns = (
+        ['time']
+        + [f'data.{idx}' for idx in range(1, n_dust + 1)]
+        + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
+        + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
+    )
+    dataframe = pd.DataFrame(arrays, columns=columns)
 
-        ax.errorbar(
-            time,
-            delta_vx_mean[:, idx],
-            yerr=delta_vx_var[:, idx],
-            fmt='.',
+    return dataframe
+
+
+def plot_results(dataframes: Dict[str, DataFrame], fig: Any, axes: Any) -> None:
+    """Plot results.
+
+    Plot the data as circle markers, the analytical solution with back
+    reaction as solid lines, and the analytical solution without back
+    reaction as dashed lines.
+
+    Parameters
+    ----------
+    dataframes
+        A dictionary of DataFrames, one per simulation.
+    fig
+        The matplotlib figure.
+    axes
+        The array matplotlib axes.
+    """
+    n_dust = int((len(list(dataframes.values())[0].columns) - 1) / 3)
+    prop_cycle = plt.rcParams['axes.prop_cycle']
+    color = prop_cycle.by_key()['color'][:n_dust]
+    x_range = (-0.01, 0.11)
+    y_range = (-0.1, 1.1)
+    for df, ax in zip(dataframes.values(), axes.ravel()):
+        data_cols = ['time'] + [f'data.{idx}' for idx in range(1, n_dust + 1)]
+        exact1_cols = ['time'] + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
+        exact2_cols = ['time'] + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
+        df[data_cols].plot(
+            'time',
             color=color,
+            linestyle='None',
+            marker='.',
             fillstyle='none',
+            ax=ax,
+            legend=False,
         )
-
-        ax.plot(time, exact_solution_with_back_reaction[:, idx], color=color)
-
-        ax.plot(time, exact_solution_without_back_reaction[:, idx], '--', color=color)
-
-    ax.set_xlabel(r'$t$')
-    ax.set_ylabel(r'$\Delta v_x$')
-
-    print(f'Writing figure to {filename.name}...')
-    plt.savefig(filename)
-
-    return fig, ax
+        df[exact1_cols].plot('time', color=color, linestyle='-', ax=ax, legend=False)
+        df[exact2_cols].plot('time', color=color, linestyle='--', ax=ax, legend=False)
+        ax.set_xlabel('Time')
+        ax.set_ylabel(r'$\Delta v_x$')
+        ax.set_xlim(*x_range)
+        ax.set_ylim(*y_range)
+    return None

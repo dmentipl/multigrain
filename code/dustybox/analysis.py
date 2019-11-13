@@ -64,16 +64,13 @@ def get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
         .mean()['density']
         .to_numpy()
     )
-    sound_speed = np.sqrt(snap.properties['polyk'])
-    gamma = snap.properties['gamma']
-    grain_size = snap.properties['grain size']
-    grain_dens = snap.properties['grain density']
-    drag_coeff = (
-        density[0]
-        * density[1:]
-        * sound_speed
-        / (np.sqrt(np.pi * gamma / 8) * grain_size * grain_dens)
-    )
+    c_s = np.sqrt(snap.properties['polyk'])
+    y = snap.properties['gamma']
+    s = snap.properties['grain size']
+    rho_m = snap.properties['grain density']
+    rho_g = density[0]
+    rho_d = density[1:]
+    drag_coeff = rho_g * rho_d * c_s / (np.sqrt(np.pi * y / 8) * s * rho_m)
     dust_fraction = density[1:] / np.sum(density)
     stopping_time = density.sum() / drag_coeff
 
@@ -102,8 +99,6 @@ def generate_results(sim: Simulation) -> DataFrame:
     dust_ids = sorted(np.unique(sim.snaps[0]['dust_id']))
     n_dust = len(dust_ids) - 1
 
-    dust_fraction, stopping_time = get_dust_properties(sim)
-
     # Snapshot times
     _time = list()
     for snap in sim.snaps:
@@ -117,6 +112,7 @@ def generate_results(sim: Simulation) -> DataFrame:
         data[idx, :] = (df.iloc[1:] - df.iloc[0])['vx']
 
     # Velocity differential: analytical solutions
+    dust_fraction, stopping_time = get_dust_properties(sim)
     delta_vx_init = data[0, :]
     exact1 = np.zeros((len(time), n_dust))
     exact2 = np.zeros((len(time), n_dust))
@@ -161,18 +157,12 @@ def plot_results(df: DataFrame) -> Any:
     n_dust = int((len(df.columns) - 1) / 3)
     palette = Spectral11[:n_dust]
 
-    data_cols = [f'data.{idx}' for idx in range(1, n_dust + 1)]
-    exact1_cols = [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
-    exact2_cols = [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
+    x = [df['time'] for col in df.columns if col.startswith('data')]
+    y_data = [df[col] for col in df.columns if col.startswith('data')]
+    y_exact1 = [df[col] for col in df.columns if col.startswith('exact1')]
+    y_exact2 = [df[col] for col in df.columns if col.startswith('exact2')]
 
-    x = [df['time'] for col in data_cols]
-    y_data = [df[col] for col in data_cols]
-    y_exact1 = [df[col] for col in exact1_cols]
-    y_exact2 = [df[col] for col in exact2_cols]
-
-    tools = "hover, box_zoom, undo, crosshair"
-    fig = figure(tools=tools)
-
+    fig = figure()
     fig.multi_line(x, y_exact1, line_dash='solid', line_color=palette, line_width=3)
     fig.multi_line(x, y_exact2, line_dash=[10, 10], line_color=palette, line_width=3)
     for xx, yy, color in zip(x, y_data, palette):

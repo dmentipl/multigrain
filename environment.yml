@@ -3,28 +3,26 @@ channels:
   - conda-forge
 dependencies:
   - python==3.7
-  - click
-  - matplotlib
-  - numpy
-  - pint
-  - scipy
-  # Dev
+  - astropy
   - black
+  - bokeh
+  - click
   - flake8
+  - h5py
   - ipython
   - jupyterlab
+  - matplotlib
+  - numpy
+  - pandas
+  - pint
   - pip
   - pydocstyle
   - pylint
-  # Plonk
-  - astropy
-  - h5py
-  - pandas
   - scikit-image>=0.16
+  - scipy
   - pip:
     - phantombuild>=0.1.4
     - phantomconfig>=0.2.2
     - git+https://github.com/dmentipl/plonk.git@8cdc31a4d2af14ef48a687eda3926b9473e4b3b8
     - git+https://github.com/dmentipl/phantom-setup.git@b5bec6857ba9b0ad2ed856c223b64a1d56a52e9f
-    # Plonk
     - KDEpy

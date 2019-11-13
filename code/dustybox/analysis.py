@@ -5,13 +5,17 @@ import pathlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plonk
 from numpy import ndarray
 from pandas import DataFrame
 from plonk import Simulation
+
+from bokeh.io import output_notebook, show
+from bokeh.layouts import gridplot, row
+from bokeh.palettes import Spectral11
+from bokeh.plotting import figure
 
 path = pathlib.Path(__file__).parent / 'exact.py'
 loader = importlib.machinery.SourceFileLoader('exact_solution', str(path))
@@ -35,7 +39,7 @@ def load_data(root_directory: Path) -> List[Simulation]:
     return sims
 
 
-def _get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
+def get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
     """Get dust properties.
 
     Calculate the dust-to-gas ratio and stopping times.
@@ -97,7 +101,7 @@ def generate_results(sim: Simulation) -> DataFrame:
     dust_ids = sorted(np.unique(sim.snaps[0]['dust_id']))
     n_dust = len(dust_ids) - 1
 
-    dust_fraction, stopping_time = _get_dust_properties(sim)
+    dust_fraction, stopping_time = get_dust_properties(sim)
 
     # Snapshot times
     _time = list()
@@ -137,8 +141,47 @@ def generate_results(sim: Simulation) -> DataFrame:
     return dataframe
 
 
-def plot_results(dataframes: Dict[str, DataFrame], fig: Any, axes: Any) -> None:
+def plot_results(df: DataFrame) -> Any:
     """Plot results.
+
+    Plot the data as circle markers, the analytical solution with back
+    reaction as solid lines, and the analytical solution without back
+    reaction as dashed lines.
+
+    Parameters
+    ----------
+    df
+        A DataFrame with the differential velocity.
+
+    Returns
+    -------
+    bokeh.plotting.figure.Figure
+    """
+    n_dust = int((len(df.columns) - 1) / 3)
+    palette = Spectral11[:n_dust]
+
+    data_cols = [f'data.{idx}' for idx in range(1, n_dust + 1)]
+    exact1_cols = [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
+    exact2_cols = [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
+
+    x = [df['time'] for col in data_cols]
+    y_data = [df[col] for col in data_cols]
+    y_exact1 = [df[col] for col in exact1_cols]
+    y_exact2 = [df[col] for col in exact2_cols]
+
+    tools = "hover, box_zoom, undo, crosshair"
+    fig = figure(tools=tools)
+
+    fig.multi_line(x, y_exact1, line_dash='solid', line_color=palette, line_width=3)
+    fig.multi_line(x, y_exact2, line_dash=[10, 10], line_color=palette, line_width=3)
+    for xx, yy, color in zip(x, y_data, palette):
+        fig.scatter(xx, yy, line_color=color, fill_color=None, size=8)
+
+    return fig
+
+
+def plot_all_results(dataframes: Dict[str, DataFrame], ncols: int) -> Any:
+    """Plot all results.
 
     Plot the data as circle markers, the analytical solution with back
     reaction as solid lines, and the analytical solution without back
@@ -148,33 +191,16 @@ def plot_results(dataframes: Dict[str, DataFrame], fig: Any, axes: Any) -> None:
     ----------
     dataframes
         A dictionary of DataFrames, one per simulation.
-    fig
-        The matplotlib figure.
-    axes
-        The array matplotlib axes.
+    ncols
+        The number of columns.
+
+    Returns
+    -------
+    bokeh.models.layouts.Column
     """
-    n_dust = int((len(list(dataframes.values())[0].columns) - 1) / 3)
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    color = prop_cycle.by_key()['color'][:n_dust]
-    x_range = (-0.01, 0.11)
-    y_range = (-0.1, 1.1)
-    for df, ax in zip(dataframes.values(), axes.ravel()):
-        data_cols = ['time'] + [f'data.{idx}' for idx in range(1, n_dust + 1)]
-        exact1_cols = ['time'] + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
-        exact2_cols = ['time'] + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
-        df[data_cols].plot(
-            'time',
-            color=color,
-            linestyle='None',
-            marker='.',
-            fillstyle='none',
-            ax=ax,
-            legend=False,
-        )
-        df[exact1_cols].plot('time', color=color, linestyle='-', ax=ax, legend=False)
-        df[exact2_cols].plot('time', color=color, linestyle='--', ax=ax, legend=False)
-        ax.set_xlabel('Time')
-        ax.set_ylabel(r'$\Delta v_x$')
-        ax.set_xlim(*x_range)
-        ax.set_ylim(*y_range)
-    return None
+    figs = list()
+    for df in dataframes.values():
+        figs.append(plot_results(df=df))
+    p = gridplot(figs, ncols=ncols, sizing_mode='stretch_width', plot_height=300)
+    show(p)
+    return p

@@ -117,7 +117,7 @@ mixture are given by
                                                        - \vec{v}_{g}\right),
 \end{align}
 %
-where \ldots
+
 
 
 \section{Numerical tests}
@@ -127,11 +127,23 @@ where \ldots
 No back-reaction, low dust-to-gas ratio:
 
 \begin{itemize}
+
    \item dustybox: Epstein sub-sonic drag (linear regime) one grain size
    \item dustybox: Epstein sub-sonic drag (linear regime) multiple grains
    \item dustybox: Stokes regime
    \item sub- and super-sonic
 \end{itemize}
+
+\begin{figure*}
+    \begin{center}
+      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=0_01.pdf}
+      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=0_1.pdf}
+      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=1_0.pdf}
+      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=10_0.pdf}
+      \caption{Dustybox: (a) dust-to-gas ratio = 0.01, (b) dust-to-gas ratio
+      = 0.1, (c) dust-to-gas ratio = 1.0, (d) dust-to-gas ratio = 10.0}
+    \end{center}
+\end{figure*}
 
 With back-reaction.
 
@@ -141,6 +153,15 @@ Same collection of tests as dustybox.
 
 \subsection{Dustyshock}
 See Benitez-Llambay paper.
+
+\section{Application}
+
+\subsection{Circumbinary disc}
+
+Do a comparison between multiple single grain calculations vs one multigrain
+calculation focussing on dust trapping in a circumbinary disc. The figure would
+show a phase difference between the dust (or gas) distribution comparing the
+single-grain vs multigrain calculation.
 
 \section{Discussion}
 
@@ -156,7 +177,7 @@ See Benitez-Llambay paper.
 % The best way to enter references is to use BibTeX:
 
 \bibliographystyle{mnras}
-\bibliography{references}
+% \bibliography{references}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

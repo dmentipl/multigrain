@@ -54,7 +54,7 @@ def _get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
     """
     snap = sim.snaps[0]
     dust_ids = sorted(np.unique(snap['dust_id']))
-    species = [snap[snap['dust_id'] == idx] for idx in dust_ids]
+    species = [snap[snap['dust_id'] == dust_id] for dust_id in dust_ids]
     density = np.array([specie['density'].mean() for specie in species])
     sound_speed = np.sqrt(snap.properties['polyk'])
     gamma = snap.properties['gamma']
@@ -105,7 +105,7 @@ def generate_results(sim: Simulation) -> DataFrame:
     # Velocity differential: simulation data
     data = np.zeros((len(time), n_dust))
     for idx, snap in enumerate(sim.snaps):
-        species = [snap[snap['dust_id'] == idx] for idx in dust_ids]
+        species = [snap[snap['dust_id'] == dust_id] for dust_id in dust_ids]
         v_mean = np.array([specie['vx'].mean() for specie in species])
         data[idx, :] = v_mean[1:] - v_mean[0]
 

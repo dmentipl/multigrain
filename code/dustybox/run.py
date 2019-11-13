@@ -40,10 +40,32 @@ def set_parameters():
     The 'parameters' dictionary has keys with the name of the run, which
     will be the name of its directory, and the values are the parameters
     dictionaries for that run.
-    """
-    # Each value in dust_to_gas_ratio generates a dustybox setup.
-    dust_to_gas_ratio = (0.01, 0.1, 1.0, 10.0)
 
+    Each dictionary for each run needs the following keys:
+
+        'prefix'
+        'length_unit'
+        'mass_unit'
+        'time_unit'
+        'sound_speed'
+        'box_width'
+        'number_of_particles_gas'
+        'number_of_particles_dust'
+        'density_gas'
+        'dust_to_gas_ratio'
+        'drag_method'
+        'grain_size'
+        'grain_density'
+        'velocity_delta'
+        'maximum_time'
+        'number_of_dumps'
+
+    All float or ndarray variables can have units.
+
+    The length of 'dust_to_gas_ratio', 'grain_size', and
+    'velocity_delta' should be the same, i.e. the number of dust
+    species.
+    """
     # Dictionary of parameters common to all runs.
     _parameters = {
         'prefix': 'dustybox',
@@ -58,17 +80,32 @@ def set_parameters():
         'drag_method': 'Epstein/Stokes',
         'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * units['cm'],
         'grain_density': 0.5e-14 * units['g / cm^3'],
-        'velocity_delta': 1.0 * units['cm / s'],
+        'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * units['cm / s'],
         'maximum_time': 0.1 * units['s'],
         'number_of_dumps': 100,
     }
 
-    # Iterate over dust-to-gas ratio and generate a Parameters object for each value.
+    # Each value in dust_to_gas_ratio generates a dustybox setup.
+    total_dust_to_gas_ratio = (0.01, 0.1, 1.0, 10.0)
+
+    # Distribute dust mass between bins
+    dust_mass_distribution = dict()
+    size = _parameters['grain_size']
+    # Equal mass in each dust bin
+    dust_mass_distribution['equal'] = np.ones(len(size)) / len(size)
+    # MRN-distributed mass in each dust bin
+    dust_mass_distribution['MRN'] = np.sqrt(size) / np.sum(np.sqrt(size))
+
+    # Iterate over dust-to-gas ratio and dust-mass-distributions.
     parameters = dict()
-    for val in dust_to_gas_ratio:
-        parameters[f'Epstein-f={val}'] = copy.copy(_parameters)
-        f = val / len(_parameters['grain_size'])
-        parameters[f'Epstein-f={val}']['dust_to_gas_ratio'] = (f, f, f, f, f)
+    for f in total_dust_to_gas_ratio:
+        for dist in dust_mass_distribution.keys():
+            parameters[f'Epstein-f={f}-{dist}'] = copy.copy(_parameters)
+            dust_to_gas_ratio = f * dust_mass_distribution[dist]
+            parameters[f'Epstein-f={f}-{dist}']['dust_to_gas_ratio'] = tuple(
+                dust_to_gas_ratio
+            )
+
     return parameters
 
 
@@ -165,11 +202,13 @@ def setup_one_calculation(
                 * time_unit ** d['[time]']
             )
             params[key] = value.to(new_units).magnitude
-    setup.set_units(
-        length=length_unit.to_base_units().magnitude,
-        mass=mass_unit.to_base_units().magnitude,
-        time=time_unit.to_base_units().magnitude,
-    )
+    if isinstance(length_unit, units.Quantity):
+        length_unit = length_unit.to_base_units().magnitude
+    if isinstance(mass_unit, units.Quantity):
+        mass_unit = mass_unit.to_base_units().magnitude
+    if isinstance(time_unit, units.Quantity):
+        time_unit = time_unit.to_base_units().magnitude
+    setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
 
     setup.set_compile_option('IND_TIMESTEPS', False)
     setup.set_output(
@@ -222,13 +261,14 @@ def setup_one_calculation(
     )
     setup.add_box(box)
 
-    def velocity_dust(xyz: ndarray) -> ndarray:
-        """Dust has uniform initial velocity."""
-        vxyz = np.zeros(xyz.shape)
-        vxyz[:, 0] = params['velocity_delta']
-        return vxyz
-
     for idx in range(number_of_dust_species):
+
+        def velocity_dust(xyz: ndarray) -> ndarray:
+            """Dust has uniform initial velocity."""
+            vxyz = np.zeros(xyz.shape)
+            vxyz[:, 0] = params['velocity_delta'][idx]
+            return vxyz
+
         box = phantomsetup.Box(*box_boundary)
         box.add_particles(
             particle_type=idust + idx,

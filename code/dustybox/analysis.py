@@ -47,15 +47,18 @@ def _get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
 
     Returns
     -------
-    dust_to_gas
-        The dust-to-gas ratio on each species.
+    dust_fraction
+        The dust fraction on each species.
     stopping_time
         The stopping time on each species.
     """
     snap = sim.snaps[0]
-    dust_ids = sorted(np.unique(snap['dust_id']))
-    species = [snap[snap['dust_id'] == dust_id] for dust_id in dust_ids]
-    density = np.array([specie['density'].mean() for specie in species])
+    density = (
+        snap.to_dataframe(('dust_id', 'density'))
+        .groupby('dust_id')
+        .mean()['density']
+        .to_numpy()
+    )
     sound_speed = np.sqrt(snap.properties['polyk'])
     gamma = snap.properties['gamma']
     grain_size = snap.properties['grain size']
@@ -66,10 +69,10 @@ def _get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
         * sound_speed
         / (np.sqrt(np.pi * gamma / 8) * grain_size * grain_dens)
     )
-    dust_to_gas = density[1:] / density[0]
+    dust_fraction = density[1:] / np.sum(density)
     stopping_time = density.sum() / drag_coeff
 
-    return dust_to_gas, stopping_time
+    return dust_fraction, stopping_time
 
 
 def generate_results(sim: Simulation) -> DataFrame:
@@ -94,7 +97,7 @@ def generate_results(sim: Simulation) -> DataFrame:
     dust_ids = sorted(np.unique(sim.snaps[0]['dust_id']))
     n_dust = len(dust_ids) - 1
 
-    dust_to_gas, stopping_time = _get_dust_properties(sim)
+    dust_fraction, stopping_time = _get_dust_properties(sim)
 
     # Snapshot times
     _time = list()
@@ -105,9 +108,8 @@ def generate_results(sim: Simulation) -> DataFrame:
     # Velocity differential: simulation data
     data = np.zeros((len(time), n_dust))
     for idx, snap in enumerate(sim.snaps):
-        species = [snap[snap['dust_id'] == dust_id] for dust_id in dust_ids]
-        v_mean = np.array([specie['vx'].mean() for specie in species])
-        data[idx, :] = v_mean[1:] - v_mean[0]
+        df = snap.to_dataframe(('dust_id', 'vx')).groupby('dust_id').mean()
+        data[idx, :] = (df.iloc[1:] - df.iloc[0])['vx']
 
     # Velocity differential: analytical solutions
     delta_vx_init = data[0, :]
@@ -115,11 +117,11 @@ def generate_results(sim: Simulation) -> DataFrame:
     exact2 = np.zeros((len(time), n_dust))
     for idxi, t in enumerate(time):
         exact1[idxi, :] = exact_solution.delta_vx(
-            t, stopping_time, dust_to_gas, delta_vx_init
+            t, stopping_time, dust_fraction, delta_vx_init
         )
         for idxj in range(n_dust):
             exact2[idxi, idxj] = exact_solution.delta_vx(
-                t, stopping_time[idxj], dust_to_gas[idxj], delta_vx_init[idxj]
+                t, stopping_time[idxj], dust_fraction[idxj], delta_vx_init[idxj]
             )
 
     # Generate DataFrame

@@ -117,41 +117,64 @@ mixture are given by
                                                        - \vec{v}_{g}\right),
 \end{align}
 %
-
-
+\\
+Discuss stopping time complications for multigrain. See \citet{Hutchison:2018}.
 
 \section{Numerical tests}
 
-\subsection{Dustybox}
+\subsection{Dusty-box}
 
-No back-reaction, low dust-to-gas ratio:
+We performed the multigrain version of the dusty-box test described in
+\citet{Laibe:2011}. The dusty-box involves setting up a periodic box of uniform
+density gas and dust with an initial differential velocity between the gas and
+dust. In this test the equation of motion simplifies to
+%
+\begin{align}
+   \frac{\partial \Delta \vec{V}}{\partial t} = - \Omega_n \Delta \vec{V},
+\end{align}
+%
+where $\Delta \vec{V}$ is the differential velocity vector, and $\Omega_n$ is
+the drag matrix given in Eq.~64 of \citet{Laibe:2014}. Dusty-box is a test
+of the exchange of momentum between gas and dust species via the drag force. The
+original dusty-box test was for a single grain size. We ran the multigrain
+version described in \citet{Laibe:2014} in the linear Epstein drag regime
+\citep{Epstein:1924}.
 
-\begin{itemize}
-
-   \item dustybox: Epstein sub-sonic drag (linear regime) one grain size
-   \item dustybox: Epstein sub-sonic drag (linear regime) multiple grains
-   \item dustybox: Stokes regime
-   \item sub- and super-sonic
-\end{itemize}
+For each test we chose five dust species with grain sizes covering two orders of
+magnitude---0.1 cm, 0.316 cm, 1.0 cm, 3.16 cm, and 10.0 cm---with equal mass in
+each grain size bin. We performed four simulations, varying the total
+dust-to-gas ratio: 0.01, 0.1, 1.0, and 10.0. The gas is initially motionless,
+and each dust species has uniform velocity in the positive x-direction.
 
 \begin{figure*}
-    \begin{center}
-      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=0_01.pdf}
-      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=0_1.pdf}
-      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=1_0.pdf}
-      \includegraphics[width=\columnwidth]{figs/delta_vx_Epstein-f=10_0.pdf}
-      \caption{Dustybox: (a) dust-to-gas ratio = 0.01, (b) dust-to-gas ratio
-      = 0.1, (c) dust-to-gas ratio = 1.0, (d) dust-to-gas ratio = 10.0}
-    \end{center}
+   \begin{center}
+      \includegraphics[width=\textwidth]{figs/delta_vx_Epstein.pdf}
+      \caption{Dusty-box numerical test showing the differential velocity
+         between the dust and gas. From left to right: the total dust-to-gas
+         ratio is 0.01, 0.1, 1.0, and 10.0. The open circles represent the
+         results from the Phantom simulation. The solid and dashed lines
+         represent the analytical solution with and without, respectively,
+         taking back reaction into account.\label{fig:dustybox-Epstein}}
+   \end{center}
 \end{figure*}
 
-With back-reaction.
+Figure~\ref{fig:dustybox-Epstein} shows the time evolution of the mean velocity
+differential between the gas and each dust species, compared with analytical
+solutions. The dashed lines represent the analytical solution without
+backreaction from the dust on the gas. The solid lines represent the analytical
+solution including backreaction. For low dust-to-gas ratio (0.01) both
+analytical solutions give the same decay of differential velocity, with which
+the Phantom simulation agrees. For larger dust-to-gas ratios (0.1, 1.0, and
+10.0) the analytical solutions diverge, and the Phantom simulation data follows
+the backreaction-inclusive solution. For dust-to-gas ratios of 1.0 and 10.0 we
+see that the smallest grains (0.1 cm) slow rapidly and reverse direction with
+respect to the gas before coming to the barycentric velocity.
 
-\subsection{Dustywave}
+\subsection{Dusty-wave}
 
-Same collection of tests as dustybox.
+Same collection of tests as dusty-box.
 
-\subsection{Dustyshock}
+\subsection{Dusty-shock}
 See Benitez-Llambay paper.
 
 \section{Application}
@@ -177,7 +200,7 @@ single-grain vs multigrain calculation.
 % The best way to enter references is to use BibTeX:
 
 \bibliographystyle{mnras}
-% \bibliography{references}
+\bibliography{multigrain-paper}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

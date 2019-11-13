@@ -48,3 +48,14 @@ This will get the required version of Phantom, apply any patches, compile Phanto
 ### Performing analysis on the tests
 
 To perform analysis on the Phantom output see the notebooks.
+
+Manuscript
+----------
+
+Uses the MNRAS template from Overleaf.
+
+Make the manuscript with
+
+```bash
+make manuscript
+```

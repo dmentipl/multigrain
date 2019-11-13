@@ -5,6 +5,7 @@ import pathlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plonk
@@ -204,3 +205,47 @@ def plot_all_results(dataframes: Dict[str, DataFrame], ncols: int) -> Any:
     p = gridplot(figs, ncols=ncols, sizing_mode='stretch_width', plot_height=300)
     show(p)
     return p
+
+
+def plot_all_results_pdf(dataframes: Dict[str, DataFrame], fig: Any, axes: Any) -> None:
+    """Plot all results and save pdf.
+
+    Plot the data as circle markers, the analytical solution with back
+    reaction as solid lines, and the analytical solution without back
+    reaction as dashed lines.
+
+    Parameters
+    ----------
+    dataframes
+        A dictionary of DataFrames, one per simulation.
+    fig
+        The matplotlib figure.
+    axes
+        The array matplotlib axes.
+    """
+    n_dust = int((len(list(dataframes.values())[0].columns) - 1) / 3)
+    prop_cycle = plt.rcParams['axes.prop_cycle']
+    color = prop_cycle.by_key()['color'][:n_dust]
+    x_range = (-0.01, 0.11)
+    y_range = (-0.1, 1.1)
+    for df, ax in zip(dataframes.values(), axes.ravel()):
+        data_cols = ['time'] + [f'data.{idx}' for idx in range(1, n_dust + 1)]
+        exact1_cols = ['time'] + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
+        exact2_cols = ['time'] + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
+        df[data_cols].plot(
+            'time',
+            color=color,
+            linestyle='None',
+            marker='.',
+            fillstyle='none',
+            ax=ax,
+            legend=False,
+        )
+        df[exact1_cols].plot('time', color=color, linestyle='-', ax=ax, legend=False)
+        df[exact2_cols].plot('time', color=color, linestyle='--', ax=ax, legend=False)
+        ax.set_xlabel('Time')
+        ax.set_ylabel(r'$\Delta v_x$')
+        ax.set_xlim(*x_range)
+        ax.set_ylim(*y_range)
+    fig.savefig('dustybox.pdf')
+    return None

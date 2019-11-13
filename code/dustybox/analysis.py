@@ -1,5 +1,7 @@
 """Dusty box analysis."""
 
+import importlib
+import pathlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -11,7 +13,9 @@ from numpy import ndarray
 from pandas import DataFrame
 from plonk import Simulation
 
-import exact_solutions
+path = pathlib.Path(__file__).parent / 'exact.py'
+loader = importlib.machinery.SourceFileLoader('exact_solution', str(path))
+exact_solution = loader.load_module()
 
 
 def load_data(root_directory: Path) -> List[Simulation]:
@@ -110,11 +114,11 @@ def generate_results(sim: Simulation) -> DataFrame:
     exact1 = np.zeros((len(time), n_dust))
     exact2 = np.zeros((len(time), n_dust))
     for idxi, t in enumerate(time):
-        exact1[idxi, :] = exact_solutions.dustybox.delta_vx(
+        exact1[idxi, :] = exact_solution.delta_vx(
             t, stopping_time, dust_to_gas, delta_vx_init
         )
         for idxj in range(n_dust):
-            exact2[idxi, idxj] = exact_solutions.dustybox.delta_vx(
+            exact2[idxi, idxj] = exact_solution.delta_vx(
                 t, stopping_time[idxj], dust_to_gas[idxj], delta_vx_init[idxj]
             )
 

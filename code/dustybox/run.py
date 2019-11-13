@@ -66,10 +66,9 @@ def set_parameters():
     # Iterate over dust-to-gas ratio and generate a Parameters object for each value.
     parameters = dict()
     for val in dust_to_gas_ratio:
+        parameters[f'Epstein-f={val}'] = copy.copy(_parameters)
         f = val / len(_parameters['grain_size'])
-        _parameters['dust_to_gas_ratio'] = (f, f, f, f, f)
-        parameters[f'Epstein-f={val}'] = _parameters
-
+        parameters[f'Epstein-f={val}']['dust_to_gas_ratio'] = (f, f, f, f, f)
     return parameters
 
 

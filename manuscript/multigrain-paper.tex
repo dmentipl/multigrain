@@ -43,6 +43,7 @@
 \usepackage{graphicx} % Including figure files
 \usepackage{amsmath} % Advanced maths commands
 \usepackage{amssymb} % Extra maths symbols
+\usepackage{xcolor} % Color text for draft
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -105,7 +106,21 @@ keyword1 -- keyword2 -- keyword3
 
 \section{Introduction}
 
+\textcolor{red}{
+\begin{itemize}
+   \item Dust-gas modeling in astrophysical fluids.
+   \item Single grain size vs multiple dust species.
+   \item \citet{Haworth:2016}---grand challenges in protoplanetary disc
+      modeling.
+   \item Applications: protoplanetary discs, molecular clouds.
+   \item Phantom dust methods---\citet{Price:2018}.
+   \item Phantom 1-fluid multigrain---\citet{Hutchison:2018}.
+\end{itemize}
+}
+
 \section{Methods}
+
+\subsection{Continuum equations for multiple dust species}
 
 The equations of conservation of momentum for a multiple species dust and gas
 mixture are given by
@@ -117,8 +132,56 @@ mixture are given by
                                                        - \vec{v}_{g}\right),
 \end{align}
 %
-\\
-Discuss stopping time complications for multigrain. See \citet{Hutchison:2018}.
+
+\subsection{Stopping time}
+
+\textcolor{red}{
+\begin{itemize}
+   \item Discuss large grains vs small grains, strong vs weak coupling, and
+      terminal velocity approximation.
+\end{itemize}
+}
+For a single dust species the stopping time, i.e.\ the drag timescale, $t_s$ is
+%
+\begin{align}
+   t_s = \frac{\rho_g \rho_d}{K (\rho_g + \rho_d)},
+\end{align}
+%
+where $K$ is the drag coefficient for the single species. We assume spherical
+grains of size $s$ with a uniform material density, $\rho_m$. In the linear
+Epstein regime \citep{Epstein:1924} the drag coefficient $K$ is
+%
+\begin{align}
+   K = \frac{\rho_g \rho_d}{\rho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s.
+\end{align}
+%
+As discussed in \citet{Hutchison:2018}, a straightforward generalization of the
+stopping time for multiple dust species is not available. Each dust species is
+separately coupled to the gas by the drag force. However, the dust species are
+indirectly coupled to each other via backreaction, i.e.\ conservation of
+momentum. For convenience, we define an effective material density,
+$\rho_{\mathrm{eff}}$, given by
+%
+\begin{align}
+   \rho_{\mathrm{eff}} = \rho_m \sqrt{\pi\gamma/8}.
+\end{align}
+%
+The drag coefficient of each dust species, $K_i$, is now
+%
+\begin{align}
+   K_i = \frac{\rho_g \rho_{d_i} c_s}{\rho_{\mathrm{eff}} s_i},
+\end{align}
+%
+and we can define a time scale, $t_{s_i}$, as
+%
+\begin{align}
+   t_{s_i} = \frac{\rho}{K_i},
+\end{align}
+%
+where $\rho = \rho_g + \sum_i \rho_{d_i}$ is the total density of the gas and
+all dust species.
+
+\subsection{Time stepping}
 
 \section{Numerical tests}
 
@@ -172,19 +235,27 @@ respect to the gas before coming to the barycentric velocity.
 
 \subsection{Dusty-wave}
 
-Same collection of tests as dusty-box.
+See Benitez-Llambay paper.
 
 \subsection{Dusty-shock}
+
 See Benitez-Llambay paper.
+
+\subsection{Other tests?}
+
+\begin{itemize}
+   \item Radial drift.
+   \item Settling.
+\end{itemize}
 
 \section{Application}
 
 \subsection{Circumbinary disc}
 
 Do a comparison between multiple single grain calculations vs one multigrain
-calculation focussing on dust trapping in a circumbinary disc. The figure would
-show a phase difference between the dust (or gas) distribution comparing the
-single-grain vs multigrain calculation.
+calculation focussing on dust trapping in a circumbinary disc. For example, in
+HD~142527. The figure would show a phase difference between the dust (or gas)
+distribution comparing the single-grain vs multigrain calculation.
 
 \section{Discussion}
 

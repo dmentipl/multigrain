@@ -13,8 +13,8 @@ from numpy import ndarray
 from pandas import DataFrame
 from plonk import Simulation
 
-from bokeh.io import output_notebook, show
-from bokeh.layouts import gridplot, row
+from bokeh.io import show
+from bokeh.layouts import gridplot
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 

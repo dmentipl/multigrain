@@ -3,7 +3,6 @@
 import copy
 import pathlib
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -23,11 +22,7 @@ PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent / 'phantom.patch'
 
 # Path to HDF5 library.
-HDF5ROOT = ''
-if sys.platform == 'darwin':
-    HDF5ROOT = '/usr/local/opt/hdf5'
-elif sys.platform == 'linux':
-    HDF5ROOT = '/usr/lib/x86_64-linux-gnu/hdf5/serial'
+HDF5ROOT = '/usr/local/opt/hdf5'
 
 
 def set_parameters():

@@ -300,8 +300,12 @@ def setup_one_calculation(
     setup.write_in_file(directory=run_directory)
 
     # Compile Phantom
+    extra_compiler_arguments = ['FC=gfortran-9']
     setup.compile_phantom(
-        phantom_dir=phantom_dir, hdf5root=hdf5root, working_dir=run_directory
+        phantom_dir=phantom_dir,
+        hdf5root=hdf5root,
+        working_dir=run_directory,
+        extra_compiler_arguments=extra_compiler_arguments,
     )
 
     # Return setup

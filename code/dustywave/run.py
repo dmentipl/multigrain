@@ -19,6 +19,9 @@ units = pint.UnitRegistry(system='cgs')
 # Required Phantom version.
 PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 
+# Phantom patch.
+PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent / 'phantom.patch'
+
 # Path to HDF5 library.
 HDF5ROOT = ''
 if sys.platform == 'darwin':
@@ -239,7 +242,7 @@ def setup_one_calculation(
         raise ValueError('Cannot set up dust')
 
     # Box size
-    frac_y, frac_z = 0.01, 0.01
+    frac_y, frac_z = 0.1, 0.1
     box_boundary = (
         -params['box_width'] / 2,
         params['box_width'] / 2,
@@ -262,29 +265,41 @@ def setup_one_calculation(
         vx = ampl * np.sin(kwave * (x + params['box_width'] / 2))
         return vx, vy, vz
 
+    # Boxes
+    lattice = 'cubic'
+    boxes = list()
+
     # Gas
-    box = phantomsetup.Box(*box_boundary)
-    box.add_particles(
+    box = phantomsetup.Box(
+        box_boundary=box_boundary,
         particle_type=igas,
         number_of_particles=params['number_of_particles_gas'],
         density=params['density_gas'],
         velocity_distribution=velocity_perturbation,
+        lattice=lattice,
     )
-    setup.add_box(box)
+    boxes.append(box)
 
     # Dust
     for idx in range(number_of_dust_species):
-        box = phantomsetup.Box(*box_boundary)
-        box.add_particles(
+        box = phantomsetup.Box(
+            box_boundary=box_boundary,
             particle_type=idust + idx,
             number_of_particles=params['number_of_particles_dust'],
             density=density_dust[idx],
             velocity_distribution=velocity_perturbation,
+            lattice=lattice,
         )
-        setup.add_box(box)
+        boxes.append(box)
 
-    alpha = np.zeros(setup.total_number_of_particles, dtype=np.single)
-    setup.add_array_to_particles('alpha', alpha)
+    # Add extra quantities
+    for box in boxes:
+        alpha = np.zeros(box.number_of_particles, dtype=np.single)
+        box.set_array('alpha', alpha)
+
+    # Add boxes to setup
+    for box in boxes:
+        setup.add_container(box)
 
     # Write to file
     setup.write_dump_file(directory=run_directory)
@@ -354,6 +369,9 @@ def cli(run_directory, hdf5_directory):
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     phantombuild.checkout_phantom_version(
         phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
+    )
+    phantombuild.patch_phantom(
+        phantom_dir=phantom_dir, phantom_patch=PHANTOM_PATCH,
     )
     setup_all_calculations(
         run_root_directory=run_directory,

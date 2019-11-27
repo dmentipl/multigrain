@@ -5,7 +5,7 @@ import pathlib
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import click
 import numpy as np
@@ -18,6 +18,9 @@ units = pint.UnitRegistry(system='cgs')
 
 # Required Phantom version.
 PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
+
+# Phantom patch.
+PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent / 'phantom.patch'
 
 # Path to HDF5 library.
 HDF5ROOT = ''
@@ -247,39 +250,55 @@ def setup_one_calculation(
 
     setup.set_boundary(box_boundary, periodic=True)
 
-    def velocity_gas(xyz: ndarray) -> ndarray:
-        """Gas has zero initial velocity."""
-        vxyz = np.zeros(xyz.shape)
-        return vxyz
+    # Boxes
+    lattice = 'cubic'
+    boxes = list()
 
-    box = phantomsetup.Box(*box_boundary)
-    box.add_particles(
+    def velocity_gas(
+        x: ndarray, y: ndarray, z: ndarray
+    ) -> Tuple[ndarray, ndarray, ndarray]:
+        """Gas has zero initial velocity."""
+        vx, vy, vz = np.zeros(x.shape), np.zeros(y.shape), np.zeros(z.shape)
+        return vx, vy, vz
+
+    # Gas
+    box = phantomsetup.Box(
+        box_boundary=box_boundary,
         particle_type=igas,
         number_of_particles=params['number_of_particles_gas'],
         density=params['density_gas'],
         velocity_distribution=velocity_gas,
+        lattice=lattice,
     )
-    setup.add_box(box)
+    boxes.append(box)
 
     for idx in range(number_of_dust_species):
 
-        def velocity_dust(xyz: ndarray) -> ndarray:
+        def velocity_dust(
+            x: ndarray, y: ndarray, z: ndarray
+        ) -> Tuple[ndarray, ndarray, ndarray]:
             """Dust has uniform initial velocity."""
-            vxyz = np.zeros(xyz.shape)
-            vxyz[:, 0] = params['velocity_delta'][idx]
-            return vxyz
+            vx, vy, vz = np.zeros(x.shape), np.zeros(y.shape), np.zeros(z.shape)
+            vx = params['velocity_delta'][idx]
+            return vx, vy, vz
 
-        box = phantomsetup.Box(*box_boundary)
-        box.add_particles(
+        box = phantomsetup.Box(
+            box_boundary=box_boundary,
             particle_type=idust + idx,
             number_of_particles=params['number_of_particles_dust'],
             density=density_dust[idx],
             velocity_distribution=velocity_dust,
+            lattice=lattice,
         )
-        setup.add_box(box)
 
-    alpha = np.zeros(setup.total_number_of_particles, dtype=np.single)
-    setup.add_array_to_particles('alpha', alpha)
+    # Add extra quantities
+    for box in boxes:
+        alpha = np.zeros(box.number_of_particles, dtype=np.single)
+        box.set_array('alpha', alpha)
+
+    # Add boxes to setup
+    for box in boxes:
+        setup.add_container(box)
 
     # Write to file
     setup.write_dump_file(directory=run_directory)
@@ -349,6 +368,9 @@ def cli(run_directory, hdf5_directory):
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     phantombuild.checkout_phantom_version(
         phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
+    )
+    phantombuild.patch_phantom(
+        phantom_dir=phantom_dir, phantom_patch=PHANTOM_PATCH,
     )
     setup_all_calculations(
         run_root_directory=run_directory,

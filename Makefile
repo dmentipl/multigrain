@@ -12,9 +12,5 @@ manuscript: ## Build the PDF of the manuscript.
 	make -C manuscript manuscript
 
 .PHONY: run
-run: ## Set up and run the Phantom tests
+run: ## Set up and run the tests with Phantom
 	make -C code run
-
-.PHONY: analysis
-analysis: ## Analyse the output of the Phantom tests
-	make -C code analysis

@@ -47,8 +47,9 @@ def set_parameters():
         'time_unit'
         'sound_speed'
         'box_width'
-        'number_of_particles_gas'
-        'number_of_particles_dust'
+        'lattice'
+        'number_of_particles_in_x_gas'
+        'number_of_particles_in_x_dust'
         'density_gas'
         'dust_to_gas_ratio'
         'drag_method'
@@ -72,14 +73,15 @@ def set_parameters():
         'time_unit': 1.0 * units['s'],
         'sound_speed': 1.0 * units['cm/s'],
         'box_width': 1.0 * units['cm'],
-        'number_of_particles_gas': 50_000,
-        'number_of_particles_dust': 10_000,
+        'lattice': 'close packed',
+        'number_of_particles_in_x_gas': 32,
+        'number_of_particles_in_x_dust': 16,
         'density_gas': 1.0e-13 * units['g / cm^3'],
         'drag_method': 'Epstein/Stokes',
         'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * units['cm'],
         'grain_density': 0.5e-14 * units['g / cm^3'],
         'wave_amplitude': 1.0e-4,
-        'maximum_time': 0.1 * units['s'],
+        'maximum_time': 10.0 * units['s'],
         'number_of_dumps': 100,
     }
 
@@ -236,20 +238,40 @@ def setup_one_calculation(
     else:
         raise ValueError('Cannot set up dust')
 
-    # Box size
-    frac_y, frac_z = 0.1, 0.1
-    box_boundary = (
-        -params['box_width'] / 2,
-        params['box_width'] / 2,
-        -frac_y * params['box_width'] / 2,
-        frac_y * params['box_width'] / 2,
-        -frac_z * params['box_width'] / 2,
-        frac_z * params['box_width'] / 2,
-    )
+    # Boxes
+    boxes = list()
+
+    lattice = params['lattice']
+    box_width = params['box_width']
+
+    n_particles_in_yz = 6
+    dx = box_width / params['number_of_particles_in_x_gas']
+    y_width = n_particles_in_yz * dx
+    z_width = n_particles_in_yz * dx
+
+    if lattice == 'cubic':
+        xmin = -box_width / 2
+        xmax = box_width / 2
+        ymin = -y_width / 2
+        ymax = y_width / 2
+        zmin = -z_width / 2
+        zmax = z_width / 2
+    elif lattice == 'close packed':
+        xmin = -box_width / 2
+        xmax = box_width / 2
+        ymin = -y_width / 2 * np.sqrt(3) / 2
+        ymax = y_width / 2 * np.sqrt(3) / 2
+        zmin = -z_width / 2 * np.sqrt(6) / 3
+        zmax = z_width / 2 * np.sqrt(6) / 3
+    else:
+        raise ValueError('Cannot determine lattice')
+
+    box_boundary = (xmin, xmax, ymin, ymax, zmin, zmax)
+
     setup.set_boundary(box_boundary, periodic=True)
 
     # Velocity perturbation
-    kwave = 2 * np.pi / (params['box_width'])
+    kwave = 2 * np.pi / box_width
     ampl = params['wave_amplitude']
 
     def velocity_perturbation(
@@ -257,18 +279,14 @@ def setup_one_calculation(
     ) -> Tuple[ndarray, ndarray, ndarray]:
         """Initialize velocity perturbation."""
         vx, vy, vz = np.zeros(x.shape), np.zeros(y.shape), np.zeros(z.shape)
-        vx = ampl * np.sin(kwave * (x + params['box_width'] / 2))
+        vx = ampl * np.sin(kwave * (x + box_width / 2))
         return vx, vy, vz
-
-    # Boxes
-    lattice = 'cubic'
-    boxes = list()
 
     # Gas
     box = phantomsetup.Box(
         box_boundary=box_boundary,
         particle_type=igas,
-        number_of_particles=params['number_of_particles_gas'],
+        number_of_particles_in_x=params['number_of_particles_in_x_gas'],
         density=params['density_gas'],
         velocity_distribution=velocity_perturbation,
         lattice=lattice,
@@ -280,7 +298,7 @@ def setup_one_calculation(
         box = phantomsetup.Box(
             box_boundary=box_boundary,
             particle_type=idust + idx,
-            number_of_particles=params['number_of_particles_dust'],
+            number_of_particles_in_x=params['number_of_particles_in_x_dust'],
             density=density_dust[idx],
             velocity_distribution=velocity_perturbation,
             lattice=lattice,
@@ -295,6 +313,9 @@ def setup_one_calculation(
     # Add boxes to setup
     for box in boxes:
         setup.add_container(box)
+
+    # Set dissipation
+    setup.set_dissipation(alpha=0.0, alphamax=0.0)
 
     # Write to file
     setup.write_dump_file(directory=run_directory)

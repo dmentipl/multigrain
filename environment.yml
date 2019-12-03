@@ -23,6 +23,6 @@ dependencies:
   - pip:
     - phantombuild>=0.1.4
     - phantomconfig>=0.2.2
-    - git+https://github.com/dmentipl/phantom-setup.git@f6cc04f5052101192f6b937c9c2299ef1c4eb9b8
+    - git+https://github.com/dmentipl/phantom-setup.git@42dfefe619ee78ebad0e1ebbf9f657d926a0004e
     - KDEpy
     - plonk>=0.2.1

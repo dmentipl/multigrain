@@ -19,7 +19,7 @@ units = pint.UnitRegistry(system='cgs')
 PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 
 # Phantom patch.
-PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent / 'phantom.patch'
+PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent.parent / 'phantom.patch'
 
 # Path to HDF5 library.
 HDF5ROOT = '/usr/local/opt/hdf5'

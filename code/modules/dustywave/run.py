@@ -7,10 +7,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import click
+import numba
 import numpy as np
 import phantombuild
 import phantomsetup
 import pint
+from numba import float64
 from numpy import ndarray
 
 units = pint.UnitRegistry(system='cgs')
@@ -19,7 +21,7 @@ units = pint.UnitRegistry(system='cgs')
 PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
 
 # Phantom patch.
-PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent / 'phantom.patch'
+PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent.parent / 'phantom.patch'
 
 # Path to HDF5 library.
 HDF5ROOT = '/usr/local/opt/hdf5'
@@ -270,10 +272,16 @@ def setup_one_calculation(
 
     setup.set_boundary(box_boundary, periodic=True)
 
-    # Velocity perturbation
+    # Density perturbation
     kwave = 2 * np.pi / box_width
     ampl = params['wave_amplitude']
 
+    @numba.vectorize([float64(float64)])
+    def density_function(x):
+        x = 1.0 + ampl * np.sin(kwave * (x + box_width / 2))
+        return x
+
+    # Velocity perturbation
     def velocity_perturbation(
         x: ndarray, y: ndarray, z: ndarray
     ) -> Tuple[ndarray, ndarray, ndarray]:
@@ -291,6 +299,10 @@ def setup_one_calculation(
         velocity_distribution=velocity_perturbation,
         lattice=lattice,
     )
+    position = phantomsetup.geometry.stretch_map(
+        density_function, box.arrays['position'], box_boundary[0], box_boundary[1]
+    )
+    box.arrays['position'] = position
     boxes.append(box)
 
     # Dust
@@ -303,6 +315,10 @@ def setup_one_calculation(
             velocity_distribution=velocity_perturbation,
             lattice=lattice,
         )
+        position = phantomsetup.geometry.stretch_map(
+            density_function, box.arrays['position'], box_boundary[0], box_boundary[1]
+        )
+        box.arrays['position'] = position
         boxes.append(box)
 
     # Add extra quantities

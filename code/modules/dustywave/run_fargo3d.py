@@ -18,10 +18,7 @@ from numpy import ndarray
 units = pint.UnitRegistry(system='cgs')
 
 # Required Phantom version.
-PHANTOM_VERSION = '19d7c66baff909133e4d1122bc3fb943d1a71ce4'
-
-# Phantom patch.
-PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent.parent / 'phantom.patch'
+PHANTOM_VERSION = '7c0bd3aa7ea65c16e3bea1ba6ec2c2c49e466e16'
 
 # Path to HDF5 library.
 HDF5ROOT = '/usr/local/opt/hdf5'
@@ -73,7 +70,7 @@ def set_parameters():
         'sound_speed': 1.0,
         'box_width': 1.0,
         'number_of_particles_in_x_gas': 32,
-        'number_of_particles_in_x_dust': 32,
+        'number_of_particles_in_x_dust': 16,
         'density_gas': 1.0,
         'wave_amplitude': 1.0e-4,
         'maximum_time': 2.0,
@@ -90,7 +87,7 @@ def set_parameters():
     d['delta_density_dust'] = (0.165251 - 1.247801j,)
     d['delta_v_dust'] = (-0.221645 + 0.368534j,)
     tstop = (0.4,)
-    d['K_drag'] = tuple([1 / ts for ts in tstop])
+    d['K_drag'] = tuple([rho_d / ts for rho_d, ts in zip(d['density_dust'], tstop)])
     parameters['two species'] = d
 
     # Five species
@@ -112,7 +109,7 @@ def set_parameters():
         -0.028963 + 0.158693j,
     )
     tstop = (0.1, 0.215443, 0.464159, 1.0)
-    d['K_drag'] = tuple([1 / ts for ts in tstop])
+    d['K_drag'] = tuple([rho_d / ts for rho_d, ts in zip(d['density_dust'], tstop)])
     parameters['five species'] = d
 
     return parameters
@@ -242,7 +239,7 @@ def setup_one_calculation(
 
     box_width = params['box_width']
 
-    n_particles_in_yz = 6
+    n_particles_in_yz = 8
     dx = box_width / params['number_of_particles_in_x_gas']
     y_width = n_particles_in_yz * dx
     z_width = n_particles_in_yz * dx
@@ -259,13 +256,14 @@ def setup_one_calculation(
     setup.set_boundary(box_boundary, periodic=True)
 
     # Density perturbation
+    rho = params['density_gas']
     drho = params['delta_density_gas']
     kwave = 2 * np.pi / box_width
     ampl = params['wave_amplitude']
 
     @numba.vectorize([float64(float64)])
     def density_function(x):
-        x = 1.0 + ampl * (
+        x = rho + ampl * (
             drho.real * np.cos(kwave * (x + box_width / 2))
             - drho.imag * np.sin(kwave * (x + box_width / 2))
         )
@@ -304,13 +302,14 @@ def setup_one_calculation(
     for idx in range(number_of_dust_species):
 
         # Density perturbation
+        rho = params['density_dust'][idx]
         drho = params['delta_density_dust'][idx]
         kwave = 2 * np.pi / box_width
         ampl = params['wave_amplitude']
 
         @numba.vectorize([float64(float64)])
         def density_function(x):
-            x = 1.0 + ampl * (
+            x = rho + ampl * (
                 drho.real * np.cos(kwave * (x + box_width / 2))
                 - drho.imag * np.sin(kwave * (x + box_width / 2))
             )
@@ -428,9 +427,6 @@ def cli(run_directory, hdf5_directory):
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     phantombuild.checkout_phantom_version(
         phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
-    )
-    phantombuild.patch_phantom(
-        phantom_dir=phantom_dir, phantom_patch=PHANTOM_PATCH,
     )
     setup_all_calculations(
         run_root_directory=run_directory,

@@ -16,10 +16,7 @@ from numpy import ndarray
 units = pint.UnitRegistry(system='cgs')
 
 # Required Phantom version.
-PHANTOM_VERSION = '6666c55feea1887b2fd8bb87fbe3c2878ba54ed7'
-
-# Phantom patch.
-PHANTOM_PATCH = pathlib.Path(__file__).resolve().parent.parent.parent / 'phantom.patch'
+PHANTOM_VERSION = '7c0bd3aa7ea65c16e3bea1ba6ec2c2c49e466e16'
 
 # Path to HDF5 library.
 HDF5ROOT = '/usr/local/opt/hdf5'
@@ -78,33 +75,27 @@ def set_parameters():
         'number_of_particles_in_x_dust': 16,
         'density_gas': 1.0e-13 * units['g / cm^3'],
         'drag_method': 'Epstein/Stokes',
-        'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * units['cm'],
         'grain_density': 0.5e-14 * units['g / cm^3'],
-        'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * units['cm / s'],
         'maximum_time': 0.1 * units['s'],
         'number_of_dumps': 100,
     }
 
-    # Each value in dust_to_gas_ratio generates a dustybox setup.
-    total_dust_to_gas_ratio = (0.01, 0.1, 1.0, 10.0)
+    # Each value in tuple multiplicatively generates a new simulation.
+    grain_size = ([1.0], [0.562, 1.78], [0.1, 0.316, 1.0, 3.16, 10.0])
+    total_dust_to_gas_ratio = (0.01, 0.5)
 
-    # Distribute dust mass between bins
-    dust_mass_distribution = dict()
-    size = _parameters['grain_size']
-    # Equal mass in each dust bin
-    dust_mass_distribution['equal'] = np.ones(len(size)) / len(size)
-    # MRN-distributed mass in each dust bin
-    dust_mass_distribution['MRN'] = np.sqrt(size) / np.sum(np.sqrt(size))
-
-    # Iterate over dust-to-gas ratio and dust-mass-distributions.
+    # Iterate over dust-to-gas ratio and grain sizes.
     parameters = dict()
     for f in total_dust_to_gas_ratio:
-        for dist in dust_mass_distribution.keys():
-            parameters[f'Epstein-f={f}-{dist}'] = copy.copy(_parameters)
-            dust_to_gas_ratio = f * dust_mass_distribution[dist]
-            parameters[f'Epstein-f={f}-{dist}']['dust_to_gas_ratio'] = tuple(
-                dust_to_gas_ratio
-            )
+        for size in grain_size:
+            N = len(size)
+            label = f'f={f:.2f}_N={N}'
+            parameters[label] = copy.copy(_parameters)
+            dust_to_gas_ratio = tuple(f / N * np.ones(N))
+            parameters[label]['dust_to_gas_ratio'] = dust_to_gas_ratio
+            parameters[label]['grain_size'] = size * units['cm']
+            velocity_delta = tuple(np.ones(N)) * units['cm / s']
+            parameters[label]['velocity_delta'] = velocity_delta
 
     return parameters
 
@@ -375,9 +366,6 @@ def cli(run_directory, hdf5_directory):
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     phantombuild.checkout_phantom_version(
         phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
-    )
-    phantombuild.patch_phantom(
-        phantom_dir=phantom_dir, phantom_patch=PHANTOM_PATCH,
     )
     setup_all_calculations(
         run_root_directory=run_directory,

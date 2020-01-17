@@ -61,6 +61,9 @@ def set_parameters():
     'velocity_delta' should be the same, i.e. the number of dust
     species.
     """
+    # Mach number
+    mach = 2.0
+
     # Dictionary of parameters common to all runs.
     _parameters = {
         'prefix': 'dustyshock',
@@ -68,19 +71,19 @@ def set_parameters():
         'mass_unit': 1.0,
         'time_unit': 1.0,
         'sound_speed': 1.0,
-        'box_width': 50,
+        'box_width': 200,
         'lattice': 'close packed',
-        'number_of_particles_in_x_R': 32,
+        'number_of_particles_in_x_R': 128,
         'density_L': 1.0,
-        'velocity_L': 1.0,
-        'maximum_time': 0.1,
+        'velocity_L': mach,
+        'maximum_time': 10.0,
         'number_of_dumps': 100,
     }
 
     # Each value in tuple multiplicatively generates a new simulation.
     K_drag = ([1.0], [1.0, 3.0, 5.0])
     density_R = (8.0, 16.0)
-    velocity_R = (0.125, 0.0625)
+    velocity_R = (mach * 0.125, mach * 0.0625)
 
     # Iterate over dust-to-gas ratio and grain sizes.
     parameters = dict()
@@ -170,6 +173,7 @@ def setup_one_calculation(
     # Constants
     igas = phantomsetup.defaults.PARTICLE_TYPE['igas']
     idust = phantomsetup.defaults.PARTICLE_TYPE['idust']
+    # iboundary = phantomsetup.defaults.PARTICLE_TYPE['iboundary']
 
     # Setup
     setup = phantomsetup.Setup()
@@ -217,9 +221,9 @@ def setup_one_calculation(
     box_width = params['box_width']
 
     n_particles_in_yz = 8
-    dx_R = 0.5 * box_width / params['number_of_particles_in_x_R']
-    y_width = n_particles_in_yz * dx_R
-    z_width = n_particles_in_yz * dx_R
+    dx_L = 0.5 * box_width / params['number_of_particles_in_x_R']
+    y_width = n_particles_in_yz * dx_L
+    z_width = n_particles_in_yz * dx_L
 
     xmin = -box_width / 2
     xmax = box_width / 2
@@ -228,7 +232,7 @@ def setup_one_calculation(
     zmin = -z_width / 2 * np.sqrt(6) / 3
     zmax = z_width / 2 * np.sqrt(6) / 3
 
-    domain_boundary = (xmin - 1000 * dx_R, xmax + 1000 * dx_R, ymin, ymax, zmin, zmax)
+    domain_boundary = (xmin - 1000 * dx_L, xmax + 1000 * dx_L, ymin, ymax, zmin, zmax)
 
     setup.set_boundary(domain_boundary, periodic=True)
 
@@ -307,6 +311,14 @@ def setup_one_calculation(
         )
         boxes.append(box)
 
+    # # Set boundary particles
+    # for box in boxes:
+    #     x = box.arrays['position']
+    #     boundary_particles = np.argwhere((x < xmin + dx_L) | (x > xmax - dx_L))
+    #     particle_type = box.arrays['particle_type']
+    #     particle_type[boundary_particles] = iboundary
+    #     box.set_array('particle_type', particle_type)
+
     # Add extra quantities
     for box in boxes:
         alpha = np.zeros(box.number_of_particles, dtype=np.single)
@@ -317,7 +329,7 @@ def setup_one_calculation(
         setup.add_container(box)
 
     # Set dissipation
-    setup.set_dissipation(alpha=0.0, alphamax=0.0)
+    setup.set_dissipation(alpha=1.0, alphamax=1.0)
 
     # Write to file
     setup.write_dump_file(directory=run_directory)

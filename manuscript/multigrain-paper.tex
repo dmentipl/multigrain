@@ -269,8 +269,54 @@ We performed the multigrain version of the dusty-wave test described in
 \citet{Laibe2011MNRAS.418.1491L}. This is a test of the dust-gas drag coupling
 in the context of a damped sound wave. The dust is a pressureless fluid and
 cannot support sound waves. However, the gas can support sounds waves and drags
-the dust. This leads to damping. For the particular setup we followed
-\citet{Benitez-Llambay2019ApJS..241...25B}.
+the dust. This leads to damping of the wave.
+
+Considering small perturbations around an equilibrium state, \(\rho_j = \rho_j^0
++ \delta \rho_j\), and \(v_j = \delta v_j\), where \(j\) is \(g\) for the gas
+species, and \(d_i\) for each of the dust species, the linearised equations of
+motion for this system are
+%
+\begin{align}
+   \frac{\partial \delta \rho_g}{\partial t}
+      + \rho_g^0 \frac{\partial \delta v_g}{\partial x} &= 0, \\
+   \frac{\partial \delta \rho_{d_i}}{\partial t}
+      + \rho_{d_i}^0 \frac{\partial \delta v_{d_i}}{\partial x} &= 0, \\
+   \rho_g^0 \frac{\partial \delta v_g}{\partial t}
+      &= \sum_i K_i \left(\delta v_{d_i} - \delta v_g \right)
+         + c_s^2 \frac{\partial \delta \rho_g}{\partial x}, \\
+   \rho_{d_i}^0 \frac{\partial \delta v_{d_i}}{\partial t}
+      &= - K_i \left(\delta v_{d_i} - \delta v_{g}\right).
+\end{align}
+%
+For the particular setup we followed \citet{Benitez-Llambay2019ApJS..241...25B}.
+They derive solutions for the above equations as a dispersion relation (their
+equation 45) and associated set of eigenfunctions (their equations 46--48).
+Following \citet{Benitez-Llambay2019ApJS..241...25B}, we set the initial
+condition to constant density and zero velocity, with perturbations of the form
+%
+\begin{align}
+   \delta f = A \left[\mathrm{Re} \left(\delta \hat{f} \right) \cos(kx)
+      - \mathrm{Im} \left(\delta \hat{f} \right) \sin(kx) \right],
+\end{align}
+%
+where each perturbation can be written \(\delta f = \delta \hat{f} e^{ikx -
+i\omega t}\). We set the sound speed \(c_s = 1\), and the wave amplitude \(A\)
+to \(10^{-4} c_s\) and \(10^{-4} \rho_g^0\) for the velocity and density
+perturbations, respectively.
+
+We performed two tests: (1) with gas and a single dust species, and (2) with gas
+and four dust species. We set the background density, drag coefficients, and
+initial perturbations from Table 2 in
+\citet{Benitez-Llambay2019ApJS..241...25B}. We chose a periodic box of unit
+length, with 128 particles in the wave direction for each species.
+
+Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
+and density perturbations at a particular location within the domain (\(x=0\)).
+The solid lines represent the analytical solution from
+\citet{Benitez-Llambay2019ApJS..241...25B} and the open circles represent the
+numerical solution from Phantom. We first note that the numerical solution
+accurately reproduces the analytical solution. In all cases we see the wave
+damping effect.
 
 \subsection{Dusty-shock}
 

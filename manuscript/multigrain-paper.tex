@@ -62,21 +62,21 @@
 
 % Title of the paper, and the short title which is used in the headers.
 % Keep the title short and informative.
-\title[Hybrid multigrain]{Hybrid multigrain: A smoothed particle hydrodynamics
-algorithm for small and large dust grains}
+\title[Large Stokes number multigrain]{Large Stokes number multigrain: A
+smoothed particle hydrodynamics algorithm for large dust grains}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
-\author[Mentiplay, Price, Laibe, \& Pinte]{%
+\author[Mentiplay, Price, Pinte, \& Laibe]{%
    \parbox{\textwidth}{%
       Daniel Mentiplay\(^{1}\)\thanks{daniel.mentiplay@monash.edu},
       Daniel J. Price\(^{1}\),
-      Guillaume Laibe\(^{2}\),
-      Christophe Pinte\(^{1,3}\)}\\
+      Christophe Pinte\(^{1,2}\),
+      Guillaume Laibe\(^{3}\)}\\
    \(^{1}\)Monash Centre for Astrophysics (MoCA) and School of Physics and
    Astronomy, Monash University, Clayton Vic 3800, Australia \\
-   \(^{2}\)Lyon, France \\
-   \(^{3}\)Univ. Grenoble Alpes, CNRS, IPAG, F-38000 Grenoble, France}
+   \(^{3}\)Lyon, France \\
+   \(^{2}\)Univ. Grenoble Alpes, CNRS, IPAG, F-38000 Grenoble, France}
 
 % These dates will be filled out by the publisher
 \date{Accepted XXX. Received YYY; in original form ZZZ}
@@ -92,12 +92,19 @@ algorithm for small and large dust grains}
 
 % Abstract of the paper
 \begin{abstract}
+   We present a new method for simulating the dynamics of a mixture of gas and
+   large Stokes number dust grains, typical of evolved protoplanetary discs and
+   debris discs. The method improves upon earlier methods, in which only a
+   single grain size could be represented, by capturing the backreaction of
+   multiple dust species on the gas. This effect is greater for large
+   dust-to-gas ratios that may be expected in the later stages of the
+   protoplanetary disc life.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
 % Don't make up new ones.
 \begin{keywords}
-keyword1 -- keyword2 -- keyword3
+hydrodynamics -- methods: numerical -- protoplanetary discs
 \end{keywords}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -112,7 +119,7 @@ keyword1 -- keyword2 -- keyword3
    \item Single grain size vs multiple dust species.
    \item \citet{Haworth2016PASA...33...53H}---grand challenges in protoplanetary disc
       modeling.
-   \item Applications: protoplanetary discs, molecular clouds.
+   \item Applications: protoplanetary discs, debris discs.
    \item Phantom dust methods---\citet{Price2018PASA...35...31P}.
    \item Phantom 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
 \end{itemize}
@@ -122,69 +129,121 @@ keyword1 -- keyword2 -- keyword3
 
 \subsection{Continuum equations for multiple dust species}
 
-The equations of conservation of momentum for a multiple species dust and gas
-mixture are given by
+We consider a mixture of gas, indexed by \(g\), and \(N\) dust species, indexed
+by \(d_i\). We neglect the finite size of the dust particles, and thus set the
+gas volume fraction to unity. We represent each dust species as a continuous
+fluid with a fixed size, \(s_i\), and intrinsic density, \(\varrho_{m_i}\).
+Then, the equations of conservation of mass for the mixture is given by
 %
 \begin{align}
-   \rho_g \frac{d \vec{v}_g}{dt} &= - \nabla P + \sum_i K_i \left(\vec{v}_{d_i}
-                                    - \vec{v}_{g}\right), \\
-   \rho_{d_i} \frac{d \vec{v}_{d_i}}{dt} &= - K_i \left(\vec{v}_{d_i}
-                                                       - \vec{v}_{g}\right),
+   \label{eqn:conserve-mass}
+   \frac{\partial \rho_g}{\partial t} + \nabla \cdot (\rho_g \vec{v}_g) &= 0, \\
+   \frac{\partial \rho_{d_i}}{\partial t} + \nabla \cdot (\rho_{d_i} \vec{v}_{d_i}) &= 0,
 \end{align}
 %
+for each \(i\) in 1 to \(N\).
 
-\subsection{SPH with multiple dust species}
+We assume the fluids are inviscid, that the dust is pressureless, and that each
+dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
+density. The equations of conservation of momentum for the mixture are given by
+%
+\begin{align}
+   \rho_g \frac{\mathrm{d} \vec{v}_g}{dt}
+      &= - \nabla P + \rho_g \vec{f} + \sum_i K_i \left(\vec{v}_{d_i}
+         - \vec{v}_{g}\right), \\
+   \rho_{d_i} \frac{\mathrm{d} \vec{v}_{d_i}}{dt}
+      &= \rho_{d_i} \vec{f} - K_i \left(\vec{v}_{d_i} - \vec{v}_{g}\right),
+\end{align}
+%
+where \(\rho_j\) and \(\vec{v}_j\) are the density and velocity of the fluids,
+\(P\) is the gas pressure, \(\vec{f}\) is any body forces acting on the fluids,
+and \(K_i\) is the drag coefficient between the gas and a particular dust
+species, \(i\). Note that each dust fluid has one gas drag interaction term,
+whereas the gas momentum equation has a sum of interactions over each dust
+species. Also note that the dust has no pressure gradient force term. In
+general, the drag coefficient could be a complicated expression. We assume that
+the drag coefficient is linear with respect to the differential velocity,
+\(\Delta \vec{v}_i = \vec{v}_{d_i} - \vec{v}_g \).
+
+The gas and dust exchange momentum via drag which leads to frictional heating.
+Under the assumption that the gas and dust grains are at the same temperature,
+the evolution of gas internal energy is given by
+%
+\begin{align}
+   \label{eqn:conserve-energy}
+   \rho_g \frac{\mathrm{d} u_g}{\mathrm{d} t} =
+      - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i (\vec{v}_g - \vec{v}_{d_i})^2.
+\end{align}
+%
+Equations~\ref{eqn:conserve-mass}--\ref{eqn:conserve-energy} are \(2N + 3\)
+equations describing the evolution of a mixture of gas and \(N\) dust species.
 
 \subsection{Stopping time}
 
 \textcolor{red}{
 \begin{itemize}
-   \item Discuss large grains vs small grains, strong vs weak coupling, and
-      terminal velocity approximation.
+   \item Discuss large grains vs small grains and strong vs weak coupling in the
+      context of Stokes number, and terminal velocity approximation.
 \end{itemize}
 }
-For a single dust species the stopping time, i.e.\ the drag timescale, \(t_s\)
-is
+
+Dust and gas interact via a drag force. This drag force has a characteristic
+time scale, known as the stopping time. The stopping time relates to the drag
+coefficient, which depends on quantities such as the gas temperature and
+density, and on the physical characteristics of the dust grains. For a single
+dust species, the stopping time, \(t_s\), is given by
 %
 \begin{align}
+   \label{eqn:stopping-time}
    t_s = \frac{\rho_g \rho_d}{K (\rho_g + \rho_d)},
 \end{align}
 %
 where \(K\) is the drag coefficient for the single species. We assume spherical
-grains of size \(s\) with a uniform material density, \(\rho_m\). In the linear
-Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient \(K\) is
+grains of size \(s\) with a uniform material density, \(\varrho_m\). In the
+linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient
+\(K\) is
 %
 \begin{align}
-   K = \frac{\rho_g \rho_d}{\rho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s.
+   \label{eqn:drag-coefficient}
+   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s.
 \end{align}
 %
+For convenience, we define an effective material density,
+\(\varrho_{\mathrm{eff}}\), given by \(\varrho_{\mathrm{eff}} = \varrho_m
+\sqrt{\pi\gamma/8}\).
+
 As discussed in \citet{Hutchison2018MNRAS.476.2186H}, a straightforward
 generalisation of the stopping time for multiple dust species is not available.
 Each dust species is separately coupled to the gas by the drag force. However,
-the dust species are indirectly coupled to each other via backreaction, i.e.\
-conservation of momentum. For convenience, we define an effective material
-density, \(\rho_{\mathrm{eff}}\), given by
+the dust species are indirectly coupled to each other via backreaction, as
+required conservation of momentum. Considering the multiple dust species case,
+the drag coefficient, \(K_i\), is now
 %
 \begin{align}
-   \rho_{\mathrm{eff}} = \rho_m \sqrt{\pi\gamma/8}.
+   K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
 \end{align}
 %
-The drag coefficient of each dust species, \(K_i\), is now
+% We can now define a stopping-time-like time scale, \(t_{s_i} = \rho / K_i\)
+% where \(\rho = \rho_g + \sum_i \rho_{d_i}\) is the total density of the gas and
+% all dust species.
+We define \(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas
+and all dust species, and the weighted sum \(s_{\mathrm{eff}} = \sum_i
+\rho_{d_i} s_i / \sum_i \rho_{d_i}\) as an effective grain size for the mixture.
+Then we can define an effective stopping time for the dust mixture as
 %
 \begin{align}
-   K_i = \frac{\rho_g \rho_{d_i} c_s}{\rho_{\mathrm{eff}} s_i},
+   T_s = \frac{\varrho_{\mathrm{eff}} s_{\mathrm{eff}}}{\rho c_s}.
 \end{align}
 %
-and we can define a time scale, \(t_{s_i}\), as
-%
-\begin{align}
-   t_{s_i} = \frac{\rho}{K_i},
-\end{align}
-%
-where \(\rho = \rho_g + \sum_i \rho_{d_i}\) is the total density of the gas and
-all dust species.
+By combining Equations~\ref{eqn:stopping-time}~\&~\ref{eqn:drag-coefficient} we
+can see the expression for the multigrain effective stopping time is analogous
+to the single dust species case.
 
 \subsection{Time stepping}
+
+\subsection{SPH with multiple dust species}
+
+For ``two-fluid'' see \citet{Laibe2012MNRAS.420.2345L}, Section 2.2.
 
 \section{Numerical tests}
 
@@ -198,8 +257,8 @@ all dust species.
          and 0.5 (bottom row). From left to right: the number of dust species is
          1, 2, 5. The open circles represent the results from the Phantom
          simulation. The solid and dashed lines represent the analytical
-         solution with and without, respectively, taking back reaction into
-         account.\label{fig:dustybox}}
+         solution with and without taking back reaction into account,
+         respectively.\label{fig:dustybox}}
    \end{center}
 \end{figure*}
 
@@ -212,21 +271,49 @@ between the gas and dust. In this test the equation of motion simplifies to
    \frac{\partial \Delta \vec{V}}{\partial t} = - \Omega_n \Delta \vec{V},
 \end{align}
 %
-where \(\Delta \vec{V}\) is the differential velocity vector, and \(\Omega_n\)
-is the drag matrix given in Eq.~64 of \citet{Laibe2014MNRAS.444.1940L}.
-Dusty-box is a test of the exchange of momentum between gas and dust species via
-the drag force. The original dusty-box test was for a single grain size. We ran
-the multigrain version described in \citet{Laibe2014MNRAS.444.1940L} in the
-linear Epstein drag regime \citep{Epstein1924PhRv...23..710E}. We chose the
-physical Epstein drag prescription in Phantom.
+where \(\Delta \vec{V}\) is the differential velocity vector, i.e.
+\(\vec{v}_{d_i} - \vec{v}_g\) for each \(i\), and \(\Omega_n\) is the drag
+matrix given in Eq.~64 of \citet{Laibe2014MNRAS.444.1940L}. Dusty-box is a test
+of the exchange of momentum between gas and dust species via the drag force. The
+original dusty-box test was for a single grain size. We ran the multigrain
+version described in \citet{Laibe2014MNRAS.444.1940L} in the linear Epstein drag
+regime \citep{Epstein1924PhRv...23..710E}. We chose the physical Epstein drag
+prescription in Phantom.
+
+\begin{table}
+   \centering
+   \begin{tabular}{ccc}
+      \hline
+      \hline
+      Species & Grain size [cm] \\
+      \hline
+      \hline
+      One dust species \\
+      1 & 1.0 \\
+      \hline
+      Two dust species \\
+      1 & 0.562 \\
+      2 & 1.78 \\
+      \hline
+      Five dust species \\
+      1 & 0.1 \\
+      2 & 0.316 \\
+      3 & 1.0 \\
+      4 & 3.16 \\
+      5 & 10.0 \\
+      \hline
+      \hline
+   \end{tabular}
+   \caption{Grain sizes for dusty box test.}
+   \label{tab:dustybox}
+\end{table}
 
 We performed six tests in two sets of three. The first set had a total
 dust-to-gas ratio of 0.01, and the second set 0.5. The tests within each set had
-1, 2, and 5 dust species, respectively, with grain sizes: 1.0 cm for the 1 dust
-species test; 0.562 cm and 1.78 cm for the 2 species test; and 0.1 cm, 0.316 cm,
-1.0 cm, 3.16 cm, and 10.0 cm for the 5 species test. Each test had equal mass in
-each grain size bin. The gas is initially motionless, and each dust species has
-uniform velocity in the positive x-direction.
+1, 2, and 5 dust species, respectively, with grain sizes given in
+Table~\ref{tab:dustybox}. Each test had equal mass in each grain size bin. The
+gas is initially motionless, and each dust species has uniform velocity in the
+positive x-direction.
 
 For each test problem, we set up each of the gas and dust fluids on a
 close-packed lattice, such that there were 32 gas particles in the direction of
@@ -256,11 +343,11 @@ the physics of dust drag accurately
 \begin{figure*}
    \begin{center}
       \includegraphics[width=\textwidth]{figs/dustywave.png}
-      \caption{Dusty-wave numerical test showing the velocity perturbation (top)
-         and the density perturbation (bottom) at \(x = 0\), for gas with one
-         dust species (left) and gas with four dust species (right). The open
-         circles represent the Phantom simulation, and the solid line represents
-         the analytical solution from
+      \caption{Dusty-wave numerical test showing the normalised velocity (top)
+         and density (bottom) perturbation at \(x = 0\), for gas with one dust
+         species (left) and gas with four dust species (right). The open circles
+         represent the Phantom simulation, and the solid line represents the
+         analytical solution from
          \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustywave}}
    \end{center}
 \end{figure*}
@@ -308,7 +395,9 @@ We performed two tests: (1) with gas and a single dust species, and (2) with gas
 and four dust species. We set the background density, drag coefficients, and
 initial perturbations from Table 2 in
 \citet{Benitez-Llambay2019ApJS..241...25B}. We chose a periodic box of unit
-length, with 128 particles in the wave direction for each species.
+length, with 128 particles in the wave direction for each species. We use
+constant drag, \(K_i\), for each dust species, with \(K_i = \rho_{d_i} /
+t_{s_i}\), and \(\rho_{d_i}\) and \(t_{s_i}\) from Table 2.
 
 Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
 and density perturbations at a particular location within the domain (\(x=0\)).
@@ -320,14 +409,18 @@ damping effect.
 
 \subsection{Dusty-shock}
 
-\subsection{Other tests?}
+See \citet{Laibe2012MNRAS.420.2345L}, \citet{Lehmann2018MNRAS.476.3185L}.
 
-\begin{itemize}
-   \item Radial drift.
-   \item Settling.
-\end{itemize}
 
-\section{Application}
+\section{Applications}
+
+\subsection{Radial drift}
+
+See example in \citet{Dipierro2018MNRAS.479.4187D}.
+
+\subsection{Dust settling}
+
+See Section~4.3 in \citet{Hutchison2018MNRAS.476.2186H}.
 
 \subsection{Circumbinary disc}
 
@@ -338,7 +431,23 @@ distribution comparing the single-grain vs multigrain calculation.
 
 \section{Discussion}
 
+\begin{itemize}
+   \item Time step constraint via Stokes number. I.e.\ only appropriate for
+      large grains.
+   \item Memory constraint: extra set of particles per dust species requires
+      position, velocity, etc.\ unlike the mixture method.
+\end{itemize}
+
 \section{Conclusions}
+
+\begin{itemize}
+   \item Implemented SPH numerical scheme for multiple dust species represented
+      by separate sets of SPH particles, appropriate for large Stokes number
+      regime.
+   \item Demonstrated that the method is accurate by testing on known problems.
+   \item Applied the method to simulate physical processes in protoplanetary
+      discs.
+\end{itemize}
 
 \section*{Acknowledgements}
 

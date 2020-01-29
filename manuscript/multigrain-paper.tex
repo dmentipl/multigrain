@@ -93,12 +93,12 @@ smoothed particle hydrodynamics algorithm for large dust grains}
 % Abstract of the paper
 \begin{abstract}
    We present a new method for simulating the dynamics of a mixture of gas and
-   large Stokes number dust grains, typical of evolved protoplanetary discs and
-   debris discs. The method improves upon earlier methods, in which only a
-   single grain size could be represented, by capturing the backreaction of
-   multiple dust species on the gas. This effect is greater for large
-   dust-to-gas ratios that may be expected in the later stages of the
-   protoplanetary disc life.
+   multiple species of large Stokes number dust grains, typical of evolved
+   protoplanetary discs and debris discs. The method improves upon earlier
+   methods, in which only a single grain size could be represented, by capturing
+   the differential backreaction of multiple dust species on the gas. This
+   effect is greater for large dust-to-gas ratios that may be expected in the
+   later stages of the protoplanetary disc life.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -141,7 +141,8 @@ Then, the equations of conservation of mass for the mixture is given by
    \frac{\partial \rho_{d_i}}{\partial t} + \nabla \cdot (\rho_{d_i} \vec{v}_{d_i}) &= 0,
 \end{align}
 %
-for each \(i\) in 1 to \(N\).
+for each \(i\) in 1 to \(N\), where \(\rho_j\) and \(\vec{v}_j\) are the density
+and velocity of the fluids.
 
 We assume the fluids are inviscid, that the dust is pressureless, and that each
 dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
@@ -155,11 +156,10 @@ density. The equations of conservation of momentum for the mixture are given by
       &= \rho_{d_i} \vec{f} - K_i \left(\vec{v}_{d_i} - \vec{v}_{g}\right),
 \end{align}
 %
-where \(\rho_j\) and \(\vec{v}_j\) are the density and velocity of the fluids,
-\(P\) is the gas pressure, \(\vec{f}\) is any body forces acting on the fluids,
-and \(K_i\) is the drag coefficient between the gas and a particular dust
-species, \(i\). Note that each dust fluid has one gas drag interaction term,
-whereas the gas momentum equation has a sum of interactions over each dust
+where \(P\) is the gas pressure, \(\vec{f}\) is any body forces acting on the
+fluids, and \(K_i\) is the drag coefficient between the gas and a particular
+dust species, \(i\). Note that each dust fluid has one gas drag interaction
+term, whereas the gas momentum equation has a sum of interactions over each dust
 species. Also note that the dust has no pressure gradient force term. In
 general, the drag coefficient could be a complicated expression. We assume that
 the drag coefficient is linear with respect to the differential velocity,
@@ -175,10 +175,15 @@ the evolution of gas internal energy is given by
       - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i (\vec{v}_g - \vec{v}_{d_i})^2.
 \end{align}
 %
+We neglect the dust fluid internal energy under the assumption that the dust and
+gas are at the same temperature.
+
 Equations~\ref{eqn:conserve-mass}--\ref{eqn:conserve-energy} are \(2N + 3\)
 equations describing the evolution of a mixture of gas and \(N\) dust species.
+We discuss discretising these equations with smoothed particle hydrodynamics in
+Section~\ref{subsec:sph}.
 
-\subsection{Stopping time}
+\subsection{Drag timescale}
 
 \textcolor{red}{
 \begin{itemize}
@@ -186,6 +191,8 @@ equations describing the evolution of a mixture of gas and \(N\) dust species.
       context of Stokes number, and terminal velocity approximation.
 \end{itemize}
 }
+
+\subsubsection{Stopping time}
 
 Dust and gas interact via a drag force. This drag force has a characteristic
 time scale, known as the stopping time. The stopping time relates to the drag
@@ -223,15 +230,13 @@ the drag coefficient, \(K_i\), is now
    K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
 \end{align}
 %
-% We can now define a stopping-time-like time scale, \(t_{s_i} = \rho / K_i\)
-% where \(\rho = \rho_g + \sum_i \rho_{d_i}\) is the total density of the gas and
-% all dust species.
 We define \(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas
 and all dust species, and the weighted sum \(s_{\mathrm{eff}} = \sum_i
 \rho_{d_i} s_i / \sum_i \rho_{d_i}\) as an effective grain size for the mixture.
 Then we can define an effective stopping time for the dust mixture as
 %
 \begin{align}
+   \label{eqn:effective-stopping-time}
    T_s = \frac{\varrho_{\mathrm{eff}} s_{\mathrm{eff}}}{\rho c_s}.
 \end{align}
 %
@@ -239,11 +244,64 @@ By combining Equations~\ref{eqn:stopping-time}~\&~\ref{eqn:drag-coefficient} we
 can see the expression for the multigrain effective stopping time is analogous
 to the single dust species case.
 
+\subsubsection{Stokes number}
+
+The Stokes number, \(\mathrm{St}\), is a dimensionless stopping time defined as
+the stopping time in units of a typical flow time. For protoplanetary discs, the
+typical flow time is the Keplerian orbital time, \(1/\Omega_K\), so that the
+Stokes number is \(\mathrm{St} = t_s \Omega_K\). Note that the Stokes number
+depends on the gas disc properties, via the density and temperature, the dust
+disc density, the dust grain properties, i.e. size and material density, and the
+stellar mass and orbital distance. The disc surface density, \(\Sigma\), and
+disc scale height, \(H\), are related to the density, sound speed, and Keplerian
+orbital time by \(\rho = \Sigma / H\) and \(\Omega_K = c_s / H\). Using these
+relations we can show that the Stokes number in the midplane of a protoplanetary
+disc is given by
+%
+\begin{align}
+   \mathrm{St} = \frac{\varrho_{\mathrm{eff}} s}{\Sigma}.
+\end{align}
+%
+In using \(\rho = \Sigma / H\) and \(\Omega_K = c_s / H\) to derived the above
+expression we are assuming that the gas mass dominates over the dust mass, i.e.
+that the dust fraction is low. Otherwise we must consider that the scale height
+varies between the gas disc and the dust sub-discs.
+
+Considering the multiple dust species case, we can define an effective midplane
+Stokes number for the mixture using the effective stopping time
+(Equation~\ref{eqn:effective-stopping-time}) as \(\mathrm{St}_{\mathrm{eff}} =
+\varrho_{\mathrm{eff}} s_{\mathrm{eff}} / \Sigma \). An alternative is to define
+a per species midplane Stokes number in analogy with the single grain size case:
+%
+\begin{align}
+   \mathrm{St}_i = \frac{\varrho_{\mathrm{eff}} s_i}
+      {\Sigma_g \left(1 + \sum_i \varepsilon_i \right)},
+\end{align}
+%
+where \(\Sigma_g\) is the gas surface density and \(\varepsilon_i\) is the
+dust-to-gas ratio for each dust species. Again we see the combination of grain
+properties, size and material density, and the disc surface density fixing the
+Stokes number. Given that we assume the material density is the same for all
+species, we see that the grain size of the species, for any fixed location in
+the disc, gives the variation in Stokes number between species.
+
+\subsection{SPH with multiple dust species}%
+\label{subsec:sph}
+
+\textcolor{red}{
+\begin{itemize}
+   \item For ``two-fluid'' see \citet{Laibe2012MNRAS.420.2345L}, Section 2.2.
+\end{itemize}
+}
+
 \subsection{Time stepping}
 
-\subsection{SPH with multiple dust species}
-
-For ``two-fluid'' see \citet{Laibe2012MNRAS.420.2345L}, Section 2.2.
+\textcolor{red}{
+\begin{itemize}
+   \item Explicit time stepping.
+   \item Drag timescale limits calculation to \(\mathrm{St} \gtrsim 1\).
+\end{itemize}
+}
 
 \section{Numerical tests}
 
@@ -409,37 +467,48 @@ damping effect.
 
 \subsection{Dusty-shock}
 
+\textcolor{red}{
 See \citet{Laibe2012MNRAS.420.2345L}, \citet{Lehmann2018MNRAS.476.3185L}.
+}
 
 
 \section{Applications}
 
 \subsection{Radial drift}
 
+\textcolor{red}{
 See example in \citet{Dipierro2018MNRAS.479.4187D}.
+}
 
 \subsection{Dust settling}
 
+\textcolor{red}{
 See Section~4.3 in \citet{Hutchison2018MNRAS.476.2186H}.
+}
 
 \subsection{Circumbinary disc}
 
+\textcolor{red}{
 Do a comparison between multiple single grain calculations vs one multigrain
 calculation focussing on dust trapping in a circumbinary disc. For example, in
 HD~142527. The figure would show a phase difference between the dust (or gas)
 distribution comparing the single-grain vs multigrain calculation.
+}
 
 \section{Discussion}
 
+\textcolor{red}{
 \begin{itemize}
    \item Time step constraint via Stokes number. I.e.\ only appropriate for
       large grains.
    \item Memory constraint: extra set of particles per dust species requires
       position, velocity, etc.\ unlike the mixture method.
 \end{itemize}
+}
 
 \section{Conclusions}
 
+\textcolor{red}{
 \begin{itemize}
    \item Implemented SPH numerical scheme for multiple dust species represented
       by separate sets of SPH particles, appropriate for large Stokes number
@@ -448,6 +517,7 @@ distribution comparing the single-grain vs multigrain calculation.
    \item Applied the method to simulate physical processes in protoplanetary
       discs.
 \end{itemize}
+}
 
 \section*{Acknowledgements}
 

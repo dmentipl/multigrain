@@ -115,13 +115,21 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 
 \textcolor{red}{
 \begin{itemize}
+   \item Dust is important for ISM, star formation, protoplanetary discs, debris
+      discs.
+   \item Dust makes planets.
+   \item Dust regulates temperature of disc.
+   \item Dust is observable.
+   \item Multi-wavelength observations show that the radial extent of emission
+      scales inversely with wavelength. I.e. larger grains drift inwards more --
+      \citet{Andrews2012ApJ...744..162A}. Cite \citet{Testi2014prpl.conf..339T}?
    \item Dust-gas modeling in astrophysical fluids.
+   \item \citet{Haworth2016PASA...33...53H}---grand challenges in protoplanetary
+      disc modeling.
    \item Single grain size vs multiple dust species.
-   \item \citet{Haworth2016PASA...33...53H}---grand challenges in protoplanetary disc
-      modeling.
-   \item Applications: protoplanetary discs, debris discs.
    \item Phantom dust methods---\citet{Price2018PASA...35...31P}.
    \item Phantom 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
+   \item Applications: protoplanetary discs, debris discs.
 \end{itemize}
 }
 
@@ -157,7 +165,8 @@ density. The equations of conservation of momentum for the mixture are given by
 \end{align}
 %
 where \(P\) is the gas pressure, \(\vec{f}\) is any body forces acting on the
-fluids, and \(K_i\) is the drag coefficient between the gas and a particular
+fluids, typically gravity from a star or planet (we ignore self-gravity in this
+paper), and \(K_i\) is the drag coefficient between the gas and a particular
 dust species, \(i\). Note that each dust fluid has one gas drag interaction
 term, whereas the gas momentum equation has a sum of interactions over each dust
 species. Also note that the dust has no pressure gradient force term. In
@@ -172,7 +181,7 @@ the evolution of gas internal energy is given by
 \begin{align}
    \label{eqn:conserve-energy}
    \rho_g \frac{\mathrm{d} u_g}{\mathrm{d} t} =
-      - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i (\vec{v}_g - \vec{v}_{d_i})^2.
+      - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i {(\vec{v}_g - \vec{v}_{d_i})}^2.
 \end{align}
 %
 We neglect the dust fluid internal energy under the assumption that the dust and
@@ -187,8 +196,10 @@ Section~\ref{subsec:sph}.
 
 \textcolor{red}{
 \begin{itemize}
-   \item Discuss large grains vs small grains and strong vs weak coupling in the
-      context of Stokes number, and terminal velocity approximation.
+   \item Differentiate between Epstein and Stokes regimes.
+   \item Terminal velocity approximation.
+   \item Grain size -> Stokes number depends on gas (and dust) density---get
+      different ``large grains'' for different systems.
 \end{itemize}
 }
 
@@ -212,12 +223,12 @@ linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient
 %
 \begin{align}
    \label{eqn:drag-coefficient}
-   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s.
+   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s,
 \end{align}
 %
-For convenience, we define an effective material density,
-\(\varrho_{\mathrm{eff}}\), given by \(\varrho_{\mathrm{eff}} = \varrho_m
-\sqrt{\pi\gamma/8}\).
+where \(\gamma\) is the adiabatic index of the gas. For convenience, we define
+an effective material density, \(\varrho_{\mathrm{eff}}\), given by
+\(\varrho_{\mathrm{eff}} = \varrho_m \sqrt{\pi\gamma/8}\).
 
 As discussed in \citet{Hutchison2018MNRAS.476.2186H}, a straightforward
 generalisation of the stopping time for multiple dust species is not available.
@@ -274,6 +285,7 @@ Stokes number for the mixture using the effective stopping time
 a per species midplane Stokes number in analogy with the single grain size case:
 %
 \begin{align}
+   \label{eqn:stokes}
    \mathrm{St}_i = \frac{\varrho_{\mathrm{eff}} s_i}
       {\Sigma_g \left(1 + \sum_i \varepsilon_i \right)},
 \end{align}
@@ -284,6 +296,41 @@ properties, size and material density, and the disc surface density fixing the
 Stokes number. Given that we assume the material density is the same for all
 species, we see that the grain size of the species, for any fixed location in
 the disc, gives the variation in Stokes number between species.
+
+The Stokes number controls the dynamics of dust grains in protoplanetary discs
+\citep{Weidenschilling1977MNRAS.180...57W,Takeuchi2002ApJ...581.1344T},
+affecting radial drift, vertical settling, and gap and spiral formation. The
+individual Stokes number (Equation~\ref{eqn:stokes}) encapsulates the dynamics
+of each dust species. We can distinguish between three regimes of dust dynamics:
+%
+\begin{enumerate}
+   \item small grains, i.e.\ those with \(\mathrm{St} \ll 1\),
+   \item large grains, i.e.\ those with \(\mathrm{St} \gg 1\), and
+   \item intermediate-sized grains, i.e.\ those with \(\mathrm{St} \sim 1\).
+\end{enumerate}
+%
+Small grains have short stopping time, i.e.\ differential velocity decays on
+less than the orbital time, and are thus strongly coupled to the gas. These
+grains stick to the gas, e.g.\ following the gas accretion flow. Large grains
+have long stopping time, i.e.\ differential velocity decays on timescales much
+longer than the orbital time, and are thus weakly coupled to the gas.
+Intermediate-sized grains are marginally coupled to the gas. These grains
+experience the fastest radial drift velocities
+\citep{Takeuchi2002ApJ...581.1344T,Ayliffe2012MNRAS.423.1450A}. For a typical
+protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\),
+small grains are \(\lesssim 10 \mu\mathrm{m}\), and large grains are \(\gtrsim 1
+\mathrm{mm}\).
+
+Several works describe the behaviour of these dust species as independently
+coupled to the gas
+\citep{Nakagawa1986Icar...67..375N,Dipierro2017MNRAS.469.1932D,Kanagawa2017ApJ...844..142K}.
+\citet{Dipierro2018MNRAS.479.4187D} extend the analysis to consider the full
+backreaction of all species onto the gas. They show that the cumulative
+backreaction from multiple dust species can strongly affect the gas flow, even
+for low dust-to-gas ratio, and that, for large dust-to-gas ratio, the large
+grains can drift outwards, as opposed to the typical inwards drift. This gives
+motivation to the current work.
+
 
 \subsection{SPH with multiple dust species}%
 \label{subsec:sph}
@@ -298,8 +345,10 @@ the disc, gives the variation in Stokes number between species.
 
 \textcolor{red}{
 \begin{itemize}
-   \item Explicit time stepping.
+   \item We use explicit time stepping.
    \item Drag timescale limits calculation to \(\mathrm{St} \gtrsim 1\).
+   \item Check stability constraint on drag time stepping ---
+      \citet{Laibe2012MNRAS.420.2345L}.
 \end{itemize}
 }
 
@@ -468,7 +517,8 @@ damping effect.
 \subsection{Dusty-shock}
 
 \textcolor{red}{
-See \citet{Laibe2012MNRAS.420.2345L}, \citet{Lehmann2018MNRAS.476.3185L}.
+See \citet{Benitez-Llambay2019ApJS..241...25B},
+\citet{Laibe2012MNRAS.420.2345L}, \citet{Lehmann2018MNRAS.476.3185L}.
 }
 
 

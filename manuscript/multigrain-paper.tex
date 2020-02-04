@@ -52,6 +52,7 @@
 % Please keep new commands to a minimum, and use \newcommand not \def to avoid
 % overwriting existing commands. Example:
 %\newcommand{\pcm}{\,cm$^{-2}$} % per cm-squared
+\newcommand{\dd}{\mathrm{d}}
 
 % Use bold font for vectors
 \let\vec\mathbf
@@ -62,8 +63,8 @@
 
 % Title of the paper, and the short title which is used in the headers.
 % Keep the title short and informative.
-\title[Large Stokes number multigrain]{Large Stokes number multigrain: A
-smoothed particle hydrodynamics algorithm for large dust grains}
+\title[SPH for multigrain dust]{A smoothed particle hydrodynamics algorithm for
+multigrain dust with separate sets of particles}
 
 % The list of authors, and the short list which is used in the headers.
 % If you need two or more lines of authors, add an extra line using \newauthor
@@ -144,8 +145,9 @@ fluid with a fixed size, \(s_i\), and intrinsic density, \(\varrho_{m_i}\).
 Then, the equations of conservation of mass for the mixture is given by
 %
 \begin{align}
-   \label{eqn:conserve-mass}
+   \label{eqn:conserve-gas-mass}
    \frac{\partial \rho_g}{\partial t} + \nabla \cdot (\rho_g \vec{v}_g) &= 0, \\
+   \label{eqn:conserve-dust-mass}
    \frac{\partial \rho_{d_i}}{\partial t} + \nabla \cdot (\rho_{d_i} \vec{v}_{d_i}) &= 0,
 \end{align}
 %
@@ -157,10 +159,10 @@ dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
 density. The equations of conservation of momentum for the mixture are given by
 %
 \begin{align}
-   \rho_g \frac{\mathrm{d} \vec{v}_g}{dt}
+   \rho_g \frac{\dd \vec{v}_g}{\dd t}
       &= - \nabla P + \rho_g \vec{f} + \sum_i K_i \left(\vec{v}_{d_i}
          - \vec{v}_{g}\right), \\
-   \rho_{d_i} \frac{\mathrm{d} \vec{v}_{d_i}}{dt}
+   \rho_{d_i} \frac{\dd \vec{v}_{d_i}}{\dd t}
       &= \rho_{d_i} \vec{f} - K_i \left(\vec{v}_{d_i} - \vec{v}_{g}\right),
 \end{align}
 %
@@ -180,14 +182,14 @@ the evolution of gas internal energy is given by
 %
 \begin{align}
    \label{eqn:conserve-energy}
-   \rho_g \frac{\mathrm{d} u_g}{\mathrm{d} t} =
+   \rho_g \frac{\dd u_g}{\dd t} =
       - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i {(\vec{v}_g - \vec{v}_{d_i})}^2.
 \end{align}
 %
 We neglect the dust fluid internal energy under the assumption that the dust and
 gas are at the same temperature.
 
-Equations~\ref{eqn:conserve-mass}--\ref{eqn:conserve-energy} are \(2N + 3\)
+Equations~\ref{eqn:conserve-gas-mass}--\ref{eqn:conserve-energy} are \(2N + 3\)
 equations describing the evolution of a mixture of gas and \(N\) dust species.
 We discuss discretising these equations with smoothed particle hydrodynamics in
 Section~\ref{subsec:sph}.
@@ -337,9 +339,70 @@ motivation to the current work.
 
 \textcolor{red}{
 \begin{itemize}
-   \item For ``two-fluid'' see \citet{Laibe2012MNRAS.420.2345L}, Section 2.2.
+   \item Quintic kernel.
+   \item Drag kernel.
+   \item Equations of motion.
 \end{itemize}
 }
+
+\subsubsection{SPH density with multiple dust species}
+
+We extend the SPH method for dust and gas mixtures with a single species, first
+described in \citet{Monaghan1995CoPhC..87..225M} and improved upon by
+\citet{Laibe2012MNRAS.420.2345L,Laibe2012MNRAS.420.2365L}, to multiple dust
+species. We use a separate set of particles to represent the gas and each dust
+species. So each phase of the mixture has its own density and smoothing length
+which depend only on the neighbouring particles of its own phase. This differs
+from the 1-fluid method described by \citet{Hutchison2018MNRAS.476.2186H} in
+which there is a single set of SPH particles representing the mixture. The SPH
+formulation of the continuity equations,
+Equations~\ref{eqn:conserve-gas-mass}--\ref{eqn:conserve-dust-mass}, are given
+by
+%
+\begin{align}
+   \label{eqn:sph-density}
+   \rho^k_a &= \sum_b m^k_b W_{ab}(h^k_b), \\
+   h^k_a &= \eta \left(\frac{m^k_a}{\rho^k_a}\right)^{1/\nu},
+   \label{eqn:sph-smoothing}
+\end{align}
+%
+where the superscript \(k \in \{g, d_1, \dots, d_N\}\) is an index
+distinguishing between the gas and all dust species, \(\nu\) is the number of
+spatial dimensions, \(m^k_a\) and \(h^k_a\) are the SPH particle mass and
+smoothing length, respectively, \(W_{ab}\) is the SPH smoothing kernel and
+\(\eta\) is a factor of order unity which determines the number of neighbours
+per particle. For an overview on the SPH method, see:
+\citet{Monaghan1992ARA&A..30..543M,Price2012JCoPh.231..759P}  So there are \(N +
+1\) sets of equations, Equations \ref{eqn:sph-density}--\ref{eqn:sph-smoothing},
+one set per phase. This is a straightforward generalisation of previous single
+dust species methods.
+
+One important feature of the above equations is that the gas and dust densities
+(for each dust species) are calculated without reference to any other phase.
+Given that the dust is pressureless this can lead to dust becoming trapped under
+the gas resolution. This is in contrast to the gas in which, due to the pressure
+force, particles are kept apart to prevent this over-concentration. Dust and gas
+interact only via drag which requires relative motion. If dust particles become
+concentrated and remain motionless with respect to the local gas distribution
+there is no pressure force to stop further collapse. This can lead to unphysical
+clumping of dust which can mimic physical clumping of dust that might be
+expected, in, for example, protoplanetary discs.
+
+\subsubsection{SPH equation of motion with multiple dust species}
+
+The equations of motion in SPH can be derived from a Lagrangian giving exact
+conservation of linear and angular momentum, and energy
+\citep{Price2012JCoPh.231..759P}. Following \citet{Laibe2012MNRAS.420.2345L},
+the equations of motion for the gas and each dust species is
+%
+\begin{align}
+   \frac{\dd \vec{v}^k_a}{\dd t} = - \sum_b m^k_b \left[
+      \frac{P^k_a}{\Omega^k_a \left(\rho^k_a\right)^2} \nabla_a W_{ab}(h^k_a) +
+      \frac{P^k_b}{\Omega^k_b \left(\rho^k_b\right)^2} \nabla_a W_{ab}(h^k_b)
+   \right],
+\end{align}
+%
+for \(k \in \{g, d_1, \dots, d_N\}\).
 
 \subsection{Time stepping}
 

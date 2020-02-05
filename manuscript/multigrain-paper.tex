@@ -205,7 +205,7 @@ Section~\ref{subsec:sph}.
 \end{itemize}
 }
 
-\subsubsection{Stopping time}
+\subsubsection{Drag coefficient and stopping time}
 
 Dust and gas interact via a drag force. This drag force has a characteristic
 time scale, known as the stopping time. The stopping time relates to the drag
@@ -225,19 +225,29 @@ linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient
 %
 \begin{align}
    \label{eqn:drag-coefficient}
-   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s,
+   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s f,
 \end{align}
 %
 where \(\gamma\) is the adiabatic index of the gas. For convenience, we define
 an effective material density, \(\varrho_{\mathrm{eff}}\), given by
-\(\varrho_{\mathrm{eff}} = \varrho_m \sqrt{\pi\gamma/8}\).
+\(\varrho_{\mathrm{eff}} = \varrho_m \sqrt{\pi\gamma/8}\). In addition, \(f\) is
+a correction for supersonic relative velocities given by
+\citep{Kwok1975ApJ...198..583K}
+%
+\begin{align}
+   \label{eqn:supersonic}
+   f = \sqrt{1 + \frac{9\pi}{128}} \frac{\Delta v^2}{c_s^2}.
+\end{align}
+%
+
 
 As discussed in \citet{Hutchison2018MNRAS.476.2186H}, a straightforward
 generalisation of the stopping time for multiple dust species is not available.
 Each dust species is separately coupled to the gas by the drag force. However,
 the dust species are indirectly coupled to each other via backreaction, as
 required conservation of momentum. Considering the multiple dust species case,
-the drag coefficient, \(K_i\), is now
+and ignoring the supersonic correction factor, the drag coefficient, \(K_i\), is
+now
 %
 \begin{align}
    K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
@@ -367,11 +377,11 @@ by
 \end{align}
 %
 where the superscript \(k \in \{g, d_1, \dots, d_N\}\) is an index
-distinguishing between the gas and all dust species, \(\nu\) is the number of
-spatial dimensions, \(m^k_a\) and \(h^k_a\) are the SPH particle mass and
-smoothing length, respectively, \(W_{ab}\) is the SPH smoothing kernel and
-\(\eta\) is a factor of order unity which determines the number of neighbours
-per particle. For an overview on the SPH method, see:
+distinguishing between the gas and all dust species; \(\nu\) is the number of
+spatial dimensions; \(m^k_a\), \(rho^k_a\) and \(h^k_a\) are the SPH particle
+mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
+smoothing kernel; and \(\eta\) is a factor of order unity which determines the
+number of neighbours per particle. For an overview on the SPH method, see:
 \citet{Monaghan1992ARA&A..30..543M,Price2012JCoPh.231..759P}  So there are \(N +
 1\) sets of equations, Equations \ref{eqn:sph-density}--\ref{eqn:sph-smoothing},
 one set per phase. This is a straightforward generalisation of previous single
@@ -393,16 +403,65 @@ expected, in, for example, protoplanetary discs.
 The equations of motion in SPH can be derived from a Lagrangian giving exact
 conservation of linear and angular momentum, and energy
 \citep{Price2012JCoPh.231..759P}. Following \citet{Laibe2012MNRAS.420.2345L},
-the equations of motion for the gas and each dust species is
+the equation of motion for the gas is given by
 %
 \begin{align}
-   \frac{\dd \vec{v}^k_a}{\dd t} = - \sum_b m^k_b \left[
-      \frac{P^k_a}{\Omega^k_a \left(\rho^k_a\right)^2} \nabla_a W_{ab}(h^k_a) +
-      \frac{P^k_b}{\Omega^k_b \left(\rho^k_b\right)^2} \nabla_a W_{ab}(h^k_b)
-   \right],
+   \label{eqn:sph-gas-velocity}
+   \begin{split}
+      \frac{\dd \vec{v}^g_a}{\dd t} = &- \sum_{b \in g} m^g_b \left[
+         \frac{P_a}{\Omega^g_a {\left(\rho^g_a\right)}^2} \nabla_a W_{ab}(h^g_a) +
+         \frac{P_b}{\Omega^g_b {\left(\rho^g_b\right)}^2} \nabla_a W_{ab}(h^g_b)
+      \right] \\
+      &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^g_b \frac{K_{ab}}{\rho^g_a \rho^{d_i}_b}
+         (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^g_a),
+   \end{split}
 \end{align}
 %
-for \(k \in \{g, d_1, \dots, d_N\}\).
+where \(P_a\) refers to the pressure on particle \(a\), and \(\Omega^g_a\) is a
+term related to the variable smoothing length given by
+%
+\begin{align}
+   \Omega^g_a = 1 - \frac{\partial h_a}{\partial \rho_a}
+      \sum_b m_b \frac{\partial W_{ab}(h_a)}{\partial h_a}.
+\end{align}
+%
+The equation of motion for each dust species, \(d_i\), is given by
+%
+\begin{align}
+   \label{eqn:sph-dust-velocity}
+   \frac{\dd \vec{v}^{d_i}_a}{\dd t} =
+      - \nu \sum_{b \in g} m^{d_i}_b \frac{K_{ab}}{\rho^g_b \rho^{d_i}_a}
+      (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^g_b),
+\end{align}
+%
+The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH
+discretisation of the pressure gradient force on a particle, labelled by \(a\).
+The sum, denoted by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled
+by \(b\).
+
+The second term in Equation~\ref{eqn:sph-gas-velocity} represents the cumulative
+drag force from each dust species on particle \(a\) (with \(i \in \{1, \ldots,
+N\}\) representing each species). For each species, the sum, denoted by
+\(\sum_{b \in d_i}\), is a sum over dust neighbours, labelled by \(b\). The
+terms \(K_{ab}\), \(\vec{v}_{ab}\), and \(\hat{\vec{r}}_{ab}\) are the drag
+coefficient, relative velocity, and a unit vector in the direction of the
+displacement vector, between the particles, where here the \(a\) index refers to
+the gas particle and the \(b\) index refers to its dust neighbours. Similarly,
+the sum on the right hand side of Equation~\ref{eqn:sph-dust-velocity}
+represents the drag force from the gas on the particular dust species, where
+\(a\) refers to a dust (SPH) particle and \(b\) refers to its gas neighbours.
+
+Equations~\ref{eqn:sph-gas-velocity} and~\ref{eqn:sph-dust-velocity} are a
+straightforward generalisation of \citet{Laibe2012MNRAS.420.2345L} to multiple
+dust species. For Epstein drag, the drag coefficient \(K_{ab}\) is given by
+%
+\begin{align}
+   K_{ab} = \frac{\rho^g_a \rho^{d_i}_b}{\varrho_{\mathrm{eff}} s_i} c_{s,a} f_{ab},
+\end{align}
+%
+where \(c_{s,a}\) is the sound speed on the gas particle and \(f_{ab}\)
+supersonic correction factor (Equation~\ref{eqn:supersonic}) between the two
+particles.
 
 \subsection{Time stepping}
 

@@ -351,7 +351,7 @@ motivation to the current work.
 \begin{itemize}
    \item Quintic kernel.
    \item Drag kernel.
-   \item Equations of motion.
+   \item Use gas smoothing length in drag kernel.
 \end{itemize}
 }
 
@@ -378,7 +378,7 @@ by
 %
 where the superscript \(k \in \{g, d_1, \dots, d_N\}\) is an index
 distinguishing between the gas and all dust species; \(\nu\) is the number of
-spatial dimensions; \(m^k_a\), \(rho^k_a\) and \(h^k_a\) are the SPH particle
+spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
 smoothing kernel; and \(\eta\) is a factor of order unity which determines the
 number of neighbours per particle. For an overview on the SPH method, see:
@@ -439,6 +439,8 @@ discretisation of the pressure gradient force on a particle, labelled by \(a\).
 The sum, denoted by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled
 by \(b\).
 
+\subsubsection{Drag kernel and drag coefficient}
+
 The second term in Equation~\ref{eqn:sph-gas-velocity} represents the cumulative
 drag force from each dust species on particle \(a\) (with \(i \in \{1, \ldots,
 N\}\) representing each species). For each species, the sum, denoted by
@@ -463,16 +465,75 @@ where \(c_{s,a}\) is the sound speed on the gas particle and \(f_{ab}\)
 supersonic correction factor (Equation~\ref{eqn:supersonic}) between the two
 particles.
 
+The typical bell-shaped kernel used in SPH to estimate density (denoted by
+\(W_{ab}\)) is not appropriate for the drag force summation. Rather, a
+`double-hump' kernel is appropriate \citep{Laibe2012MNRAS.420.2345L}. I.e.\ a
+kernel that is an even function with two maxima and a zero in the middle.
+
 \subsection{Time stepping}
 
 \textcolor{red}{
 \begin{itemize}
-   \item We use explicit time stepping.
-   \item Drag timescale limits calculation to \(\mathrm{St} \gtrsim 1\).
+   \item We use explicit time stepping. Write up algorithm.
+   \item Drag timescale limits calculation to \(\mathrm{St} \gtrsim 1\):
+      \begin{align}
+         \quad\quad\quad \Delta t_{\mathrm{drag}}^a = \min_i \min_b t_{\mathrm{s},i}^{ab}
+      \end{align}
    \item Check stability constraint on drag time stepping ---
       \citet{Laibe2012MNRAS.420.2345L}.
 \end{itemize}
 }
+
+We use an explicit leapfrog time stepping scheme as discussed in
+\citet{Price2018PASA...35...31P}. Given that we use an explicit scheme for the
+drag term there is an additional stability constraint on the timestep \(\Delta
+t\). We derive this constraint for the forward Euler scheme. (Even though we do
+not use this scheme, it provides a guide to the nature of the constraint.)
+Starting with the discretisation of the drag-only velocity equations for dust
+and gas with the forward-Euler method, we have
+%
+\begin{align}
+   \frac{v_g^{n+1} - v_g^n}{\Delta t} &= - \sum_i \frac{K_i}{\rho_g} \left(v_g^n - v_{d_i}^n\right), \\
+   \frac{v_{d_i}^{n+1} - v_{d_i}^n}{\Delta t} &= \frac{K_i}{\rho_{d_i}} \left(v_g^n - v_{d_i}^n\right).
+\end{align}
+%
+Then we perform a von Neumann stability analysis, where we expand the solution
+in plane waves, \(v_j^m = V_j^m e^{i k x}\), where \(j\) refers to the species,
+\(k\) is the wavenumber and the \(V_j\) terms depend only on time, for both the
+gas and all dust species. This expansion leads to the following matrix equation:
+%
+\begin{align}
+   \begin{pmatrix}
+      V_g \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
+   \end{pmatrix}^{n+1} =
+   \begin{pmatrix}
+      1 - \frac{\Delta t \sum K_i}{\rho_g} & \frac{\Delta t K_1}{\rho_g} & \dots & \frac{\Delta t K_N}{\rho_g} \\
+      \frac{\Delta t K_1}{\rho_{d_1}} & 1 - \frac{\Delta t K_1}{\rho_{d_1}} & \dots & 0 \\
+      \vdots & \vdots & \vdots & \vdots \\
+      \frac{\Delta t K_N}{\rho_{d_N}} & 0 & \dots & 1 - \frac{\Delta t K_N}{\rho_{d_N}} \\
+   \end{pmatrix}
+   \begin{pmatrix}
+      V_g \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
+   \end{pmatrix}^{n}.
+\end{align}
+%
+We find the characteristic polynomial of the matrix, \(M\), above using the
+expression \(\det(M - \lambda I) = \det(A - B D^{-1} C) \det(D)\) to give
+%
+\begin{align}
+   \left(1 - \frac{\Delta t \sum K_i}{\rho_g} - f - \lambda\right)
+   \times \prod_i \left(1 - \frac{\Delta t K_i}{\rho_{d_i}} - \lambda\right),
+\end{align}
+%
+where \(f = \sum_i \Delta t^2 K_i^2 \left[\rho_g \rho_{d_i} \left( 1 -
+\frac{\Delta t K_i}{\rho_{d_i}} - \lambda \right) \right]^{-1}\) is second order
+in \(\Delta t\), so we neglect it. This gives the eigenvalues as
+%
+\begin{align}
+   \lambda_g = 1 - \frac{\Delta t \sum_i K_i}{\rho_g} \quad \mathrm{and} \quad
+   \lambda_{d_i} = 1 - \frac{\Delta t K_i}{\rho_{d_i}}.
+\end{align}
+%
 
 \section{Numerical tests}
 

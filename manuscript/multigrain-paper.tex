@@ -200,8 +200,6 @@ Section~\ref{subsec:sph}.
 \begin{itemize}
    \item Differentiate between Epstein and Stokes regimes.
    \item Terminal velocity approximation.
-   \item Grain size -> Stokes number depends on gas (and dust) density---get
-      different ``large grains'' for different systems.
 \end{itemize}
 }
 
@@ -214,7 +212,7 @@ density, and on the physical characteristics of the dust grains. For a single
 dust species, the stopping time, \(t_s\), is given by
 %
 \begin{align}
-   \label{eqn:stopping-time}
+   \label{eqn:single-stopping-time}
    t_s = \frac{\rho_g \rho_d}{K (\rho_g + \rho_d)},
 \end{align}
 %
@@ -224,7 +222,7 @@ linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient
 \(K\) is
 %
 \begin{align}
-   \label{eqn:drag-coefficient}
+   \label{eqn:single-drag-coefficient}
    K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s f,
 \end{align}
 %
@@ -240,7 +238,6 @@ a correction for supersonic relative velocities given by
 \end{align}
 %
 
-
 As discussed in \citet{Hutchison2018MNRAS.476.2186H}, a straightforward
 generalisation of the stopping time for multiple dust species is not available.
 Each dust species is separately coupled to the gas by the drag force. However,
@@ -250,7 +247,15 @@ and ignoring the supersonic correction factor, the drag coefficient, \(K_i\), is
 now
 %
 \begin{align}
+   \label{eqn:drag-coefficient}
    K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
+\end{align}
+%
+We can also define a single species, multigrain stopping time
+%
+\begin{align}
+   \label{eqn:stopping-time}
+   t_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i (\rho_g + \sum_i \rho_{d_i})}.
 \end{align}
 %
 We define \(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas
@@ -263,7 +268,8 @@ Then we can define an effective stopping time for the dust mixture as
    T_s = \frac{\varrho_{\mathrm{eff}} s_{\mathrm{eff}}}{\rho c_s}.
 \end{align}
 %
-By combining Equations~\ref{eqn:stopping-time}~\&~\ref{eqn:drag-coefficient} we
+By combining
+Equations~\ref{eqn:single-stopping-time}~\&~\ref{eqn:single-drag-coefficient} we
 can see the expression for the multigrain effective stopping time is analogous
 to the single dust species case.
 
@@ -331,7 +337,9 @@ experience the fastest radial drift velocities
 \citep{Takeuchi2002ApJ...581.1344T,Ayliffe2012MNRAS.423.1450A}. For a typical
 protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\),
 small grains are \(\lesssim 10 \mu\mathrm{m}\), and large grains are \(\gtrsim 1
-\mathrm{mm}\).
+\mathrm{mm}\). Note that for other physical systems the terms small and large
+grains have different meaning. For example, in the ISM large grains might be any
+grains \(> 10 \mu\mathrm{m}\).
 
 Several works describe the behaviour of these dust species as independently
 coupled to the gas
@@ -472,17 +480,7 @@ kernel that is an even function with two maxima and a zero in the middle.
 
 \subsection{Time stepping}
 
-\textcolor{red}{
-\begin{itemize}
-   \item We use explicit time stepping. Write up algorithm.
-   \item Drag timescale limits calculation to \(\mathrm{St} \gtrsim 1\):
-      \begin{align}
-         \quad\quad\quad \Delta t_{\mathrm{drag}}^a = \min_i \min_b t_{\mathrm{s},i}^{ab}
-      \end{align}
-   \item Check stability constraint on drag time stepping ---
-      \citet{Laibe2012MNRAS.420.2345L}.
-\end{itemize}
-}
+\subsubsection{Time step constraint}
 
 We use an explicit leapfrog time stepping scheme as discussed in
 \citet{Price2018PASA...35...31P}. Given that we use an explicit scheme for the
@@ -490,7 +488,7 @@ drag term there is an additional stability constraint on the timestep \(\Delta
 t\). We derive this constraint for the forward Euler scheme. (Even though we do
 not use this scheme, it provides a guide to the nature of the constraint.)
 Starting with the discretisation of the drag-only velocity equations for dust
-and gas with the forward-Euler method, we have
+and gas with the forward Euler method, we have
 %
 \begin{align}
    \frac{v_g^{n+1} - v_g^n}{\Delta t} &= - \sum_i \frac{K_i}{\rho_g} \left(v_g^n - v_{d_i}^n\right), \\
@@ -499,8 +497,8 @@ and gas with the forward-Euler method, we have
 %
 Then we perform a von Neumann stability analysis, where we expand the solution
 in plane waves, \(v_j^m = V_j^m e^{i k x}\), where \(j\) refers to the species,
-\(k\) is the wavenumber and the \(V_j\) terms depend only on time, for both the
-gas and all dust species. This expansion leads to the following matrix equation:
+\(k\) is the wavenumber, and \(m\) refers to the time step. This expansion leads
+to the following matrix equation:
 %
 \begin{align}
    \begin{pmatrix}
@@ -526,14 +524,61 @@ expression \(\det(M - \lambda I) = \det(A - B D^{-1} C) \det(D)\) to give
 \end{align}
 %
 where \(f = \sum_i \Delta t^2 K_i^2 \left[\rho_g \rho_{d_i} \left( 1 -
-\frac{\Delta t K_i}{\rho_{d_i}} - \lambda \right) \right]^{-1}\) is second order
-in \(\Delta t\), so we neglect it. This gives the eigenvalues as
+\frac{\Delta t K_i}{\rho_{d_i}} - \lambda \right) \right]^{-1}\). We neglect
+\(f\) as it is second order in \(\Delta t\). To find the eigenvalues we equate
+the characteristic polynomial with zero and solve to find
 %
 \begin{align}
    \lambda_g = 1 - \frac{\Delta t \sum_i K_i}{\rho_g} \quad \mathrm{and} \quad
    \lambda_{d_i} = 1 - \frac{\Delta t K_i}{\rho_{d_i}}.
 \end{align}
 %
+For stability, we require \(|\lambda_k| < 1\). Using this condition with
+Equations~\ref{eqn:drag-coefficient}~\&~\ref{eqn:stopping-time} gives the
+following timestep criteria:
+%
+\begin{align}
+   \Delta t < \frac{2}{\sum_i \epsilon_i / t_{s_i}} \quad {\rm and} \quad
+   \Delta t < \frac{2 t_{s_i}}{1 - \epsilon} \quad \forall \, i,
+\end{align}
+%
+where \(\epsilon = \sum_i \epsilon_i\) and \(\epsilon_i = \rho_{d_i} / \rho\).
+We have \(N + 1\) inequalities. We take the minimum over dust stopping times in
+the inequality on the right to find the most restrictive timestep criterion
+involving only dust quantities:
+%
+\begin{align}
+   \label{eqn:timestep-dust}
+   \Delta t < \frac{2}{1 - \epsilon} \min_i t_{s_i}.
+\end{align}
+%
+We can find an upper bound on the inequality involving the gas density by taking
+the minimum over the dust fractions and maximum over the stopping times to give
+%
+\begin{align}
+   \label{eqn:timestep-gas}
+   \Delta t < \frac{2}{N} \frac{\max_i t_{s_i}}{\min_i \epsilon_i}.
+\end{align}
+%
+This is a sufficient but not necessary condition. Given that \(N\) is of order
+tens and, at worst, \(\min_i \epsilon_i \sim 1\), we can say that
+Equation~\ref{eqn:timestep-dust} is more restrictive than
+Equation~\ref{eqn:timestep-gas}, and thus provides the time step constraint for
+drag. Note that (i) the stability constraint depends on the shortest stopping
+time, and (ii) for large dust-to-gas ratios, i.e. \(\epsilon \rightarrow 1\),
+the stability constraint becomes unimportant.
+
+This timestep constraint is not the same as the one derived in
+\citet{Laibe2012MNRAS.420.2345L} for a single dust species. In that case, the
+time step constraint is the stopping time itself, and does not depend on the
+dust fraction. Note that we have shown that Equation~\ref{eqn:timestep-dust} is
+the stability constraint for the forward Euler discretisation of the drag terms
+to first order in \(\Delta t\). However, we have not derived the stability
+constraint for the leapfrog scheme we use in our numerical tests below.
+
+\subsubsection{Time step constraint for SPH}
+
+\textcolor{red}{Minimum over particles...}
 
 \section{Numerical tests}
 

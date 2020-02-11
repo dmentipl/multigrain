@@ -251,17 +251,27 @@ now
    K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
 \end{align}
 %
-We can also define a single species, multigrain stopping time
+In analogy with Equation~\ref{eqn:single-stopping-time} we can define a
+``stopping time'', \(t'_{s_i}\), as
+%
+\begin{align}
+   \label{eqn:alternative-stopping-time}
+   t'_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i (\rho_g + \rho_{d_i})}.
+\end{align}
+%
+However, there are other ``stopping times'' we can define. First, we define
+\(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas and all
+dust species. Then we can define another ``stopping time'', \(t_{s_i}\), as
 %
 \begin{align}
    \label{eqn:stopping-time}
-   t_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i (\rho_g + \sum_i \rho_{d_i})}.
+   t_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i \rho}.
 \end{align}
 %
-We define \(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas
-and all dust species, and the weighted sum \(s_{\mathrm{eff}} = \sum_i
-\rho_{d_i} s_i / \sum_i \rho_{d_i}\) as an effective grain size for the mixture.
-Then we can define an effective stopping time for the dust mixture as
+Considering the mixture of dust and gas as a whole, we define the weighted sum
+\(s_{\mathrm{eff}} = \sum_i \rho_{d_i} s_i / \sum_i \rho_{d_i}\) as an effective
+grain size for the mixture. Then we can define an effective stopping time for
+the dust mixture as
 %
 \begin{align}
    \label{eqn:effective-stopping-time}
@@ -480,6 +490,8 @@ kernel that is an even function with two maxima and a zero in the middle.
 
 \subsection{Time stepping}
 
+\textcolor{red}{Minimum over particles...}
+
 \subsubsection{Time step constraint}
 
 We use an explicit leapfrog time stepping scheme as discussed in
@@ -578,7 +590,21 @@ constraint for the leapfrog scheme we use in our numerical tests below.
 
 \subsubsection{Time step constraint for SPH}
 
-\textcolor{red}{Minimum over particles...}
+We can rewrite the time step constraint in Equation~\ref{eqn:stopping-time}
+using the alternative stopping time
+(defined in Equation~\ref{eqn:alternative-stopping-time}) as
+%
+\begin{align}
+   \label{eqn:sph-timestep-constraint}
+   \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\},
+\end{align}
+%
+where \(\varepsilon_i = \rho_{d_i} / \rho_g\) is the dust-to-gas ratio for each
+dust species. This is useful because in evolving the momentum equations we use
+the drag coefficient on a dust (or gas) particle over its gas (or dust)
+neighbours, without reference to the other dust species. We take the minimum of
+Equation~\ref{eqn:sph-timestep-constraint} over the neighbouring particles to
+find the SPH time step constraint for a particle.
 
 \section{Numerical tests}
 

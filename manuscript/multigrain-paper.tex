@@ -198,8 +198,8 @@ Section~\ref{subsec:sph}.
 
 \textcolor{red}{
 \begin{itemize}
-   \item Differentiate between Epstein and Stokes regimes.
-   \item Terminal velocity approximation.
+   \item Differentiate between Epstein and Stokes regimes?
+   \item Mention terminal velocity approximation?
 \end{itemize}
 }
 
@@ -367,9 +367,9 @@ motivation to the current work.
 
 \textcolor{red}{
 \begin{itemize}
-   \item Quintic kernel.
-   \item Drag kernel.
-   \item Use gas smoothing length in drag kernel.
+   \item Mention use of quintic kernel?
+   \item Show details of drag kernel?
+   \item Mention use of gas smoothing length in drag kernel.
 \end{itemize}
 }
 
@@ -490,8 +490,6 @@ kernel that is an even function with two maxima and a zero in the middle.
 
 \subsection{Time stepping}
 
-\textcolor{red}{Minimum over particles...}
-
 \subsubsection{Time step constraint}
 
 We use an explicit leapfrog time stepping scheme as discussed in
@@ -608,12 +606,14 @@ find the SPH time step constraint for a particle.
 
 \section{Numerical tests}
 
-\subsection{Dusty-box}
+\textcolor{red}{We implemented the above scheme in Phantom...}
+
+\subsection{Dusty box}
 
 \begin{figure*}
    \begin{center}
       \includegraphics[width=\textwidth]{figs/dustybox.png}
-      \caption{Dusty-box numerical test showing the differential velocity
+      \caption{Dusty box numerical test showing the differential velocity
          between the dust and gas. The total dust-to-gas ratio is 0.01 (top row)
          and 0.5 (bottom row). From left to right: the number of dust species is
          1, 2, 5. The open circles represent the results from the Phantom
@@ -623,23 +623,21 @@ find the SPH time step constraint for a particle.
    \end{center}
 \end{figure*}
 
-We performed the multigrain version of the dusty-box test described in
-\citet{Laibe2011MNRAS.418.1491L}. The dusty-box involves setting up a periodic
-box of uniform density gas and dust with an initial differential velocity
-between the gas and dust. In this test the equation of motion simplifies to
+We performed the multigrain version of the dusty box test described in
+\citet{Laibe2011MNRAS.418.1491L}. We set up a periodic box of uniform density
+gas and dust with an initial differential velocity between the gas and each dust
+species. In this test the equation of motion simplifies to
 %
 \begin{align}
    \frac{\partial \Delta \vec{V}}{\partial t} = - \Omega_n \Delta \vec{V},
 \end{align}
 %
-where \(\Delta \vec{V}\) is the differential velocity vector, i.e.
-\(\vec{v}_{d_i} - \vec{v}_g\) for each \(i\), and \(\Omega_n\) is the drag
-matrix given in Eq.~64 of \citet{Laibe2014MNRAS.444.1940L}. Dusty-box is a test
-of the exchange of momentum between gas and dust species via the drag force. The
-original dusty-box test was for a single grain size. We ran the multigrain
-version described in \citet{Laibe2014MNRAS.444.1940L} in the linear Epstein drag
-regime \citep{Epstein1924PhRv...23..710E}. We chose the physical Epstein drag
-prescription in Phantom.
+where \(\Delta \vec{V}\) is the differential velocity vector in the direction of
+motion, i.e. \(\vec{v}_{d_i} - \vec{v}_g\) for each \(i\) projected along the
+direction of motion, and \(\Omega_n\) is the drag matrix given in Eq.~64 of
+\citet{Laibe2014MNRAS.444.1940L}. This problem tests how well the numerical
+scheme captures the exchange of momentum between gas and each dust species via
+the drag force. We ran the test in the linear Epstein drag regime.
 
 \begin{table}
    \centering
@@ -699,12 +697,12 @@ dust-to-gas ratios requires taking back reaction into consideration to capture
 the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
 
-\subsection{Dusty-wave}
+\subsection{Dusty wave}
 
 \begin{figure*}
    \begin{center}
       \includegraphics[width=\textwidth]{figs/dustywave.png}
-      \caption{Dusty-wave numerical test showing the normalised velocity (top)
+      \caption{Dusty wave numerical test showing the normalised velocity (top)
          and density (bottom) perturbation at \(x = 0\), for gas with one dust
          species (left) and gas with four dust species (right). The open circles
          represent the Phantom simulation, and the solid line represents the
@@ -713,7 +711,7 @@ the physics of dust drag accurately
    \end{center}
 \end{figure*}
 
-We performed the multigrain version of the dusty-wave test described in
+We performed the multigrain version of the dusty wave test described in
 \citet{Laibe2011MNRAS.418.1491L}. This is a test of the dust-gas drag coupling
 in the context of a damped sound wave. The dust is a pressureless fluid and
 cannot support sound waves. However, the gas can support sounds waves and drags
@@ -768,7 +766,7 @@ numerical solution from Phantom. We first note that the numerical solution
 accurately reproduces the analytical solution. In all cases we see the wave
 damping effect.
 
-\subsection{Dusty-shock}
+\subsection{Dusty shock}
 
 \textcolor{red}{
 See \citet{Benitez-Llambay2019ApJS..241...25B},

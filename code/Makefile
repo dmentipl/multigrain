@@ -3,15 +3,20 @@
 
 .PHONY: run
 
-run: dustybox dustywave
+run: dustybox_time_evolution dustybox_accuracy dustywave dustyshock
 
 # ----------------------------------------------------------------------
-# dustybox
 
-.PHONY: dustybox dustywave
+.PHONY: dustybox_time_evolution dustybox_accuracy dustywave dustyshock
 
-dustybox:
-	@python modules/dustybox/run.py --run_directory ~/runs/multigrain/dustybox
+dustybox_time_evolution:
+	@python scripts/dustybox_time_evolution.py
 
-dustywave:
-	@python modules/dustywave/run.py --run_directory ~/runs/multigrain/dustywave
+dustybox_accuracy:
+	@python scripts/dustybox_accuracy.py
+
+dustywave_benitez_llambay:
+	@python scripts/dustywave_benitez_llambay.py
+
+dustyshock_benitez_llambay:
+	@python scripts/dustyshock_benitez_llambay.py

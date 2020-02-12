@@ -77,7 +77,7 @@ def set_parameters():
         'grain_density': 0.5e-14 * units['g / cm^3'],
         'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * units['cm'],
         'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * units['cm / s'],
-        'dust_to_gas_ratio': 0.1,
+        'dust_to_gas_ratio': [0.1, 0.1, 0.1, 0.1, 0.1],
         'maximum_time': 1.0 * units['s'],
         'number_of_dumps': 10,
     }

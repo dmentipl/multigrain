@@ -6,7 +6,6 @@ Time evolution of the differential velocity.
 import copy
 import pathlib
 
-import click
 import multigrain
 import numpy as np
 import phantombuild
@@ -17,6 +16,8 @@ units = pint.UnitRegistry(system='cgs')
 
 # ------------------------------------------------------------------------------------ #
 # MAKE CHANGES BELOW AS REQUIRED
+
+RUN_DIRECTORY = '~/runs/multigrain/dustybox/time_evolution'
 
 
 # Choose parameters for each run.
@@ -127,22 +128,11 @@ def remove_units(parameters):
     return parameters
 
 
-@click.command()
-@click.option(
-    '--run_directory', required=True, help='the directory for the calculations'
-)
-@click.option(
-    '--hdf5_directory',
-    help='the path to the HDF5 library',
-    default=HDF5ROOT,
-    show_default=True,
-)
-def cli(run_directory, hdf5_directory):
-    """CLI interface."""
+def main():
     parameters_dict = set_parameters()
     parameters_dict = remove_units(parameters_dict)
-    run_directory = pathlib.Path(run_directory).expanduser()
-    hdf5_directory = pathlib.Path(hdf5_directory).expanduser()
+    run_directory = pathlib.Path(RUN_DIRECTORY).expanduser()
+    hdf5_directory = pathlib.Path(HDF5ROOT).expanduser()
     phantom_dir = run_directory.parent / '.phantom'
     phantombuild.get_phantom(phantom_dir=phantom_dir)
     phantombuild.checkout_phantom_version(
@@ -159,4 +149,4 @@ def cli(run_directory, hdf5_directory):
 
 
 if __name__ == "__main__":
-    cli()  # pylint: disable=no-value-for-parameter
+    main()

@@ -11,7 +11,7 @@ import pint
 from numba import float64
 from numpy import ndarray
 
-from .. import EXTRA_COMPILER_ARGUMENTS
+from ..config import EXTRA_COMPILER_ARGUMENTS
 
 units = pint.UnitRegistry(system='cgs')
 

@@ -1,12 +1,15 @@
 """Setup and run calculations."""
 
+import pathlib
 import subprocess
 from pathlib import Path
 from typing import Dict, List
 
+import phantombuild
 import phantomsetup
 
 from . import dustybox, dustywave, dustyshock
+from .config import HDF5ROOT, PHANTOM_VERSION, UNITS
 
 
 def setup_multiple_calculations(
@@ -111,3 +114,59 @@ def run_multiple_calculations(
         results.append(result)
 
     return results
+
+
+def remove_units(parameters_dict):
+    """Remove units to eventually pass on to phantom-setup."""
+    for params in parameters_dict.values():
+        length_unit = params.pop('length_unit')
+        mass_unit = params.pop('mass_unit')
+        time_unit = params.pop('time_unit')
+        for key, value in params.items():
+            if isinstance(value, UNITS.Quantity):
+                d = value.dimensionality
+                new_units = (
+                    length_unit ** d['[length]']
+                    * mass_unit ** d['[mass]']
+                    * time_unit ** d['[time]']
+                )
+                params[key] = value.to(new_units).magnitude
+        if isinstance(length_unit, UNITS.Quantity):
+            params['length_unit'] = length_unit.to_base_units().magnitude
+        if isinstance(mass_unit, UNITS.Quantity):
+            params['mass_unit'] = mass_unit.to_base_units().magnitude
+        if isinstance(time_unit, UNITS.Quantity):
+            params['time_unit'] = time_unit.to_base_units().magnitude
+
+    return parameters_dict
+
+
+def run_script(simulation_to_setup, parameters_dict, run_directory):
+    """Run script.
+
+    Parameters
+    ----------
+    simulation_to_setup
+        Options are: 'dustybox', 'dustywave', 'dustyshock'.
+    parameters_dict
+        This is a dictionary of dictionaries containing the parameters
+        for each simulation.
+    run_directory
+        The path to the run directory.
+    """
+    parameters_dict = remove_units(parameters_dict)
+    run_directory = pathlib.Path(run_directory).expanduser()
+    hdf5_directory = pathlib.Path(HDF5ROOT).expanduser()
+    phantom_dir = run_directory.parent / '.phantom'
+    phantombuild.get_phantom(phantom_dir=phantom_dir)
+    phantombuild.checkout_phantom_version(
+        phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
+    )
+    setup_multiple_calculations(
+        simulation_to_setup='dustybox',
+        run_root_directory=run_directory,
+        parameters_dict=parameters_dict,
+        phantom_dir=phantom_dir,
+        hdf5root=hdf5_directory,
+    )
+    run_multiple_calculations(run_root_directory=run_directory)

@@ -9,7 +9,7 @@ import phantomsetup
 import pint
 from numpy import ndarray
 
-from .. import EXTRA_COMPILER_ARGUMENTS
+from ..config import EXTRA_COMPILER_ARGUMENTS
 
 units = pint.UnitRegistry(system='cgs')
 

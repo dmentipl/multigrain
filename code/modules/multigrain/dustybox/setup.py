@@ -8,6 +8,8 @@ import numpy as np
 import phantomsetup
 from numpy import ndarray
 
+from .. import EXTRA_COMPILER_ARGUMENTS
+
 
 def setup_calculation(
     params: Dict[str, Any], run_directory: Path, phantom_dir: Path, hdf5root: Path
@@ -175,12 +177,11 @@ def setup_calculation(
     setup.write_in_file(directory=run_directory)
 
     # Compile Phantom
-    extra_compiler_arguments = ['FC=gfortran-9']
     setup.compile_phantom(
         phantom_dir=phantom_dir,
         hdf5root=hdf5root,
         working_dir=run_directory,
-        extra_compiler_arguments=extra_compiler_arguments,
+        extra_compiler_arguments=EXTRA_COMPILER_ARGUMENTS,
     )
 
     # Return setup

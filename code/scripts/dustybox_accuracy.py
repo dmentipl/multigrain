@@ -10,18 +10,12 @@ import click
 import multigrain
 import phantombuild
 import pint
+from multigrain import HDF5ROOT, PHANTOM_VERSION
 
 units = pint.UnitRegistry(system='cgs')
 
-
 # ------------------------------------------------------------------------------------ #
-# MAKE CHANGES AS REQUIRED
-
-# Required Phantom version.
-PHANTOM_VERSION = 'e0d6986df99d980267f712d2218376dd50701117'
-
-# Path to HDF5 library.
-HDF5ROOT = '/usr/local/opt/hdf5'
+# MAKE CHANGES BELOW AS REQUIRED
 
 
 # Choose parameters for each run.

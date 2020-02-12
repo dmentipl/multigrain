@@ -1,151 +1,17 @@
 """Setup and run dustyshock calculations."""
 
 import copy
-import pathlib
-import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
-import click
 import numpy as np
-import phantombuild
 import phantomsetup
 import pint
 from numpy import ndarray
 
+from .. import EXTRA_COMPILER_ARGUMENTS
+
 units = pint.UnitRegistry(system='cgs')
-
-# Required Phantom version.
-PHANTOM_VERSION = '0ee3d8da8d8756cd29e6969b341a16d24ee4752b'
-
-# Path to HDF5 library.
-HDF5ROOT = '/usr/local/opt/hdf5'
-
-
-def set_parameters():
-    """Generate a dictionary of parameter dictionaries.
-
-    The dictionary is as follows:
-        {
-            'name_of_run1': parameters1,
-            'name_of_run2': parameters2,
-            ...
-        }
-
-    The 'parameters' dictionary has keys with the name of the run, which
-    will be the name of its directory, and the values are the parameters
-    dictionaries for that run.
-
-    Each dictionary for each run needs the following keys:
-
-        'prefix'
-        'length_unit'
-        'mass_unit'
-        'time_unit'
-        'sound_speed'
-        'box_width'
-        'lattice'
-        'number_of_particles_in_x_R'
-        'density_L'
-        'density_R'
-        'dust_to_gas_ratio'
-        'K_const'
-        'velocity_L'
-        'velocity_R'
-        'maximum_time'
-        'number_of_dumps'
-
-    All float or ndarray variables can have units.
-
-    The length of 'dust_to_gas_ratio', 'grain_size', and
-    'velocity_delta' should be the same, i.e. the number of dust
-    species.
-    """
-    # Mach number
-    mach = 2.0
-
-    # Dictionary of parameters common to all runs.
-    _parameters = {
-        'prefix': 'dustyshock',
-        'length_unit': 1.0,
-        'mass_unit': 1.0,
-        'time_unit': 1.0,
-        'sound_speed': 1.0,
-        'box_width': 200,
-        'lattice': 'close packed',
-        'number_of_particles_in_x_R': 128,
-        'density_L': 1.0,
-        'velocity_L': mach,
-        'maximum_time': 10.0,
-        'number_of_dumps': 100,
-    }
-
-    # Each value in tuple multiplicatively generates a new simulation.
-    K_drag = ([1.0], [1.0, 3.0, 5.0])
-    density_R = (8.0, 16.0)
-    velocity_R = (mach * 0.125, mach * 0.0625)
-
-    # Iterate over dust-to-gas ratio and grain sizes.
-    parameters = dict()
-    for K, rho_R, v_R in zip(K_drag, density_R, velocity_R):
-        N = len(K)
-        label = f'N={N}'
-        parameters[label] = copy.copy(_parameters)
-        parameters[label]['K_drag'] = K
-        parameters[label]['density_R'] = rho_R
-        parameters[label]['velocity_R'] = v_R
-
-    return parameters
-
-
-def setup_all_calculations(
-    run_root_directory: Path,
-    parameters_dict: Dict[str, dict],
-    phantom_dir: Path,
-    hdf5root: Path,
-) -> List[phantomsetup.Setup]:
-    """Set up multiple calculations.
-
-    Parameters
-    ----------
-    run_root_directory
-        The path to the root directory for this series of runs.
-    parameters_dict
-        A dictionary of dictionaries. The key is the "run label" which
-        will be the sub-directory of the root directory. The value is
-        the parameters dictionary for the run.
-    phantom_dir
-        The path to the Phantom repository.
-    hdf5root
-        The path to the root directory containing the HDF5 library.
-
-    Returns
-    -------
-    List[phantomsetup.Setup]
-        A list of Setup objects.
-    """
-    print('\n' + 72 * '-')
-    print('>>> Setting up calculations <<<')
-    print(72 * '-' + '\n')
-
-    if not run_root_directory.exists():
-        run_root_directory.mkdir(parents=True)
-
-    setups = list()
-    for run_label, params in parameters_dict.items():
-        print(f'Setting up {run_label}...')
-        run_directory = run_root_directory / run_label
-        run_directory.mkdir()
-        setups.append(
-            setup_one_calculation(
-                params=params,
-                run_directory=run_directory,
-                phantom_dir=phantom_dir,
-                hdf5root=hdf5root,
-            )
-        )
-
-    return setups
 
 
 def setup_calculation(
@@ -238,7 +104,9 @@ def setup_calculation(
 
     # Box: left of shock
     box_boundary_L = (xmin, 0, ymin, ymax, zmin, zmax)
-    n_L = params['number_of_particles_in_x_R'] * (params['density_L']/params['density_R']) ** (1/3)
+    n_L = params['number_of_particles_in_x_R'] * (
+        params['density_L'] / params['density_R']
+    ) ** (1 / 3)
     rho_L = params['density_L']
     v_L = params['velocity_L']
 
@@ -336,82 +204,12 @@ def setup_calculation(
     setup.write_in_file(directory=run_directory)
 
     # Compile Phantom
-    extra_compiler_arguments = ['FC=gfortran-9']
     setup.compile_phantom(
         phantom_dir=phantom_dir,
         hdf5root=hdf5root,
         working_dir=run_directory,
-        extra_compiler_arguments=extra_compiler_arguments,
+        extra_compiler_arguments=EXTRA_COMPILER_ARGUMENTS,
     )
 
     # Return setup
     return setup
-
-
-def run_all_calculations(run_root_directory: Path) -> List[subprocess.CompletedProcess]:
-    """Run dustyshock calculations.
-
-    Parameters
-    ----------
-    run_root_directory
-        Root directory containing the run directories.
-
-    Returns
-    -------
-    List[subprocess.CompletedProcess]
-        A list with the outputs from each completed process.
-    """
-    print('\n' + 72 * '-')
-    print('>>> Running calculations <<<')
-    print(72 * '-' + '\n')
-
-    results = list()
-    for directory in sorted(run_root_directory.iterdir()):
-        if not directory.is_dir():
-            continue
-        print(f'Running {directory.name}...')
-        in_files = list(directory.glob('*.in'))
-        if len(in_files) > 1:
-            raise ValueError('Too many .in files in directory')
-        in_file = in_files[0].name
-        log_file = f'{in_files[0].stem}01.log'
-        with open(directory / log_file, 'w') as fp:
-            result = subprocess.run(
-                [directory / 'phantom', in_file], cwd=directory, stdout=fp, stderr=fp
-            )
-        results.append(result)
-
-    return results
-
-
-@click.command()
-@click.option(
-    '--run_directory', required=True, help='the directory for the calculations'
-)
-@click.option(
-    '--hdf5_directory',
-    help='the path to the HDF5 libary',
-    default=HDF5ROOT,
-    show_default=True,
-)
-def cli(run_directory, hdf5_directory):
-    """CLI interface."""
-    parameters_dict = set_parameters()
-    run_directory = pathlib.Path(run_directory).expanduser()
-    hdf5_directory = pathlib.Path(hdf5_directory).expanduser()
-    phantom_dir = run_directory.parent / '.phantom'
-    phantombuild.get_phantom(phantom_dir=phantom_dir)
-    phantombuild.checkout_phantom_version(
-        phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
-    )
-    setup_all_calculations(
-        run_root_directory=run_directory,
-        parameters_dict=parameters_dict,
-        phantom_dir=phantom_dir,
-        hdf5root=hdf5_directory,
-    )
-    run_all_calculations(run_root_directory=run_directory)
-
-
-if __name__ == "__main__":
-    cli()

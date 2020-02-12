@@ -1,6 +1,6 @@
-"""Setup and run dustybox calculations.
+"""Setup and run dusty shock calculations.
 
-Time evolution of the differential velocity.
+Exactly as Benitez-Llambay et al. (2019).
 """
 
 import copy
@@ -8,7 +8,6 @@ import pathlib
 
 import click
 import multigrain
-import numpy as np
 import phantombuild
 import pint
 from multigrain import HDF5ROOT, PHANTOM_VERSION
@@ -43,14 +42,13 @@ def set_parameters():
         'sound_speed'
         'box_width'
         'lattice'
-        'number_of_particles_in_x_gas'
-        'number_of_particles_in_x_dust'
-        'density_gas'
+        'number_of_particles_in_x_R'
+        'density_L'
+        'density_R'
         'dust_to_gas_ratio'
-        'drag_method'
-        'grain_size'
-        'grain_density'
-        'velocity_delta'
+        'K_const'
+        'velocity_L'
+        'velocity_R'
         'maximum_time'
         'number_of_dumps'
 
@@ -60,40 +58,39 @@ def set_parameters():
     'velocity_delta' should be the same, i.e. the number of dust
     species.
     """
+    # Mach number
+    mach = 2.0
+
     # Dictionary of parameters common to all runs.
     _parameters = {
-        'prefix': 'dustybox',
-        'length_unit': 1.0 * units['cm'],
-        'mass_unit': 1.0 * units['g'],
-        'time_unit': 1.0 * units['s'],
-        'sound_speed': 1.0 * units['cm/s'],
-        'box_width': 1.0 * units['cm'],
+        'prefix': 'dustyshock',
+        'length_unit': 1.0,
+        'mass_unit': 1.0,
+        'time_unit': 1.0,
+        'sound_speed': 1.0,
+        'box_width': 200,
         'lattice': 'close packed',
-        'number_of_particles_in_x_gas': 32,
-        'number_of_particles_in_x_dust': 16,
-        'density_gas': 1.0e-13 * units['g / cm^3'],
-        'drag_method': 'Epstein/Stokes',
-        'grain_density': 0.5e-14 * units['g / cm^3'],
-        'maximum_time': 0.1 * units['s'],
+        'number_of_particles_in_x_R': 128,
+        'density_L': 1.0,
+        'velocity_L': mach,
+        'maximum_time': 10.0,
         'number_of_dumps': 100,
     }
 
     # Each value in tuple multiplicatively generates a new simulation.
-    grain_size = ([1.0], [0.562, 1.78], [0.1, 0.316, 1.0, 3.16, 10.0])
-    total_dust_to_gas_ratio = (0.01, 0.5)
+    K_drag = ([1.0], [1.0, 3.0, 5.0])
+    density_R = (8.0, 16.0)
+    velocity_R = (mach * 0.125, mach * 0.0625)
 
     # Iterate over dust-to-gas ratio and grain sizes.
     parameters = dict()
-    for f in total_dust_to_gas_ratio:
-        for size in grain_size:
-            N = len(size)
-            label = f'f={f:.2f}_N={N}'
-            parameters[label] = copy.copy(_parameters)
-            dust_to_gas_ratio = tuple(f / N * np.ones(N))
-            parameters[label]['dust_to_gas_ratio'] = dust_to_gas_ratio
-            parameters[label]['grain_size'] = size * units['cm']
-            velocity_delta = tuple(np.ones(N)) * units['cm / s']
-            parameters[label]['velocity_delta'] = velocity_delta
+    for K, rho_R, v_R in zip(K_drag, density_R, velocity_R):
+        N = len(K)
+        label = f'N={N}'
+        parameters[label] = copy.copy(_parameters)
+        parameters[label]['K_drag'] = K
+        parameters[label]['density_R'] = rho_R
+        parameters[label]['velocity_R'] = v_R
 
     return parameters
 

@@ -22,4 +22,4 @@ dependencies:
   - pip:
     - phantombuild>=0.1.4
     - phantomconfig>=0.2.2
-    - git+https://github.com/dmentipl/phantom-setup.git@edbb5c7ffb302e43ca1c5bd07f7a4bd669111913
+    - git+https://github.com/dmentipl/phantom-setup.git@0e0ef236f06a41fced8ea3e1ad6e531a095ae279

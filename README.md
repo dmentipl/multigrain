@@ -1,7 +1,6 @@
-Large grain multigrain: smoothed particle hydrodynamics for large dust grains
-=============================================================================
+# A smoothed particle hydrodynamics algorithm for multigrain dust with separate sets of particles
 
-by Daniel Mentiplay, Daniel Price, Guillaume Laibe, and Christophe Pinte
+by Daniel Mentiplay, Daniel Price, Christophe Pinte, and Guillaume Laibe
 
 We plan to submit the manuscript to *Monthly Notices of the Royal Astronomical Society*.
 > (FOR FUTURE REFERENCE) CITATION GOES HERE
@@ -9,19 +8,16 @@ We plan to submit the manuscript to *Monthly Notices of the Royal Astronomical S
 **This repository contains the data and code used to produce all results and figures shown in the paper.** An archived version of this repository will be available at Figshare.
 > (FOR FUTURE REFERENCE) Figshare LINK GOES HERE
 
-We aim to describe large grain multigrain dust methods in smoothed particle hydrodynamics. We test these methods against standard dust-gas hydrodynamics tests, including a dusty-box, a dusty-wave, and a dusty-shock.
+We aim to describe multigrain dust methods in smoothed particle hydrodynamics
+using separate sets of particles for each dust species. We test these methods against standard dust-gas hydrodynamics tests, including a dusty-box, a dusty-wave, and a dusty-shock.
 
-Abstract
---------
+## Abstract
 
 > ABSTRACT GOES HERE
 
-Software
---------
+## Software
 
-We implemented the multigrain dust methods in [Phantom](https://phantomsph.bitbucket.io/). In fact, the method for large grain multigrain has been in the Phantom master branch since `64dbd2b1`, September 18, 2018.  For this manuscript, the focus is writing test problems, working from Phantom git SHA version `6666c55f`.
-
-See the `README.md` in the code directory for more details on the software used in this project.
+We implemented the multigrain dust methods in [Phantom](https://phantomsph.bitbucket.io/). In fact, this method for multigrain dust has been in the Phantom master branch since `64dbd2b1`, September 18, 2018.  For this manuscript, the focus is writing test problems.
 
 ### Setting up the environment
 
@@ -32,8 +28,16 @@ conda env create --file environment.yml
 conda activate multigrain
 ```
 
-Results
--------
+In addition, the modules must be installed. Make sure you have activated the
+environment (`conda activate multigrain`) and then do
+
+```bash
+conda develop path_to_repo/code/modules
+```
+
+replacing `path_to_repo` with the path to this repository.
+
+## Results
 
 ### Running the Phantom multigrain tests
 
@@ -49,8 +53,7 @@ This will get the required version of Phantom, apply any patches, compile Phanto
 
 To perform analysis on the Phantom output see the notebooks.
 
-Manuscript
-----------
+## Manuscript
 
 Uses the MNRAS template from Overleaf.
 

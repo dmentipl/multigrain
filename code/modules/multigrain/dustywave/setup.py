@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import numba
+import numpy as np
 import phantomsetup
 import pint
 from numba import float64

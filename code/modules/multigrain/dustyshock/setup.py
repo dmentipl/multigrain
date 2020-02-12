@@ -1,4 +1,4 @@
-"""Setup and run dustywave calculations."""
+"""Setup and run dustyshock calculations."""
 
 import copy
 import pathlib
@@ -7,18 +7,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import click
-import numba
 import numpy as np
 import phantombuild
 import phantomsetup
 import pint
-from numba import float64
 from numpy import ndarray
 
 units = pint.UnitRegistry(system='cgs')
 
 # Required Phantom version.
-PHANTOM_VERSION = '7c0bd3aa7ea65c16e3bea1ba6ec2c2c49e466e16'
+PHANTOM_VERSION = '0ee3d8da8d8756cd29e6969b341a16d24ee4752b'
 
 # Path to HDF5 library.
 HDF5ROOT = '/usr/local/opt/hdf5'
@@ -46,71 +44,56 @@ def set_parameters():
         'time_unit'
         'sound_speed'
         'box_width'
-        'number_of_particles_in_x_gas'
-        'number_of_particles_in_x_dust'
-        'omega'
-        'density_gas'
-        'delta_density_gas'
-        'delta_v_gas'
-        'density_dust'
-        'delta_density_dust'
-        'delta_v_dust'
-        'K_drag'
+        'lattice'
+        'number_of_particles_in_x_R'
+        'density_L'
+        'density_R'
+        'dust_to_gas_ratio'
+        'K_const'
+        'velocity_L'
+        'velocity_R'
         'maximum_time'
         'number_of_dumps'
 
     All float or ndarray variables can have units.
+
+    The length of 'dust_to_gas_ratio', 'grain_size', and
+    'velocity_delta' should be the same, i.e. the number of dust
+    species.
     """
+    # Mach number
+    mach = 2.0
+
     # Dictionary of parameters common to all runs.
     _parameters = {
-        'prefix': 'dustywave',
+        'prefix': 'dustyshock',
         'length_unit': 1.0,
         'mass_unit': 1.0,
         'time_unit': 1.0,
         'sound_speed': 1.0,
-        'box_width': 1.0,
-        'number_of_particles_in_x_gas': 128,
-        'number_of_particles_in_x_dust': 128,
-        'density_gas': 1.0,
-        'wave_amplitude': 1.0e-4,
-        'maximum_time': 2.0,
+        'box_width': 200,
+        'lattice': 'close packed',
+        'number_of_particles_in_x_R': 128,
+        'density_L': 1.0,
+        'velocity_L': mach,
+        'maximum_time': 10.0,
         'number_of_dumps': 100,
     }
+
+    # Each value in tuple multiplicatively generates a new simulation.
+    K_drag = ([1.0], [1.0, 3.0, 5.0])
+    density_R = (8.0, 16.0)
+    velocity_R = (mach * 0.125, mach * 0.0625)
+
+    # Iterate over dust-to-gas ratio and grain sizes.
     parameters = dict()
-
-    # Two species
-    d = copy.copy(_parameters)
-    d['delta_density_gas'] = 1.0
-    d['delta_v_gas'] = -0.701960 - 0.304924j
-    d['omega'] = 1.915896 - 4.410541j
-    d['density_dust'] = (2.24,)
-    d['delta_density_dust'] = (0.165251 - 1.247801j,)
-    d['delta_v_dust'] = (-0.221645 + 0.368534j,)
-    tstop = (0.4,)
-    d['K_drag'] = tuple([rho_d / ts for rho_d, ts in zip(d['density_dust'], tstop)])
-    parameters['two species'] = d
-
-    # Five species
-    d = copy.copy(_parameters)
-    d['delta_density_gas'] = 1.0
-    d['delta_v_gas'] = -0.874365 - 0.145215j
-    d['omega'] = 0.912414 - 5.493800j
-    d['density_dust'] = (0.1, 0.233333, 0.366667, 0.5)
-    d['delta_density_dust'] = (
-        0.080588 - 0.048719j,
-        0.091607 - 0.134955j,
-        0.030927 - 0.136799j,
-        0.001451 - 0.090989j,
-    )
-    d['delta_v_dust'] = (
-        -0.775380 + 0.308952j,
-        -0.427268 + 0.448704j,
-        -0.127928 + 0.313967j,
-        -0.028963 + 0.158693j,
-    )
-    tstop = (0.1, 0.215443, 0.464159, 1.0)
-    d['K_drag'] = tuple([rho_d / ts for rho_d, ts in zip(d['density_dust'], tstop)])
-    parameters['five species'] = d
+    for K, rho_R, v_R in zip(K_drag, density_R, velocity_R):
+        N = len(K)
+        label = f'N={N}'
+        parameters[label] = copy.copy(_parameters)
+        parameters[label]['K_drag'] = K
+        parameters[label]['density_R'] = rho_R
+        parameters[label]['velocity_R'] = v_R
 
     return parameters
 
@@ -165,10 +148,10 @@ def setup_all_calculations(
     return setups
 
 
-def setup_one_calculation(
+def setup_calculation(
     params: Dict[str, Any], run_directory: Path, phantom_dir: Path, hdf5root: Path
 ) -> phantomsetup.Setup:
-    """Set up a Phantom dustywave calculation.
+    """Set up a Phantom dustyshock calculation.
 
     Parameters
     ----------
@@ -190,6 +173,7 @@ def setup_one_calculation(
     # Constants
     igas = phantomsetup.defaults.PARTICLE_TYPE['igas']
     idust = phantomsetup.defaults.PARTICLE_TYPE['idust']
+    # iboundary = phantomsetup.defaults.PARTICLE_TYPE['iboundary']
 
     # Setup
     setup = phantomsetup.Setup()
@@ -224,9 +208,8 @@ def setup_one_calculation(
     # Equation of state
     setup.set_equation_of_state(ieos=1, polyk=params['sound_speed'] ** 2)
 
-    # Dust grains
-    number_of_dust_species = len(params['density_dust'])
-    density_dust = params['density_dust']
+    # Dust method
+    number_of_dust_species = len(params['K_drag'])
     setup.set_dust(
         dust_method='largegrains',
         drag_method='K_const',
@@ -234,15 +217,13 @@ def setup_one_calculation(
         number_of_dust_species=number_of_dust_species,
     )
 
-    # Boxes
-    boxes = list()
-
+    # Domain
     box_width = params['box_width']
 
     n_particles_in_yz = 8
-    dx = box_width / params['number_of_particles_in_x_gas']
-    y_width = n_particles_in_yz * dx
-    z_width = n_particles_in_yz * dx
+    dx_L = 0.5 * box_width / params['number_of_particles_in_x_R']
+    y_width = n_particles_in_yz * dx_L
+    z_width = n_particles_in_yz * dx_L
 
     xmin = -box_width / 2
     xmax = box_width / 2
@@ -251,97 +232,92 @@ def setup_one_calculation(
     zmin = -z_width / 2 * np.sqrt(6) / 3
     zmax = z_width / 2 * np.sqrt(6) / 3
 
-    box_boundary = (xmin, xmax, ymin, ymax, zmin, zmax)
+    domain_boundary = (xmin - 1000 * dx_L, xmax + 1000 * dx_L, ymin, ymax, zmin, zmax)
 
-    setup.set_boundary(box_boundary, periodic=True)
+    setup.set_boundary(domain_boundary, periodic=True)
 
-    # Density perturbation
-    rho = params['density_gas']
-    drho = params['delta_density_gas']
-    kwave = 2 * np.pi / box_width
-    ampl = params['wave_amplitude']
+    # Box: left of shock
+    box_boundary_L = (xmin, 0, ymin, ymax, zmin, zmax)
+    n_L = params['number_of_particles_in_x_R'] * (params['density_L']/params['density_R']) ** (1/3)
+    rho_L = params['density_L']
+    v_L = params['velocity_L']
 
-    @numba.vectorize([float64(float64)])
-    def density_function(x):
-        x = rho + ampl * (
-            drho.real * np.cos(kwave * (x + box_width / 2))
-            - drho.imag * np.sin(kwave * (x + box_width / 2))
-        )
-        return x
-
-    # Velocity perturbation
-    dv = params['delta_v_gas']
-
-    def velocity_perturbation(
+    def velocity_L(
         x: ndarray, y: ndarray, z: ndarray
     ) -> Tuple[ndarray, ndarray, ndarray]:
-        """Initialize velocity perturbation."""
-        vx, vy, vz = np.zeros(x.shape), np.zeros(y.shape), np.zeros(z.shape)
-        vx = ampl * (
-            dv.real * np.cos(kwave * (x + box_width / 2))
-            - dv.imag * np.sin(kwave * (x + box_width / 2))
-        )
+        """Initial left velocity."""
+        vx, vy, vz = v_L * np.ones(x.shape), np.zeros(y.shape), np.zeros(z.shape)
         return vx, vy, vz
 
-    # Gas
+    # Box: right of shock
+    box_boundary_R = (0, xmax, ymin, ymax, zmin, zmax)
+    n_R = params['number_of_particles_in_x_R']
+    rho_R = params['density_R']
+    v_R = params['velocity_R']
+
+    def velocity_R(
+        x: ndarray, y: ndarray, z: ndarray
+    ) -> Tuple[ndarray, ndarray, ndarray]:
+        """Initial right velocity."""
+        vx, vy, vz = v_R * np.ones(x.shape), np.zeros(y.shape), np.zeros(z.shape)
+        return vx, vy, vz
+
+    # Boxes
+    boxes = list()
+
+    # Gas box: left of shock
     box = phantomsetup.Box(
-        box_boundary=box_boundary,
+        box_boundary=box_boundary_L,
         particle_type=igas,
-        number_of_particles_in_x=params['number_of_particles_in_x_gas'],
-        density=params['density_gas'],
-        velocity_distribution=velocity_perturbation,
+        number_of_particles_in_x=n_L,
+        density=rho_L,
+        velocity_distribution=velocity_L,
         lattice='close packed',
     )
-    position = phantomsetup.geometry.stretch_map(
-        density_function, box.arrays['position'], box_boundary[0], box_boundary[1]
-    )
-    box.arrays['position'] = position
     boxes.append(box)
 
-    # Dust
+    # Gas box: right of shock
+    box = phantomsetup.Box(
+        box_boundary=box_boundary_R,
+        particle_type=igas,
+        number_of_particles_in_x=n_R,
+        density=rho_R,
+        velocity_distribution=velocity_R,
+        lattice='close packed',
+    )
+    boxes.append(box)
+
     for idx in range(number_of_dust_species):
 
-        # Density perturbation
-        rho = params['density_dust'][idx]
-        drho = params['delta_density_dust'][idx]
-        kwave = 2 * np.pi / box_width
-        ampl = params['wave_amplitude']
-
-        @numba.vectorize([float64(float64)])
-        def density_function(x):
-            x = rho + ampl * (
-                drho.real * np.cos(kwave * (x + box_width / 2))
-                - drho.imag * np.sin(kwave * (x + box_width / 2))
-            )
-            return x
-
-        # Velocity perturbation
-        dv = params['delta_v_dust'][idx]
-
-        def velocity_perturbation(
-            x: ndarray, y: ndarray, z: ndarray
-        ) -> Tuple[ndarray, ndarray, ndarray]:
-            """Initialize velocity perturbation."""
-            vx, vy, vz = np.zeros(x.shape), np.zeros(y.shape), np.zeros(z.shape)
-            vx = ampl * (
-                dv.real * np.cos(kwave * (x + box_width / 2))
-                - dv.imag * np.sin(kwave * (x + box_width / 2))
-            )
-            return vx, vy, vz
-
+        # Dust box: left of shock
         box = phantomsetup.Box(
-            box_boundary=box_boundary,
+            box_boundary=box_boundary_L,
             particle_type=idust + idx,
-            number_of_particles_in_x=params['number_of_particles_in_x_dust'],
-            density=density_dust[idx],
-            velocity_distribution=velocity_perturbation,
+            number_of_particles_in_x=n_L,
+            density=rho_L,
+            velocity_distribution=velocity_L,
             lattice='close packed',
         )
-        position = phantomsetup.geometry.stretch_map(
-            density_function, box.arrays['position'], box_boundary[0], box_boundary[1]
-        )
-        box.arrays['position'] = position
         boxes.append(box)
+
+        # Dust box: right of shock
+        box = phantomsetup.Box(
+            box_boundary=box_boundary_R,
+            particle_type=idust + idx,
+            number_of_particles_in_x=n_R,
+            density=rho_R,
+            velocity_distribution=velocity_R,
+            lattice='close packed',
+        )
+        boxes.append(box)
+
+    # # Set boundary particles
+    # for box in boxes:
+    #     x = box.arrays['position']
+    #     boundary_particles = np.argwhere((x < xmin + dx_L) | (x > xmax - dx_L))
+    #     particle_type = box.arrays['particle_type']
+    #     particle_type[boundary_particles] = iboundary
+    #     box.set_array('particle_type', particle_type)
 
     # Add extra quantities
     for box in boxes:
@@ -353,7 +329,7 @@ def setup_one_calculation(
         setup.add_container(box)
 
     # Set dissipation
-    setup.set_dissipation(alpha=0.0, alphamax=0.0)
+    setup.set_dissipation(alpha=1.0, alphamax=1.0)
 
     # Write to file
     setup.write_dump_file(directory=run_directory)
@@ -373,7 +349,7 @@ def setup_one_calculation(
 
 
 def run_all_calculations(run_root_directory: Path) -> List[subprocess.CompletedProcess]:
-    """Run dustywave calculations.
+    """Run dustyshock calculations.
 
     Parameters
     ----------

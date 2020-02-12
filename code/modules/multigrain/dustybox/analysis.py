@@ -1,7 +1,5 @@
 """Dusty box analysis."""
 
-import importlib
-import pathlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -18,9 +16,7 @@ from bokeh.layouts import gridplot
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
-path = pathlib.Path(__file__).parent / 'exact.py'
-loader = importlib.machinery.SourceFileLoader('exact_solution', str(path))
-exact_solution = loader.load_module()
+from . import exact as exact_solution
 
 
 def load_data(root_directory: Path) -> List[Simulation]:

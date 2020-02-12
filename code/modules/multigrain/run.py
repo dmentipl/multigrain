@@ -141,7 +141,9 @@ def remove_units(parameters_dict):
     return parameters_dict
 
 
-def run_script(simulation_to_setup, parameters_dict, run_directory):
+def run_script(
+    simulation_to_setup, parameters_dict, run_directory, phantom_patch_file=None
+):
     """Run script.
 
     Parameters
@@ -153,6 +155,8 @@ def run_script(simulation_to_setup, parameters_dict, run_directory):
         for each simulation.
     run_directory
         The path to the run directory.
+    phantom_patch_file
+        The path to a Phantom patch file.
     """
     parameters_dict = remove_units(parameters_dict)
     run_directory = pathlib.Path(run_directory).expanduser()
@@ -162,6 +166,10 @@ def run_script(simulation_to_setup, parameters_dict, run_directory):
     phantombuild.checkout_phantom_version(
         phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
     )
+    if phantom_patch_file is not None:
+        phantombuild.patch_phantom(
+            phantom_dir=phantom_dir, phantom_patch=phantom_patch_file
+        )
     setup_multiple_calculations(
         simulation_to_setup='dustybox',
         run_root_directory=run_directory,

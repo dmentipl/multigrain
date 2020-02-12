@@ -4,9 +4,14 @@ Check accuracy by changing C_force.
 """
 
 import copy
+import pathlib
 
 from multigrain import run_script
 from multigrain.config import UNITS
+
+SIMULATION = None
+RUN_DIRECTORY = None
+PATCH_FILE = None
 
 # ------------------------------------------------------------------------------------ #
 # MAKE CHANGES BELOW AS REQUIRED
@@ -96,4 +101,9 @@ def set_parameters():
 
 if __name__ == "__main__":
     parameters = set_parameters()
-    run_script(SIMULATION, parameters, RUN_DIRECTORY)
+    run_script(
+        simulation_to_setup=SIMULATION,
+        parameters_dict=parameters,
+        run_directory=RUN_DIRECTORY,
+        phantom_patch_file=PATCH_FILE,
+    )

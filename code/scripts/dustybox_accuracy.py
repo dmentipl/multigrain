@@ -18,6 +18,7 @@ PATCH_FILE = None
 
 SIMULATION = 'dustybox'
 RUN_DIRECTORY = '~/runs/multigrain/dustybox/accuracy'
+PATCH_FILE = pathlib.Path(__file__).parent / 'dustybox_accuracy-phantom.patch'
 
 
 # Choose parameters for each run.
@@ -79,17 +80,17 @@ def set_parameters():
         'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * UNITS['cm'],
         'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * UNITS['cm / s'],
         'dust_to_gas_ratio': [0.1, 0.1, 0.1, 0.1, 0.1],
-        'maximum_time': 1.0 * UNITS['s'],
-        'number_of_dumps': 10,
+        'maximum_time': 0.5 * UNITS['s'],
+        'number_of_dumps': 5,
     }
 
     # Each value in tuple multiplicatively generates a new simulation.
-    C_forces = [0.1, 0.25, 0.5, 1.0, 2.0]
+    C_forces = [0.0625, 0.125, 0.25, 0.5, 1.0, 1.9, 1.95]
 
     # Iterate over C_forces
     parameters = dict()
     for C_force in C_forces:
-        label = f'C_force={C_force:.2f}'
+        label = f'C_force={C_force:.4f}'
         parameters[label] = copy.copy(_parameters)
         parameters[label]['C_force'] = C_force
 

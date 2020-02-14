@@ -1,6 +1,6 @@
 """Set up and run dustybox calculations.
 
-Check accuracy by changing C_force.
+Large difference in dust mass in large grains vs small grains.
 
 Need to set the following variables:
     SIMULATION
@@ -71,7 +71,7 @@ PATCH_FILE = None
 # MAKE CHANGES BELOW AS REQUIRED
 
 SIMULATION = 'dustybox'
-RUN_DIRECTORY = '~/runs/multigrain/dustybox/accuracy'
+RUN_DIRECTORY = '~/runs/multigrain/dustybox/diverse_grains'
 PATCH_FILE = pathlib.Path(__file__).parent / 'dustybox_accuracy-phantom.patch'
 
 # Dictionary of parameters common to all runs.
@@ -88,15 +88,15 @@ _parameters = {
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
-    'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * UNITS['cm'],
-    'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * UNITS['cm / s'],
-    'dust_to_gas_ratio': [0.1, 0.1, 0.1, 0.1, 0.1],
-    'maximum_time': 0.5 * UNITS['s'],
-    'number_of_dumps': 5,
+    'grain_size': [0.1, 10.0] * UNITS['cm'],
+    'velocity_delta': [1.0, 1.0] * UNITS['cm / s'],
+    'dust_to_gas_ratio': [0.01, 1.0],
+    'maximum_time': 1.0 * UNITS['s'],
+    'number_of_dumps': 50,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-C_forces = [0.0125, 0.025, 0.05]
+C_forces = [0.05]
 
 # Iterate over C_forces
 PARAMETERS = dict()

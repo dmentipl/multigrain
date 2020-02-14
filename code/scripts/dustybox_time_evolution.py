@@ -87,7 +87,7 @@ _parameters = {
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
     'maximum_time': 2.0 * UNITS['s'],
     'number_of_dumps': 50,
-    'C_force': 0.1,
+    'C_force': 0.05,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.

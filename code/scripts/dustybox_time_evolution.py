@@ -4,6 +4,7 @@ Time evolution of the differential velocity.
 """
 
 import copy
+import pathlib
 
 import numpy as np
 from multigrain import run_script
@@ -18,6 +19,7 @@ PATCH_FILE = None
 
 SIMULATION = 'dustybox'
 RUN_DIRECTORY = '~/runs/multigrain/dustybox/time_evolution'
+PATCH_FILE = pathlib.Path(__file__).parent / 'dustybox_time_evolution-phantom.patch'
 
 
 # Choose parameters for each run.
@@ -74,9 +76,10 @@ def set_parameters():
         'number_of_particles_in_x_dust': 16,
         'density_gas': 1.0e-13 * UNITS['g / cm^3'],
         'drag_method': 'Epstein/Stokes',
-        'grain_density': 0.5e-14 * UNITS['g / cm^3'],
-        'maximum_time': 0.1 * UNITS['s'],
-        'number_of_dumps': 100,
+        'grain_density': 1.0e-13 * UNITS['g / cm^3'],
+        'maximum_time': 2.0 * UNITS['s'],
+        'number_of_dumps': 50,
+        'C_force': 0.1,
     }
 
     # Each value in tuple multiplicatively generates a new simulation.

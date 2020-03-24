@@ -134,6 +134,18 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 \end{itemize}
 }
 
+Multi-wavelength observations of protoplanetary discs show that the radial
+extent of the dust disc scales inversely with wavelength
+\citep{Andrews2015PASP..127..961A}. This suggests that larger grains drift
+inwards faster than smaller grains \citep{Weidenschilling1977MNRAS.180...57W}.
+
+Modelling this requires dust and gas hydrodynamics with multiple dust
+species---one of the grand challenges in protoplanetary disc modeling
+\citep{Haworth2016PASA...33...53H}. In particular, it is important to capture
+the collective backreaction of multiple dust species on the gas. For example,
+the inward drift of small grains can be reversed by the inward drift of large
+grains.
+
 \section{Methods}
 
 \subsection{Continuum equations for multiple dust species}
@@ -593,16 +605,39 @@ using the alternative stopping time
 (defined in Equation~\ref{eqn:alternative-stopping-time}) as
 %
 \begin{align}
-   \label{eqn:sph-timestep-constraint}
    \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\},
 \end{align}
 %
 where \(\varepsilon_i = \rho_{d_i} / \rho_g\) is the dust-to-gas ratio for each
 dust species. This is useful because in evolving the momentum equations we use
 the drag coefficient on a dust (or gas) particle over its gas (or dust)
-neighbours, without reference to the other dust species. We take the minimum of
-Equation~\ref{eqn:sph-timestep-constraint} over the neighbouring particles to
-find the SPH time step constraint for a particle.
+neighbours, without reference to the other dust species. Given that
+\(\varepsilon_i > 0\), for simplicity, we take the more restrictive constraint of
+setting \(\varepsilon_i = 0\), i.e.
+%
+\begin{align}
+   \label{eqn:sph-timestep-constraint}
+   \Delta t < 2 \min_i t'_{s_i}.
+\end{align}
+%
+For a dust particle, we take the minimum over gas neighbours of the individual
+species constraint (\(\Delta t < 2 t_{s_i}\)):
+%
+\begin{align}
+   \Delta t < 2 \min_{a}
+   \left\{ \frac{\rho^g_a \rho^{d_i}_b}{K_{ab} (\rho^g_a + \rho^{d_i}_b)} \right\}.
+\end{align}
+%
+Whereas, for a gas particle, we take the minimum of
+Equation~\ref{eqn:sph-timestep-constraint}, rewritten in terms of the drag
+coefficient and densities, over the neighbouring dust particles to find the SPH
+time step constraint for a particle:
+%
+\begin{align}
+   \Delta t < 2 \min_i \min_{b}
+   \left\{ \frac{\rho^g_a \rho^{d_i}_b}{K_{ab} (\rho^g_a + \rho^{d_i}_b)} \right\}.
+\end{align}
+%
 
 \section{Numerical tests}
 
@@ -773,9 +808,6 @@ See \citet{Benitez-Llambay2019ApJS..241...25B},
 \citet{Laibe2012MNRAS.420.2345L}, \citet{Lehmann2018MNRAS.476.3185L}.
 }
 
-
-\section{Applications}
-
 \subsection{Radial drift}
 
 \textcolor{red}{
@@ -788,14 +820,14 @@ See example in \citet{Dipierro2018MNRAS.479.4187D}.
 See Section~4.3 in \citet{Hutchison2018MNRAS.476.2186H}.
 }
 
-\subsection{Circumbinary disc}
+% \subsection{Circumbinary disc}
 
-\textcolor{red}{
-Do a comparison between multiple single grain calculations vs one multigrain
-calculation focussing on dust trapping in a circumbinary disc. For example, in
-HD~142527. The figure would show a phase difference between the dust (or gas)
-distribution comparing the single-grain vs multigrain calculation.
-}
+% \textcolor{red}{
+% Do a comparison between multiple single grain calculations vs one multigrain
+% calculation focussing on dust trapping in a circumbinary disc. For example, in
+% HD~142527. The figure would show a phase difference between the dust (or gas)
+% distribution comparing the single-grain vs multigrain calculation.
+% }
 
 \section{Discussion}
 

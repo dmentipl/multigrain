@@ -2,7 +2,7 @@ name: multigrain
 channels:
   - conda-forge
 dependencies:
-  - python==3.7
+  - python>=3.7
   - black
   - bokeh
   - flake8
@@ -14,7 +14,6 @@ dependencies:
   - pandas
   - pint
   - pip
-  - plonk>=0.3.0
   - pydocstyle
   - pylint
   - scipy
@@ -22,3 +21,4 @@ dependencies:
     - phantombuild>=0.1.4
     - phantomconfig>=0.2.2
     - git+https://github.com/dmentipl/phantom-setup.git@0e0ef236f06a41fced8ea3e1ad6e531a095ae279
+    - git+https://github.com/dmentipl/plonk/commit/3e292612f35d4c12923f846514c04dabaab9de47

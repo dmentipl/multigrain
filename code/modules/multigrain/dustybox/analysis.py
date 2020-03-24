@@ -54,16 +54,14 @@ def get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
         The stopping time on each species.
     """
     snap = sim.snaps[0]
-    density = (
-        snap.to_dataframe(('dust_id', 'density'))
-        .groupby('dust_id')
-        .mean()['density']
-        .to_numpy()
+    n_dust = len(snap.properties['grain_size'])
+    density = np.array(
+        [snap[snap['dust_type'] == idx]['density'].mean() for idx in range(n_dust + 1)]
     )
-    c_s = np.sqrt(snap.properties['polyk'])
-    y = snap.properties['gamma']
-    s = snap.properties['grain size']
-    rho_m = snap.properties['grain density']
+    c_s = np.sqrt(snap.properties['polytropic_constant'])
+    y = snap.properties['adiabatic_index']
+    s = snap.properties['grain_size'].to(snap.units['length']).magnitude
+    rho_m = snap.properties['grain_density'].to(snap.units['density']).magnitude
     rho_g = density[0]
     rho_d = density[1:]
     drag_coeff = rho_g * rho_d * c_s / (np.sqrt(np.pi * y / 8) * s * rho_m)
@@ -92,20 +90,20 @@ def generate_results(sim: Simulation) -> DataFrame:
     -------
     The velocity differential DataFrame.
     """
-    dust_ids = sorted(np.unique(sim.snaps[0]['dust_id']))
+    dust_ids = sorted(np.unique(sim.snaps[0]['dust_type']))
     n_dust = len(dust_ids) - 1
 
     # Snapshot times
-    _time = list()
-    for snap in sim.snaps:
-        _time.append(snap.properties['time'])
-    time = np.array(_time)
+    time = sim.properties['time'].magnitude
 
     # Velocity differential: simulation data
     data = np.zeros((len(time), n_dust))
     for idx, snap in enumerate(sim.snaps):
-        df = snap.to_dataframe(('dust_id', 'vx')).groupby('dust_id').mean()
-        data[idx, :] = (df.iloc[1:] - df.iloc[0])['vx']
+        vx = [
+            snap[snap['dust_type'] == idx]['velocity_x'].mean()
+            for idx in range(n_dust + 1)
+        ]
+        data[idx, :] = vx[1:] - vx[0]
 
     # Velocity differential: analytical solutions
     dust_fraction, stopping_time = get_dust_properties(sim)

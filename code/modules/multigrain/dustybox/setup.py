@@ -172,6 +172,11 @@ def setup_calculation(
     if C_force is not None:
         setup.set_run_option('C_force', C_force)
 
+    # Set hfact
+    hfact = params.pop('hfact', None)
+    if hfact is not None:
+        setup.set_run_option('hfact', hfact)
+
     # Write to file
     setup.write_dump_file(directory=run_directory)
     setup.write_in_file(directory=run_directory)

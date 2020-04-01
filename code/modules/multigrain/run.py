@@ -171,7 +171,7 @@ def run_script(
             phantom_dir=phantom_dir, phantom_patch=phantom_patch_file
         )
     setup_multiple_calculations(
-        simulation_to_setup='dustybox',
+        simulation_to_setup=simulation_to_setup,
         run_root_directory=run_directory,
         parameters_dict=parameters_dict,
         phantom_dir=phantom_dir,

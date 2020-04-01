@@ -1,5 +1,15 @@
 .vscode
 
+phantom-build.log
+
+build/*
+dist/*
+*.egg-info
+.coverage
+htmlcov
+.mypy_cache
+_build
+
 multigrain-paper.pdf
 
 *.aux

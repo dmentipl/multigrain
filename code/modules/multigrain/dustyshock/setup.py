@@ -1,6 +1,5 @@
 """Setup and run dustyshock calculations."""
 
-import copy
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
@@ -34,8 +33,6 @@ def setup_calculation(
     -------
     phantomsetup.Setup
     """
-    params = copy.copy(params)
-
     # Constants
     igas = phantomsetup.defaults.PARTICLE_TYPE['igas']
     idust = phantomsetup.defaults.PARTICLE_TYPE['idust']
@@ -43,28 +40,12 @@ def setup_calculation(
 
     # Setup
     setup = phantomsetup.Setup()
-    setup.prefix = params.pop('prefix')
+    setup.prefix = params['prefix']
 
     # Units
-    length_unit = params.pop('length_unit')
-    mass_unit = params.pop('mass_unit')
-    time_unit = params.pop('time_unit')
-    for key, value in params.items():
-        if isinstance(value, units.Quantity):
-            d = value.dimensionality
-            new_units = (
-                length_unit ** d['[length]']
-                * mass_unit ** d['[mass]']
-                * time_unit ** d['[time]']
-            )
-            params[key] = value.to(new_units).magnitude
-    if isinstance(length_unit, units.Quantity):
-        length_unit = length_unit.to_base_units().magnitude
-    if isinstance(mass_unit, units.Quantity):
-        mass_unit = mass_unit.to_base_units().magnitude
-    if isinstance(time_unit, units.Quantity):
-        time_unit = time_unit.to_base_units().magnitude
-    setup.set_units(length=length_unit, mass=mass_unit, time=time_unit)
+    setup.set_units(
+        length=params['length_unit'], mass=params['mass_unit'], time=params['time_unit']
+    )
 
     setup.set_compile_option('IND_TIMESTEPS', False)
     setup.set_output(

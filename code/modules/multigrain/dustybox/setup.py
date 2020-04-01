@@ -1,6 +1,5 @@
 """Set up a dustybox calculation."""
 
-import copy
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
@@ -59,15 +58,13 @@ def setup_calculation(
     'velocity_delta' should be the same, i.e. the number of dust
     species.
     """
-    params = copy.copy(params)
-
     # Constants
     igas = phantomsetup.defaults.PARTICLE_TYPE['igas']
     idust = phantomsetup.defaults.PARTICLE_TYPE['idust']
 
     # Setup
     setup = phantomsetup.Setup()
-    setup.prefix = params.pop('prefix')
+    setup.prefix = params['prefix']
 
     # Units
     setup.set_units(
@@ -168,12 +165,12 @@ def setup_calculation(
     setup.set_dissipation(alpha=0.0, alphamax=0.0)
 
     # Set C_force
-    C_force = params.pop('C_force', None)
+    C_force = params.get('C_force')
     if C_force is not None:
         setup.set_run_option('C_force', C_force)
 
     # Set hfact
-    hfact = params.pop('hfact', None)
+    hfact = params.get('hfact')
     if hfact is not None:
         setup.set_run_option('hfact', hfact)
 

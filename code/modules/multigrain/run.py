@@ -119,9 +119,9 @@ def run_multiple_calculations(
 def remove_units(parameters_dict):
     """Remove units to eventually pass on to phantom-setup."""
     for params in parameters_dict.values():
-        length_unit = params.pop('length_unit')
-        mass_unit = params.pop('mass_unit')
-        time_unit = params.pop('time_unit')
+        length_unit = params['length_unit']
+        mass_unit = params['mass_unit']
+        time_unit = params['time_unit']
         for key, value in params.items():
             if isinstance(value, UNITS.Quantity):
                 d = value.dimensionality
@@ -132,11 +132,11 @@ def remove_units(parameters_dict):
                 )
                 params[key] = value.to(new_units).magnitude
         if isinstance(length_unit, UNITS.Quantity):
-            params['length_unit'] = length_unit.to_base_units().magnitude
+            params['length_unit'] = length_unit.to('cm').magnitude
         if isinstance(mass_unit, UNITS.Quantity):
-            params['mass_unit'] = mass_unit.to_base_units().magnitude
+            params['mass_unit'] = mass_unit.to('g').magnitude
         if isinstance(time_unit, UNITS.Quantity):
-            params['time_unit'] = time_unit.to_base_units().magnitude
+            params['time_unit'] = time_unit.to('s').magnitude
 
     return parameters_dict
 

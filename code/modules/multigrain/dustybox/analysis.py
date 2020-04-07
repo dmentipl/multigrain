@@ -9,7 +9,7 @@ import pandas as pd
 import plonk
 from numpy import ndarray
 from pandas import DataFrame
-from plonk import Simulation
+from plonk import Simulation, Snap
 
 from bokeh.io import show
 from bokeh.layouts import gridplot
@@ -36,7 +36,7 @@ def load_data(root_directory: Path) -> List[Simulation]:
     return sims
 
 
-def get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
+def get_dust_properties(snap: Snap) -> Tuple[ndarray, ndarray]:
     """Get dust properties.
 
     Calculate the dust-to-gas ratio and stopping times.
@@ -53,11 +53,8 @@ def get_dust_properties(sim: Simulation) -> Tuple[ndarray, ndarray]:
     stopping_time
         The stopping time on each species.
     """
-    snap = sim.snaps[0]
-    n_dust = len(snap.properties['grain_size'])
-    density = np.array(
-        [snap[snap['dust_type'] == idx]['density'].mean() for idx in range(n_dust + 1)]
-    )
+    subsnaps = [snap['gas']] + snap['dust']
+    density = np.array([subsnap['density'].mean() for subsnap in subsnaps])
     c_s = np.sqrt(snap.properties['polytropic_constant'])
     y = snap.properties['adiabatic_index']
     s = snap.properties['grain_size'].to(snap.units['length']).magnitude
@@ -90,8 +87,7 @@ def generate_results(sim: Simulation) -> DataFrame:
     -------
     The velocity differential DataFrame.
     """
-    dust_ids = sorted(np.unique(sim.snaps[0]['dust_type']))
-    n_dust = len(dust_ids) - 1
+    n_dust = sim.snaps[0].num_dust_species
 
     # Snapshot times
     time = sim.properties['time'].magnitude
@@ -99,14 +95,12 @@ def generate_results(sim: Simulation) -> DataFrame:
     # Velocity differential: simulation data
     data = np.zeros((len(time), n_dust))
     for idx, snap in enumerate(sim.snaps):
-        vx = [
-            snap[snap['dust_type'] == idx]['velocity_x'].mean()
-            for idx in range(n_dust + 1)
-        ]
+        subsnaps = [snap['gas']] + snap['dust']
+        vx = np.array([subsnap['velocity_x'].mean() for subsnap in subsnaps])
         data[idx, :] = vx[1:] - vx[0]
 
     # Velocity differential: analytical solutions
-    dust_fraction, stopping_time = get_dust_properties(sim)
+    dust_fraction, stopping_time = get_dust_properties(sim.snaps[0])
     delta_vx_init = data[0, :]
     exact1 = np.zeros((len(time), n_dust))
     exact2 = np.zeros((len(time), n_dust))

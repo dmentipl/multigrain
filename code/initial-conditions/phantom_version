@@ -1,0 +1,12 @@
+Compilation details:
+   Date compiled: Thu 16 Apr 2020 12:56:14 AEST
+   Pre-processor flags used: -DPERIODIC -DDUST -DHDF5
+ 
+Version details:
+   Date this version was committed to the repository:    Mon Apr 6 13:51:48 2020 +1000
+   Commit tag:     ok-20200402-4-gd9a5507f
+   Full commit ID: d9a5507f3fd97b5ed5acf4547f82449476b29091 
+   Locally modified files:
+src/main/readwrite_dumps_hdf5.F90
+src/main/utils_dumpfiles_hdf5.F90
+src/setup/setup_shock.F90

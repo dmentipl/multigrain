@@ -26,16 +26,8 @@ All the code added to Phantom is in the code directory, as are Python scripts to
 ```bash
 conda env create --file environment.yml
 conda activate multigrain
+jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib
 ```
-
-In addition, the modules must be installed. Make sure you have activated the
-environment (`conda activate multigrain`) and then do
-
-```bash
-conda develop path_to_repo/code/modules
-```
-
-replacing `path_to_repo` with the path to this repository.
 
 ## Results
 

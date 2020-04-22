@@ -1,5 +1,4 @@
 """Dusty shock."""
 
-from .setup import setup_calculation
-
-__all__ = ['setup_calculation']
+from .analysis import *
+from .setup import *

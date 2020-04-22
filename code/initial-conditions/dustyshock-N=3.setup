@@ -1,0 +1,32 @@
+# Phantom v1.4.0 (c) 2007-2019 The Authors
+# input file for Phantom shock tube setup
+
+# shock tube name
+                name =   Sod shock    ! 
+
+# shock tube
+            densleft =       1.000    ! dens (left)
+           densright =       8.000    ! dens (right)
+              prleft =       1.000    ! pr (left)
+             prright =       8.000    ! pr (right)
+              vxleft =       2.000    ! vx (left)
+             vxright =       0.250    ! vx (right)
+              vyleft =       0.000    ! vy (left)
+             vyright =       0.000    ! vy (right)
+              vzleft =       0.000    ! vz (left)
+             vzright =       0.000    ! vz (right)
+
+# boundaries
+               xleft =      -0.500    ! x min boundary
+              xright =       0.500    ! x max boundary
+
+# resolution
+                  nx =          32    ! resolution (number of particles in x) for -xleft < x < xshock
+
+# Equation-of-state properties
+               gamma =       1.001    ! Adiabatic index
+
+# dust properties
+               ndust =           3    ! number of dust species
+         dust_method =           2    ! 1=one fluid, 2=two fluid
+                 dtg =       1.000    ! Dust to gas ratio

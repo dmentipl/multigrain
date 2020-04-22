@@ -1,5 +1,4 @@
 """Dusty wave."""
 
-from .setup import setup_calculation
-
-__all__ = ['setup_calculation']
+from .exact import *
+from .setup import *

@@ -57,6 +57,10 @@ should be the same, i.e. the number of dust species.
 
 import copy
 import pathlib
+import sys
+
+path = pathlib.Path(__file__).parent / '..' / 'modules'
+sys.path.insert(0, str(path))
 
 from multigrain import run_script
 from multigrain.config import UNITS

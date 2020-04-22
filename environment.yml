@@ -10,6 +10,7 @@ dependencies:
   - ipython
   - jupyterlab
   - matplotlib
+  - nodejs
   - numba
   - numpy
   - pandas
@@ -22,4 +23,4 @@ dependencies:
     - phantombuild>=0.1.4
     - phantomconfig>=0.2.2
     - phantomsetup
-    - git+https://github.com/dmentipl/plonk.git@666f5fc283058b5f7563ecef94d23da3e1fc4cf9
+    - plonk>=0.5.0

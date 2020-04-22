@@ -48,6 +48,11 @@ Each dictionary for each run needs the following keys:
 """
 
 import copy
+import sys
+import pathlib
+
+path = pathlib.Path(__file__).parent / '..' / 'modules'
+sys.path.insert(0, str(path))
 
 from multigrain import run_script
 

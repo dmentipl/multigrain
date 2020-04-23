@@ -112,30 +112,6 @@ def calculate_error(df):
     return dataframe
 
 
-def plot_error(df, ax):
-    """Plot differential velocity error.
-
-    Parameters
-    ----------
-    df
-        A DataFrame with the differential velocity.
-    ax
-        Matplotlib Axes.
-
-    Returns
-    -------
-    ax
-        Matplotlib Axes.
-    """
-    x = df['time'].to_numpy()
-    y_error = [df[col].to_numpy() for col in df.columns if col.startswith('error')]
-
-    for y in y_error:
-        ax.plot(x, y)
-
-    return ax
-
-
 def plot_differential_velocity(df, ax):
     """Plot differential velocity.
 
@@ -192,6 +168,30 @@ def plot_differential_velocity_all(dataframes):
     for ax in axs[:, 0]:
         ax.set(ylabel='Differential velocity')
     return fig
+
+
+def plot_error(df, ax):
+    """Plot differential velocity error.
+
+    Parameters
+    ----------
+    df
+        A DataFrame with the differential velocity.
+    ax
+        Matplotlib Axes.
+
+    Returns
+    -------
+    ax
+        Matplotlib Axes.
+    """
+    x = df['time'].to_numpy()
+    y_error = [df[col].to_numpy() for col in df.columns if col.startswith('error')]
+
+    for y in y_error:
+        ax.semilogy(x, y)
+
+    return ax
 
 
 def plot_error_all(dataframes):

@@ -17,8 +17,8 @@
              vzright =       0.000    ! vz (right)
 
 # boundaries
-               xleft =      -5.000    ! x min boundary
-              xright =       5.000    ! x max boundary
+               xleft =        -10.    ! x min boundary
+              xright =         10.    ! x max boundary
 
 # resolution
                   nx =          16    ! resolution (number of particles in x) for -xleft < x < xshock

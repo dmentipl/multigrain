@@ -17,14 +17,14 @@
              vzright =       0.000    ! vz (right)
 
 # boundaries
-               xleft =      -0.500    ! x min boundary
-              xright =       0.500    ! x max boundary
+               xleft =      -5.000    ! x min boundary
+              xright =       5.000    ! x max boundary
 
 # resolution
-                  nx =          8    ! resolution (number of particles in x) for -xleft < x < xshock
+                  nx =          16    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
-               gamma =       1.001    ! Adiabatic index
+               gamma =      1.0001    ! Adiabatic index
 
 # dust properties
                ndust =           3    ! number of dust species

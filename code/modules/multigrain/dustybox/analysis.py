@@ -1,42 +1,13 @@
 """Dusty box analysis."""
 
-from pathlib import Path
-from typing import Any, Dict, List, Tuple
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plonk
-from numpy import ndarray
-from pandas import DataFrame
-from plonk import Simulation, Snap
-
-from bokeh.io import show
-from bokeh.layouts import gridplot
-from bokeh.palettes import Spectral11
-from bokeh.plotting import figure
 
 from . import exact as exact_solution
 
 
-def load_data(root_directory: Path) -> List[Simulation]:
-    """Load simulation data.
-
-    Parameters
-    ----------
-    root_directory
-        The root directory containing the simulation directories.
-
-    Returns
-    -------
-    A list of Simulation objects.
-    """
-    paths = sorted(list(root_directory.glob('*')))
-    sims = [plonk.load_sim(prefix='dustybox', directory=p) for p in paths]
-    return sims
-
-
-def get_dust_properties(snap: Snap) -> Tuple[ndarray, ndarray]:
+def get_dust_properties(snap):
     """Get dust properties.
 
     Calculate the dust-to-gas ratio and stopping times.
@@ -49,27 +20,27 @@ def get_dust_properties(snap: Snap) -> Tuple[ndarray, ndarray]:
     Returns
     -------
     dust_fraction
-        The dust fraction on each species.
+        The dust fraction for each dust species.
     stopping_time
-        The stopping time on each species.
+        The stopping time for each dust species.
     """
     subsnaps = [snap['gas']] + snap['dust']
     density = np.array([subsnap['density'].mean() for subsnap in subsnaps])
     c_s = np.sqrt(snap.properties['polytropic_constant'])
-    y = snap.properties['adiabatic_index']
+    ɣ = snap.properties['adiabatic_index']
     s = snap.properties['grain_size'].to(snap.units['length']).magnitude
     rho_m = snap.properties['grain_density'].to(snap.units['density']).magnitude
     rho_g = density[0]
     rho_d = density[1:]
-    drag_coeff = rho_g * rho_d * c_s / (np.sqrt(np.pi * y / 8) * s * rho_m)
+    drag_coeff = rho_g * rho_d * c_s / (np.sqrt(np.pi * ɣ / 8) * s * rho_m)
     dust_fraction = density[1:] / np.sum(density)
     stopping_time = density.sum() / drag_coeff
 
     return dust_fraction, stopping_time
 
 
-def generate_results(sim: Simulation) -> DataFrame:
-    """Generate results.
+def calculate_differential_velocity(sim):
+    """Calculate differential velocity.
 
     The results for each simulation is a DataFrame of differential
     velocities for each dust species. The columns are for the
@@ -114,7 +85,7 @@ def generate_results(sim: Simulation) -> DataFrame:
             )
 
     # Generate DataFrame
-    arrays = np.hstack((time[:, np.newaxis], data, exact1, exact2))
+    arrays = np.hstack([time[:, np.newaxis], data, exact1, exact2])
     columns = (
         ['time']
         + [f'data.{idx}' for idx in range(1, n_dust + 1)]
@@ -126,8 +97,47 @@ def generate_results(sim: Simulation) -> DataFrame:
     return dataframe
 
 
-def plot_results(df: DataFrame) -> Any:
-    """Plot results.
+def calculate_error(df):
+    time = df['time'].to_numpy()
+    data = [df[col].to_numpy() for col in df.columns if col.startswith('data')]
+    exact = [df[col].to_numpy() for col in df.columns if col.startswith('exact1')]
+    error = np.array([np.abs(yd - ye) for yd, ye in zip(data, exact)]).T
+    n_dust = len(data)
+
+    # Generate DataFrame
+    arrays = np.hstack([time[:, np.newaxis], error])
+    columns = ['time'] + [f'error.{idx}' for idx in range(1, n_dust + 1)]
+    dataframe = pd.DataFrame(arrays, columns=columns)
+
+    return dataframe
+
+
+def plot_error(df, ax):
+    """Plot differential velocity error.
+
+    Parameters
+    ----------
+    df
+        A DataFrame with the differential velocity.
+    ax
+        Matplotlib Axes.
+
+    Returns
+    -------
+    ax
+        Matplotlib Axes.
+    """
+    x = df['time'].to_numpy()
+    y_error = [df[col].to_numpy() for col in df.columns if col.startswith('error')]
+
+    for y in y_error:
+        ax.plot(x, y)
+
+    return ax
+
+
+def plot_differential_velocity(df, ax):
+    """Plot differential velocity.
 
     Plot the data as circle markers, the analytical solution with back
     reaction as solid lines, and the analytical solution without back
@@ -137,93 +147,62 @@ def plot_results(df: DataFrame) -> Any:
     ----------
     df
         A DataFrame with the differential velocity.
+    ax
+        Matplotlib Axes.
 
     Returns
     -------
-    bokeh.plotting.figure.Figure
+    ax
+        Matplotlib Axes.
     """
-    n_dust = int((len(df.columns) - 1) / 3)
-    palette = Spectral11[:n_dust]
+    x = df['time'].to_numpy()
+    y_data = [df[col].to_numpy() for col in df.columns if col.startswith('data')]
+    y_exact1 = [df[col].to_numpy() for col in df.columns if col.startswith('exact1')]
+    y_exact2 = [df[col].to_numpy() for col in df.columns if col.startswith('exact2')]
 
-    x = [df['time'] for col in df.columns if col.startswith('data')]
-    y_data = [df[col] for col in df.columns if col.startswith('data')]
-    y_exact1 = [df[col] for col in df.columns if col.startswith('exact1')]
-    y_exact2 = [df[col] for col in df.columns if col.startswith('exact2')]
+    for yd, ye1, ye2 in zip(y_data, y_exact1, y_exact2):
+        [line] = ax.plot(x, ye1)
+        ax.plot(x, ye2, '--', color=line.get_color())
+        ax.plot(x, yd, 'o', ms=4, fillstyle='none', color=line.get_color())
 
-    fig = figure()
-    fig.multi_line(x, y_exact1, line_dash='solid', line_color=palette, line_width=3)
-    fig.multi_line(x, y_exact2, line_dash=[10, 10], line_color=palette, line_width=3)
-    for xx, yy, color in zip(x, y_data, palette):
-        fig.scatter(xx, yy, line_color=color, fill_color=None, size=8)
+    return ax
 
+
+def plot_differential_velocity_all(dataframes):
+    """Plot differential velocity for each simulation.
+
+    Parameters
+    ----------
+    dataframes
+        A dictionary of DataFrames, one per simulation.
+
+    Returns
+    -------
+    fig
+        Matplotlib Figure.
+    """
+    fig, axs = plt.subplots(ncols=2, nrows=3, sharex=True, sharey=True, figsize=(8, 8))
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    for df, ax in zip(dataframes.values(), axs.T.flatten()):
+        plot_differential_velocity(df, ax)
+    axs[0, 0].set(title='Dust-to-gas: 0.01')
+    axs[0, 1].set(title='Dust-to-gas: 0.5')
+    for ax in axs[-1, :]:
+        ax.set(xlabel='Time')
+    for ax in axs[:, 0]:
+        ax.set(ylabel='Differential velocity')
     return fig
 
 
-def plot_all_results(dataframes: Dict[str, DataFrame], ncols: int) -> Any:
-    """Plot all results.
-
-    Plot the data as circle markers, the analytical solution with back
-    reaction as solid lines, and the analytical solution without back
-    reaction as dashed lines.
-
-    Parameters
-    ----------
-    dataframes
-        A dictionary of DataFrames, one per simulation.
-    ncols
-        The number of columns.
-
-    Returns
-    -------
-    bokeh.models.layouts.Column
-    """
-    figs = list()
-    for df in dataframes.values():
-        figs.append(plot_results(df=df))
-    p = gridplot(figs, ncols=ncols, sizing_mode='stretch_width', plot_height=300)
-    show(p)
-    return p
-
-
-def plot_all_results_pdf(dataframes: Dict[str, DataFrame], fig: Any, axes: Any) -> None:
-    """Plot all results and save pdf.
-
-    Plot the data as circle markers, the analytical solution with back
-    reaction as solid lines, and the analytical solution without back
-    reaction as dashed lines.
-
-    Parameters
-    ----------
-    dataframes
-        A dictionary of DataFrames, one per simulation.
-    fig
-        The matplotlib figure.
-    axes
-        The array matplotlib axes.
-    """
-    n_dust = int((len(list(dataframes.values())[0].columns) - 1) / 3)
-    prop_cycle = plt.rcParams['axes.prop_cycle']
-    color = prop_cycle.by_key()['color'][:n_dust]
-    x_range = (-0.01, 0.11)
-    y_range = (-0.1, 1.1)
-    for df, ax in zip(dataframes.values(), axes.ravel()):
-        data_cols = ['time'] + [f'data.{idx}' for idx in range(1, n_dust + 1)]
-        exact1_cols = ['time'] + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
-        exact2_cols = ['time'] + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
-        df[data_cols].plot(
-            'time',
-            color=color,
-            linestyle='None',
-            marker='.',
-            fillstyle='none',
-            ax=ax,
-            legend=False,
-        )
-        df[exact1_cols].plot('time', color=color, linestyle='-', ax=ax, legend=False)
-        df[exact2_cols].plot('time', color=color, linestyle='--', ax=ax, legend=False)
-        ax.set_xlabel('Time')
-        ax.set_ylabel(r'$\Delta v_x$')
-        ax.set_xlim(*x_range)
-        ax.set_ylim(*y_range)
-    fig.savefig('dustybox.pdf')
-    return None
+def plot_error_all(dataframes):
+    fig, axs = plt.subplots(ncols=2, nrows=3, sharex=True, sharey=True, figsize=(8, 8))
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+    for df, ax in zip(dataframes.values(), axs.T.flatten()):
+        plot_error(df, ax)
+    axs[0, 0].set(title='Dust-to-gas: 0.01')
+    axs[0, 1].set(title='Dust-to-gas: 0.5')
+    for ax in axs[-1, :]:
+        ax.set(xlabel='Time')
+    for ax in axs[:, 0]:
+        ax.set(ylabel='Differential velocity error')
+    return fig

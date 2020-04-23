@@ -40,8 +40,8 @@ mkdir ~/runs/multigrain/dustyshock/N=1
 cd ~/runs/multigrain/dustyshock/N=1
 cp -f ~/repos/phantom/bin/phantom{,setup,_version} .
 cp -f ~/repos/multigrain/code/initial-conditions/dustyshock-N=1.setup dustyshock.setup
-./phantomsetup dustyshock | tee dustyshock00.log 2>&1
 cp -f ~/repos/multigrain/code/initial-conditions/dustyshock-N=1.in dustyshock.in
+./phantomsetup dustyshock | tee dustyshock00.log 2>&1
 ./phantom dustyshock.in | tee dustyshock01.log 2>&1
 ```
 
@@ -50,7 +50,7 @@ mkdir ~/runs/multigrain/dustyshock/N=3
 cd ~/runs/multigrain/dustyshock/N=3
 cp -f ~/repos/phantom/bin/phantom{,setup,_version} .
 cp -f ~/repos/multigrain/code/initial-conditions/dustyshock-N=3.setup dustyshock.setup
-./phantomsetup dustyshock | tee dustyshock00.log 2>&1
 cp -f ~/repos/multigrain/code/initial-conditions/dustyshock-N=3.in dustyshock.in
+./phantomsetup dustyshock | tee dustyshock00.log 2>&1
 ./phantom dustyshock.in | tee dustyshock01.log 2>&1
 ```

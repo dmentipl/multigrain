@@ -17,11 +17,11 @@
              vzright =       0.000    ! vz (right)
 
 # boundaries
-               xleft =        -10.    ! x min boundary
-              xright =         10.    ! x max boundary
+               xleft =         -4.    ! x min boundary
+              xright =         36.    ! x max boundary
 
 # resolution
-                  nx =          16    ! resolution (number of particles in x) for -xleft < x < xshock
+                  nx =           8    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
                gamma =      1.0001    ! Adiabatic index

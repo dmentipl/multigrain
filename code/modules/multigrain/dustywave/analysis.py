@@ -53,20 +53,26 @@ def calculate_velocity_density(
 
 def plot_velocity_density(dataframes):
 
-    fig, axs = plt.subplots(ncols=len(dataframes), nrows=2, sharex=True, figsize=(8, 8))
+    fig, axs = plt.subplots(ncols=len(dataframes), nrows=2, sharex=True, figsize=(8, 6))
+    fig.subplots_adjust(hspace=0.1)
 
     for idxi, (name, data) in enumerate(dataframes.items()):
         n_species = len([col for col in data.columns if col.startswith('density')])
         time = data['time'].to_numpy()
         for idxj in range(n_species):
+            ax_v = axs[0, idxi]
+            ax_rho = axs[1, idxi]
             v_numerical = data[f'velocity_x.{idxj}'].to_numpy()
             v_exact = exact.velocity_x(time, idxj, n_species)
             rho_numerical = data[f'density.{idxj}'].to_numpy()
             rho_exact = exact.density(time, idxj, n_species)
-            [line] = axs[0, idxi].plot(time, v_numerical, 'o', ms=4, fillstyle='none')
-            axs[1, idxi].plot(time, rho_numerical, 'o', ms=4, fillstyle='none')
-            axs[0, idxi].plot(time, v_exact, color=line.get_color())
-            axs[1, idxi].plot(time, rho_exact, color=line.get_color())
+            [line] = ax_v.plot(time, v_numerical, 'o', ms=4, fillstyle='none')
+            ax_rho.plot(time, rho_numerical, 'o', ms=4, fillstyle='none')
+            ax_v.plot(time, v_exact, color=line.get_color())
+            ax_rho.plot(time, rho_exact, color=line.get_color())
+        axs[1, idxi].set(xlabel='Time')
+    axs[0, 0].set(ylabel='Normalized velocity')
+    axs[1, 0].set(ylabel='Normalized density')
 
     return fig
 

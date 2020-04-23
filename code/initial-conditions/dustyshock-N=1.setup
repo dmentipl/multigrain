@@ -2,7 +2,7 @@
 # input file for Phantom shock tube setup
 
 # shock tube name
-                name =   Sod shock    ! 
+                name =   Sod shock    !
 
 # shock tube
             densleft =       1.000    ! dens (left)
@@ -21,7 +21,7 @@
               xright =       0.500    ! x max boundary
 
 # resolution
-                  nx =          32    ! resolution (number of particles in x) for -xleft < x < xshock
+                  nx =           8    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
                gamma =       1.001    ! Adiabatic index

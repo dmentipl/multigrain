@@ -18,10 +18,10 @@
 
 # boundaries
                xleft =         -4.    ! x min boundary
-              xright =         36.    ! x max boundary
+              xright =        136.    ! x max boundary
 
 # resolution
-                  nx =           8    ! resolution (number of particles in x) for -xleft < x < xshock
+                  nx =           2    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
                gamma =      1.0001    ! Adiabatic index

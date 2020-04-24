@@ -17,10 +17,10 @@ Set up and run calculations.
 
 ```bash
 # N=1, i.e. one dust species
-bash code/initial-conditions/dustyshock-compile-phantom.sh 'N=1'
+bash code/initial-conditions/dustyshock-run-phantom.sh 'N=1'
 ```
 
 ```bash
 # N=3, i.e. one dust species
-bash code/initial-conditions/dustyshock-compile-phantom.sh 'N=3'
+bash code/initial-conditions/dustyshock-run-phantom.sh 'N=3'
 ```

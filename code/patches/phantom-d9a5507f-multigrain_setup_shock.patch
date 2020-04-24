@@ -1,5 +1,5 @@
 diff --git a/src/setup/setup_shock.F90 b/src/setup/setup_shock.F90
-index 1bba61ec..3d23f267 100644
+index 1bba61ec..0bdd07e4 100644
 --- a/src/setup/setup_shock.F90
 +++ b/src/setup/setup_shock.F90
 @@ -32,7 +32,7 @@
@@ -118,7 +118,14 @@ index 1bba61ec..3d23f267 100644
      call write_inopt(dust_method,'dust_method','1=one fluid, 2=two fluid',lu,ierr1)
      call write_inopt(dtg,'dtg','Dust to gas ratio',lu,ierr2)
      if (ierr1 /= 0 .or. ierr2 /= 0) write(*,*) 'ERROR writing dust options'
-@@ -796,6 +807,7 @@ subroutine read_setupfile(filename,iprint,numstates,gamma,polyk,dtg,ierr)
+@@ -790,12 +801,13 @@ subroutine read_setupfile(filename,iprint,numstates,gamma,polyk,dtg,ierr)
+  enddo
+  call read_inopt(xleft,'xleft',db,errcount=nerr)
+  call read_inopt(xright,'xright',db,min=xleft,errcount=nerr)
+- call read_inopt(nx,'nx',db,min=8,errcount=nerr)
++ call read_inopt(nx,'nx',db,min=2,errcount=nerr)
+ 
+  call read_inopt(gamma,'gamma',db,min=1.,errcount=nerr)
   if (maxvxyzu==3) call read_inopt(polyk,'polyk',db,min=0.,errcount=nerr)
  
   if (use_dust) then

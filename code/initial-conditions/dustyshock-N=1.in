@@ -35,13 +35,8 @@
                idamp =           0    ! artificial damping of velocities (0=off, 1=constant, 2=star)
 
 # options controlling equation of state
-                ieos =           2    ! eqn of state (1=isoth;2=adiab;3=locally iso;8=barotropic)
+                ieos =           1    ! eqn of state (1=isoth;2=adiab;3=locally iso;8=barotropic)
                   mu =       2.381    ! mean molecular weight
-        ipdv_heating =           1    ! heating from PdV work (0=off, 1=on)
-      ishock_heating =           1    ! shock heating (0=off, 1=on)
-
-# options controlling cooling
-            icooling =           0    ! cooling function (0=off, 1=Gammie cooling 2=SD93 3=cooling function)
 
 # options relating to external forces
       iexternalforce =           0    ! 1=star,2=coro,3=bina,4=prdr,5=toru,6=toys,7=exte,8=spir,9=Lens,10=neut,11=Eins,

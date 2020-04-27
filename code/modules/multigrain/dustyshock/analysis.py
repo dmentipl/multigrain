@@ -1,7 +1,6 @@
 """Dusty-shock analysis functions."""
 
 import matplotlib.pyplot as plt
-import numpy as np
 import plonk
 import tqdm
 from matplotlib import animation
@@ -96,7 +95,7 @@ def splash_like_plot(snap, xlim, ylim_density, ylim_velocity_x):
 
 def splash_like_animation(snaps, filepath):
 
-    xlim = [-1000, 200]
+    xlim = [40, 120]
     ylim_density = [0, 16]
     ylim_velocity_x = [0, 2.2]
 
@@ -114,10 +113,14 @@ def splash_like_animation(snaps, filepath):
 
         texts[0].set_text(f't={time:.0f}')
         for idxj, subsnap in enumerate(subsnaps):
-            lines[0 + idxj].set_data(subsnap['x'] - 0.22 * time, subsnap['density'])
-            lines[2 + idxj].set_data(subsnap['x'] + 0.63 * time, subsnap['velocity_x'])
+            lines[0 + idxj].set_data(subsnap['x'], subsnap['density'])
+            lines[2 + idxj].set_data(subsnap['x'], subsnap['velocity_x'])
 
         return lines
 
     anim = animation.FuncAnimation(fig, animate, frames=len(snaps))
     anim.save(filepath, extra_args=['-vcodec', 'libx264'], fps=10, dpi=300)
+
+    pbar.close()
+
+    return anim

@@ -16,6 +16,7 @@ make \
     SETUP=dustyshock \
     SYSTEM=gfortran \
     FC=gfortran-9 \
+    ISOTHERMAL=yes \
     HDF5=yes \
     HDF5ROOT=$HDF5_DIR \
     phantom
@@ -23,6 +24,7 @@ make \
     SETUP=dustyshock \
     SYSTEM=gfortran \
     FC=gfortran-9 \
+    ISOTHERMAL=yes \
     HDF5=yes \
     HDF5ROOT=$HDF5_DIR \
     setup

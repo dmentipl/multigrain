@@ -24,7 +24,8 @@
                   nx =           2    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
-               gamma =      1.0001    ! Adiabatic index
+               gamma =       1.000    ! Adiabatic index
+               polyk =       1.000    ! square of the isothermal sound speed
 
 # dust properties
                ndust =           1    ! number of dust species

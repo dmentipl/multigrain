@@ -48,9 +48,9 @@
 
 # options controlling dust (3 dust species)
                idrag =           2    ! gas/dust drag (0=off,1=Epstein/Stokes,2=const K,3=const ts)
-K_code1              =       1.000    ! drag constant when constant drag is used
-K_code2              =       3.000    ! drag constant when constant drag is used
-K_code3              =       5.000    ! drag constant when constant drag is used
+             K_code1 =       1.000    ! drag constant when constant drag is used
+             K_code2 =       3.000    ! drag constant when constant drag is used
+             K_code3 =       5.000    ! drag constant when constant drag is used
               irecon =           1    ! use reconstruction in gas/dust drag (-1=off,0=no slope limiter,1=van leer MC)
    icut_backreaction =           0    ! cut the drag on the gas phase (0=no, 1=yes)
 

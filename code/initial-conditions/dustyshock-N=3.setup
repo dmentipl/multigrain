@@ -6,11 +6,11 @@
 
 # shock tube
             densleft =       1.000    ! dens (left)
-           densright =       8.000    ! dens (right)
+           densright =      16.000    ! dens (right)
               prleft =       1.000    ! pr (left)
-             prright =       8.000    ! pr (right)
+             prright =      16.000    ! pr (right)
               vxleft =       2.000    ! vx (left)
-             vxright =       0.250    ! vx (right)
+             vxright =       0.125    ! vx (right)
               vyleft =       0.000    ! vy (left)
              vyright =       0.000    ! vy (right)
               vzleft =       0.000    ! vz (left)

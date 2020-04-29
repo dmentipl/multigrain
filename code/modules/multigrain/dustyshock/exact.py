@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import plonk
 from scipy.integrate import solve_ivp
 
 
@@ -33,24 +34,52 @@ def velocity_dust_normalized(
 
 if __name__ == '__main__':
 
+    x_shock = 64.0
+    x_L = x_shock - 25.0
+    x_R = x_shock + 25.0
+    n_points = 500
+
     # N = 1
     dust_to_gas = np.array([1.0])
     mach_number = np.array([2.0])
     drag_coefficient = np.array([1.0])
     density_left = np.array([1.0])
     velocity_left = np.array([2.0])
-    x = np.linspace(0, 25)
+    x = np.linspace(x_L, x_R, n_points)
 
-    wd = velocity_dust_normalized(
-        x, dust_to_gas, mach_number, drag_coefficient, density_left, velocity_left
+    _wd = velocity_dust_normalized(
+        x[n_points // 2 :],
+        dust_to_gas,
+        mach_number,
+        drag_coefficient,
+        density_left,
+        velocity_left,
     )
-    wg = np.array(
-        [velocity_gas_normalized(dust_to_gas, mach_number, _wd) for _wd in wd]
+    _wg = np.array(
+        [velocity_gas_normalized(dust_to_gas, mach_number, __wd) for __wd in _wd]
     )
+
+    wg = np.ones((2 * _wg.shape[0], _wg.shape[1]))
+    wd = np.ones((2 * _wd.shape[0], _wd.shape[1]))
+    wg[n_points // 2 :, :] = _wg
+    wd[n_points // 2 :, :] = _wd
+
+    wg *= 2
+    wd *= 2
 
     fig, ax = plt.subplots()
-    ax.plot(x, wg, label='w_gas')
-    ax.plot(x, wd, label='w_dust')
+    ax.plot(x, wg, label='Gas')
+    ax.plot(x, wd, label='Dust')
+    ax.set_xlabel('Position')
+    ax.set_ylabel('Velocity')
+    ax.set_title('N=1')
     ax.legend()
     ax.grid()
     plt.show()
+
+    snap = plonk.load_snap('dustyshock_00300.h5')
+    subsnaps = [snap['gas']] + snap['dust']
+    colors = [line.get_color() for line in ax.lines]
+    for subsnap, color in zip(subsnaps, colors):
+        ax.plot(subsnap['x'], subsnap['velocity_x'], 'o', fillstyle='none', color=color)
+    ax.set_xlim([x_L, x_R])

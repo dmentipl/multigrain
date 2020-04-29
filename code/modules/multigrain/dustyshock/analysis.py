@@ -73,6 +73,8 @@ def splash_like_plot(snap, xlim, ylim_density, ylim_velocity_x):
     marker_style = [
         {'linestyle': '', 'marker': 'o', 'markersize': 2, 'fillstyle': 'full'},
         {'linestyle': '', 'marker': 'o', 'markersize': 5, 'fillstyle': 'none'},
+        {'linestyle': '', 'marker': 's', 'markersize': 5, 'fillstyle': 'none'},
+        {'linestyle': '', 'marker': 'v', 'markersize': 5, 'fillstyle': 'none'},
     ]
 
     for idx, subsnap in enumerate(subsnaps):

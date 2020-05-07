@@ -27,7 +27,6 @@
 # options controlling hydrodynamics, artificial dissipation
                alpha =       0.000    ! MINIMUM art. viscosity parameter
             alphamax =       1.000    ! MAXIMUM art. viscosity parameter
-              alphau =       1.000    ! art. conductivity parameter
                 beta =       2.000    ! beta viscosity
         avdecayconst =       0.100    ! decay time constant for viscosity switches
 

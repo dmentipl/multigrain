@@ -53,7 +53,7 @@ def plot_velocity_density(snaps, xrange, n_bins=50, fig_kwargs={}):
 def plot_particle_arrangement(
     *, snap, x='x', y='y', xrange, fig_kwargs={}, plot_kwargs={}
 ):
-    fig, axs = make_fig_axs(snap=snap, ncols=1, **fig_kwargs)
+    fig, axs = make_fig_axs(ncols=1, **fig_kwargs)
     subsnaps = [snap['gas']] + snap['dust']
     for idx, (subsnap, ax) in enumerate(zip(subsnaps, axs)):
         title = 'gas' if idx == 0 else f'dust {idx}'

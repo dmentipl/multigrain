@@ -72,7 +72,6 @@ if __name__ == '__main__':
     ax.plot(x, wd, label='Dust')
     ax.set_xlabel('Position')
     ax.set_ylabel('Velocity')
-    ax.set_title('N=1')
     ax.legend()
     ax.grid()
     plt.show()
@@ -83,3 +82,4 @@ if __name__ == '__main__':
     for subsnap, color in zip(subsnaps, colors):
         ax.plot(subsnap['x'], subsnap['velocity_x'], 'o', fillstyle='none', color=color)
     ax.set_xlim([x_L, x_R])
+    ax.set_title(f'N=1; t={snap.properties["time"].m}')

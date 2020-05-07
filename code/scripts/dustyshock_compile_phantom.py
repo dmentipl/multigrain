@@ -138,6 +138,8 @@ def _setup(run_dir: Path, data_dir: Path):
             sys.stdout.write(line)
             f.write(line)
 
+    shutil.copy(data_dir / f'{PREFIX}.in', run_dir)
+
 
 def _schedule(run_dir: Path):
 

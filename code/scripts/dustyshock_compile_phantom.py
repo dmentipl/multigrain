@@ -21,6 +21,7 @@ PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
 PHANTOM_PATCHES = [
     CODE_DIR / 'patches' / 'phantom-d9a5507f-multigrain_setup_shock.patch',
     CODE_DIR / 'patches' / 'phantom-d9a5507f-idustbound.patch',
+    CODE_DIR / 'patches' / 'phantom-d9a5507f-printing.patch',
 ]
 
 

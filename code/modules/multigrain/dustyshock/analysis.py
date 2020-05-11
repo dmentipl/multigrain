@@ -17,7 +17,7 @@ def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
             ndim=1,
             n_bins=n_bins,
         )
-        prof.plot('radius', quantity, label=label, ax=ax, std_dev_shading=True)
+        prof.plot('radius', quantity, label=label, ax=ax, std_dev_shading=False)
         ax.set(xlim=xrange)
     return ax
 
@@ -45,7 +45,7 @@ def plot_velocity_density(snaps, xrange, n_bins=50, fig_kwargs={}):
             n_bins=n_bins,
         )
         plot_quantity_profile_subsnaps(
-            snap=snap, quantity='density', ax=axs[1, idx], xrange=xrange, n_bins=n_bins
+            snap=snap, quantity='surface_density', ax=axs[1, idx], xrange=xrange, n_bins=n_bins
         )
     return fig
 

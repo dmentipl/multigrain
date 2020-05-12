@@ -109,6 +109,7 @@ def _build_phantom(
         'KERNEL=quintic',
         'PERIODIC=yes',
         f'ISOTHERMAL={isothermal}',
+        'MAXP=10000000',
         f'SYSTEM={system}',
         f'FC={fortran_compiler}',
         'HDF5=yes',

@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --nodes=1 --ntasks=1
 #SBATCH --cpus-per-task=32
-#SBATCH --job-name=twhya
-#SBATCH --output=twhya01.swmout
+#SBATCH --job-name=dustyshock
+#SBATCH --output=dustyshock01.swmout
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -10,7 +10,7 @@
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=16G
 
-INFILE='twhya.in'
+INFILE='dustyshock.in'
 
 echo "HOSTNAME = $HOSTNAME"
 echo "HOSTTYPE = $HOSTTYPE"

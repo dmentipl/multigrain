@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-python -c 'import pathlib' || echo 'Must be Python 3' && exit
+python -c 'import pathlib' || (echo 'Must be Python 3' && exit)
 
 python dustyshock_compile_phantom.py 'N=1_nx=64' \
   --run_root_dir /fred/oz015/dmentipl/runs/multigrain/dustyshock \

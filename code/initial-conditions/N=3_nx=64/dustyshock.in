@@ -1,4 +1,4 @@
-# Runtime options file for Phantom, written 16/04/2020 12:58:42.2
+# Runtime options file for Phantom, written 17/04/2020 12:31:34.1
 # Options not present assume their default values
 # This file is updated automatically after a full dump
 
@@ -7,7 +7,7 @@
             dumpfile =  dustyshock_00000.tmp   ! dump file to start from
 
 # options controlling run time and input/output
-                tmax =        500.    ! end time
+                tmax =        300.    ! end time
                dtmax =       1.000    ! time between dumps
                 nmax =          -1    ! maximum number of timesteps (0=just get derivs and stop)
                 nout =          -1    ! number of steps between dumps (-ve=ignore)
@@ -45,9 +45,11 @@
           shearparam =       0.100    ! magnitude of shear viscosity (irealvisc=1) or alpha_SS (irealvisc=2)
             bulkvisc =       0.000    ! magnitude of bulk viscosity
 
-# options controlling dust (0 dust species)
+# options controlling dust (3 dust species)
                idrag =           2    ! gas/dust drag (0=off,1=Epstein/Stokes,2=const K,3=const ts)
-              K_code =       1.000    ! drag constant when constant drag is used
+             K_code1 =       1.000    ! drag constant when constant drag is used
+             K_code2 =       3.000    ! drag constant when constant drag is used
+             K_code3 =       5.000    ! drag constant when constant drag is used
               irecon =           1    ! use reconstruction in gas/dust drag (-1=off,0=no slope limiter,1=van leer MC)
    icut_backreaction =           0    ! cut the drag on the gas phase (0=no, 1=yes)
 

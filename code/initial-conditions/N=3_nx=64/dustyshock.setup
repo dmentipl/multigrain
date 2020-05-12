@@ -6,28 +6,28 @@
 
 # shock tube
             densleft =       1.000    ! dens (left)
-           densright =       8.000    ! dens (right)
+           densright =      16.000    ! dens (right)
               prleft =       1.000    ! pr (left)
-             prright =       8.000    ! pr (right)
+             prright =      16.000    ! pr (right)
               vxleft =       2.000    ! vx (left)
-             vxright =       0.250    ! vx (right)
+             vxright =       0.125    ! vx (right)
               vyleft =       0.000    ! vy (left)
              vyright =       0.000    ! vy (right)
               vzleft =       0.000    ! vz (left)
              vzright =       0.000    ! vz (right)
 
 # boundaries
-               xleft =         -4.    ! x min boundary
-              xright =        136.    ! x max boundary
+               xleft =        -50.    ! x min boundary
+              xright =         50.    ! x max boundary
 
 # resolution
-                  nx =           2    ! resolution (number of particles in x) for -xleft < x < xshock
+                  nx =          64    ! resolution (number of particles in x) for -xleft < x < xshock
 
 # Equation-of-state properties
                gamma =       1.000    ! Adiabatic index
                polyk =       1.000    ! square of the isothermal sound speed
 
 # dust properties
-               ndust =           1    ! number of dust species
+               ndust =           3    ! number of dust species
          dust_method =           2    ! 1=one fluid, 2=two fluid
                  dtg =       1.000    ! Dust to gas ratio

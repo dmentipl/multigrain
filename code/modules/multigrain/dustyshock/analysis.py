@@ -5,6 +5,14 @@ import plonk
 import tqdm
 from matplotlib import animation
 
+from .exact import velocity as velocity_exact
+
+X_WIDTH_EXACT = 40.0
+DUST_TO_GAS = 1.0
+DENSITY_LEFT = 1.0
+VELOCITY_LEFT = 2.0
+MACH_NUMBER = 2.0
+
 
 def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
     subsnaps = [snap['gas']] + snap['dust']
@@ -63,6 +71,32 @@ def plot_velocity_density(snaps, xrange, n_bins=50, fig_kwargs={}):
             n_bins=n_bins,
         )
     return fig
+
+
+def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
+    n_dust = len(drag_coefficients)
+    x, v_gas, v_dust = velocity_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+    p_gas = DENSITY_LEFT * VELOCITY_LEFT / v_gas
+    p_dust = DENSITY_LEFT * VELOCITY_LEFT / v_dust
+
+    colors = [line.get_color() for line in axs[0].lines]
+    axs[0].plot(x, v_gas, color=colors[0])
+    for idx, _v_dust in enumerate(v_dust.T):
+        axs[0].plot(x, _v_dust, color=colors[idx + 1])
+
+    colors = [line.get_color() for line in axs[1].lines]
+    axs[1].plot(x, p_gas, color=colors[0])
+    for idx, _p_dust in enumerate(p_dust.T):
+        axs[1].plot(x, _p_dust, color=colors[idx + 1])
 
 
 def plot_particle_arrangement(

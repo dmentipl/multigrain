@@ -13,8 +13,8 @@ PREFIX = 'dustyshock'
 HDF5_DIR = os.getenv('HDF5_DIR')
 
 CODE_DIR = pathlib.Path('~/repos/multigrain/code').expanduser()
-IC_DIR = CODE_DIR / 'initial-conditions'
-SLURM_FILE = CODE_DIR / 'misc' / 'slurm.swm'
+IC_DIR = CODE_DIR / 'dustyshock' / 'initial-conditions'
+SLURM_FILE = CODE_DIR / 'misc' / 'dustyshock-slurm.swm'
 
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
@@ -146,7 +146,7 @@ def _schedule(run_dir: Path):
 
     shutil.copy(SLURM_FILE, run_dir)
     try:
-        subprocess.run(['sbatch', 'slurm.swm'], cwd=run_dir, check=True)
+        subprocess.run(['sbatch', SLURM_FILE], cwd=run_dir, check=True)
     except FileNotFoundError:
         print(
             '\n\n\nsbatch not available on this machine.\n'

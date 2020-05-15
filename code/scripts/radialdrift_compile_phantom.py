@@ -1,5 +1,7 @@
 """Set up radial drift calculations."""
 
+import shutil
+import subprocess
 from os import getenv
 from pathlib import Path
 
@@ -10,6 +12,7 @@ PREFIX = 'radialdrift'
 HDF5_DIR = getenv('HDF5_DIR')
 CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'radialdrift'
+SLURM_FILE = CODE_DIR / 'misc' / 'radialdrift-slurm.swm'
 
 PHANTOM_DIR = '~/repos/phantom'
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'

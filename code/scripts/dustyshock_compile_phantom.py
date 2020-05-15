@@ -9,9 +9,7 @@ import click
 import phantombuild
 
 PREFIX = 'dustyshock'
-
 HDF5_DIR = getenv('HDF5_DIR')
-
 CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'dustyshock'
 SLURM_FILE = CODE_DIR / 'misc' / 'dustyshock-slurm.swm'

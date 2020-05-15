@@ -1,22 +1,22 @@
 """Build Phantom for dustyshock and setup calculation."""
 
-import argparse
 import os
-import pathlib
 import shutil
 import subprocess
-import sys
 from pathlib import Path
+
+import click
+import phantombuild
 
 PREFIX = 'dustyshock'
 
 HDF5_DIR = os.getenv('HDF5_DIR')
 
-CODE_DIR = pathlib.Path('~/repos/multigrain/code').expanduser()
+CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'dustyshock'
 SLURM_FILE = CODE_DIR / 'misc' / 'dustyshock-slurm.swm'
 
-PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
+PHANTOM_DIR = Path('~/repos/phantom').expanduser()
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
 PHANTOM_PATCHES = [
     CODE_DIR / 'patches' / 'phantom-d9a5507f-multigrain_setup_shock.patch',
@@ -25,44 +25,28 @@ PHANTOM_PATCHES = [
 ]
 
 
+@click.command()
+@click.option('--run_name', required=True, help='The name of the run.')
+@click.option(
+    '--root_dir', required=True, help='The directory in which to put run directory.'
+)
+@click.option('--system', required=True, help='The Phantom SYSTEM Makefile variable.')
+@click.option(
+    '--equation_of_state',
+    required=True,
+    help='Choose the equation of state. Can be "isothermal" or "adiabatic".',
+)
+@click.option('--fortran_compiler', required=False, help='The Fortran compiler.')
+@click.option('--schedule_job', required=False, help='Schedule the run via Slurm.')
 def main(
     run_name: str,
-    run_root_dir: str,
+    root_dir: str,
     system: str,
     equation_of_state: str,
     fortran_compiler: str,
     schedule_job: bool,
 ):
-    """Compile Phantom and setup calculation.
-
-    Parameters
-    ----------
-    run_name
-        The name of the run, e.g. 'isothermal'. This corresponds to the
-        directory containing the Phantom .setup and .in files.
-    run_root_dir
-        The path to the directory under which a new run directory will
-        be created.
-    system
-        This is the Phantom Makefile SYSTEM variable. Can be 'ifort' or
-        'gfortran'.
-    equation_of_state
-        Choose the equation of state. Can be 'isothermal' or
-        'adiabatic'.
-    fortran_compiler
-        Use to specify a different fortran compiler version. E.g.
-        'gfortran-9'.
-    schedule_job
-        If True, schedule the run via Slurm.
-    """
-    if fortran_compiler is None:
-        fortran_compiler = system
-    data_dir = IC_DIR / run_name
-    run_dir = pathlib.Path(run_root_dir).expanduser() / run_name
-    if not data_dir.exists():
-        raise FileNotFoundError('No initial conditions found for {run_name}')
-    if not run_dir.exists():
-        run_dir.mkdir(parents=True)
+    """Compile Phantom and setup calculation."""
     if equation_of_state == 'isothermal':
         isothermal = 'yes'
     elif equation_of_state == 'adiabatic':
@@ -70,76 +54,46 @@ def main(
     else:
         raise ValueError('equation_of_state must be one of "isothermal" or "adiabatic"')
 
-    # Build Phantom
-    _build_phantom(
-        isothermal=isothermal, system=system, fortran_compiler=fortran_compiler,
+    # Clone Phantom
+    phantombuild.get_phantom(phantom_dir=PHANTOM_DIR)
+
+    # Checkout required version
+    phantombuild.checkout_phantom_version(
+        phantom_dir=PHANTOM_DIR, required_phantom_git_commit_hash=PHANTOM_VERSION
     )
 
-    # Setup calculation
-    _setup(run_dir=run_dir, data_dir=data_dir)
+    # Apply patches
+    for patch in PHANTOM_PATCHES:
+        phantombuild.patch_phantom(phantom_dir=PHANTOM_DIR, phantom_patch=patch)
+
+    # Compile Phantom
+    extra_makefile_options = {
+        'DUST': 'yes',
+        'KERNEL': 'quintic',
+        'PERIODIC': 'yes',
+        'ISOTHERMAL': isothermal,
+        'MAXP': '10000000',
+    }
+    if fortran_compiler is not None:
+        extra_makefile_options['FC'] = fortran_compiler
+    phantombuild.build_phantom(
+        phantom_dir=PHANTOM_DIR,
+        setup='shock',
+        system=system,
+        hdf5_location=HDF5_DIR,
+        extra_makefile_options=extra_makefile_options,
+    )
+
+    # Set up calculation
+    run_dir = Path(root_dir).expanduser() / run_name
+    input_dir = IC_DIR / run_name
+    phantombuild.setup_calculation(
+        prefix=PREFIX, run_dir=run_dir, input_dir=input_dir, phantom_dir=PHANTOM_DIR,
+    )
 
     # Schedule calculation
     if schedule_job:
         _schedule(run_dir=run_dir)
-
-
-def _build_phantom(
-    isothermal: str, system: str, fortran_compiler: str = None,
-):
-
-    # Get required Phantom version and apply patches
-    if not PHANTOM_DIR.exists():
-        subprocess.run(
-            ['git', 'clone', 'git@bitbucket.org:danielprice/phantom'],
-            cwd=PHANTOM_DIR.parent,
-            check=True,
-        )
-    subprocess.run(['git', 'checkout', '--', '*'], cwd=PHANTOM_DIR, check=True)
-    subprocess.run(['git', 'checkout', 'master'], cwd=PHANTOM_DIR, check=True)
-    subprocess.run(['git', 'pull'], cwd=PHANTOM_DIR, check=True)
-    subprocess.run(['git', 'checkout', PHANTOM_VERSION], cwd=PHANTOM_DIR, check=True)
-    for patch in PHANTOM_PATCHES:
-        subprocess.run(['git', 'apply', patch], cwd=PHANTOM_DIR, check=True)
-
-    # Compile Phantom
-    make_options = [
-        'SETUP=empty',
-        'SETUPFILE=setup_shock.F90',
-        'DUST=yes',
-        'KERNEL=quintic',
-        'PERIODIC=yes',
-        f'ISOTHERMAL={isothermal}',
-        'MAXP=10000000',
-        f'SYSTEM={system}',
-        f'FC={fortran_compiler}',
-        'HDF5=yes',
-        f'HDF5ROOT={HDF5_DIR}',
-    ]
-    subprocess.run(['make'] + make_options + ['phantom'], cwd=PHANTOM_DIR, check=True)
-    subprocess.run(['make'] + make_options + ['setup'], cwd=PHANTOM_DIR, check=True)
-
-
-def _setup(run_dir: Path, data_dir: Path):
-
-    for file in ['phantom', 'phantomsetup', 'phantom_version']:
-        shutil.copy(PHANTOM_DIR / 'bin' / file, run_dir)
-
-    shutil.copy(data_dir / f'{PREFIX}.setup', run_dir)
-    shutil.copy(data_dir / f'{PREFIX}.in', run_dir)
-
-    with open(run_dir / f'{PREFIX}00.log', mode='w') as f:
-        proc = subprocess.Popen(
-            ['./phantomsetup', PREFIX],
-            cwd=run_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-        )
-        for line in proc.stdout:
-            sys.stdout.write(line)
-            f.write(line)
-
-    shutil.copy(data_dir / f'{PREFIX}.in', run_dir)
 
 
 def _schedule(run_dir: Path):
@@ -155,63 +109,5 @@ def _schedule(run_dir: Path):
         )
 
 
-def _parse_cmdline():
-
-    parser = argparse.ArgumentParser(description='Build Phantom and setup calculation')
-
-    parser.add_argument('run_name', type=str, help="The name of the run, e.g. 'test'.")
-    parser.add_argument(
-        '--run_root_dir',
-        type=str,
-        default='.',
-        help="The path to where the new run directory will be created.",
-    )
-    parser.add_argument(
-        '--system',
-        type=str,
-        default='gfortran',
-        help="Compiler system Phantom Makefile variable. Can be 'ifort' or 'gfortran'.",
-    )
-    parser.add_argument(
-        '--equation_of_state',
-        type=str,
-        default='isothermal',
-        help="Choose the equation of state: 'isothermal' or 'adiabatic'.",
-    )
-    parser.add_argument(
-        '--fortran_compiler',
-        type=str,
-        help="Specify a different fortran compiler version. E.g. 'gfortran-9'.",
-    )
-    parser.add_argument(
-        '--schedule_job',
-        default=False,
-        action='store_true',
-        help="Schedule job with Slurm.",
-    )
-
-    return parser.parse_args()
-
-
 if __name__ == "__main__":
-
-    args = _parse_cmdline()
-
-    print(f'Run name:                {args.run_name}')
-    print(f'Run root dir:            {args.run_root_dir}')
-    print(f'Equation of state:       {args.equation_of_state}')
-    print(f'SYSTEM:                  {args.system}')
-    if args.fortran_compiler is not None:
-        print(f'FC:                      {args.fortran_compiler}')
-    if args.schedule_job:
-        print('\nScheduling job on Slurm after setup')
-    print('\n\n\n')
-
-    main(
-        run_name=args.run_name,
-        run_root_dir=args.run_root_dir,
-        system=args.system,
-        equation_of_state=args.equation_of_state,
-        fortran_compiler=args.fortran_compiler,
-        schedule_job=args.schedule_job,
-    )
+    main()

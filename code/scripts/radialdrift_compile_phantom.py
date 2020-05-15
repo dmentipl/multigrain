@@ -1,16 +1,17 @@
 """Set up radial drift calculations."""
 
-import os
-import pathlib
+from os import getenv
 from pathlib import Path
 
+import click
 import phantombuild
 
 PREFIX = 'radialdrift'
-HDF5_DIR = os.getenv('HDF5_DIR')
-CODE_DIR = pathlib.Path('~/repos/multigrain/code').expanduser()
+HDF5_DIR = getenv('HDF5_DIR')
+CODE_DIR = Path('~/repos/multigrain/code').expanduser()
+IC_DIR = CODE_DIR / 'initial-conditions' / 'radialdrift'
 
-PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()
+PHANTOM_DIR = Path('~/repos/phantom').expanduser()
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
 PHANTOM_PATCHES = [
     CODE_DIR / 'patches' / 'phantom-d9a5507f-multigrain_setup_shock.patch',
@@ -19,14 +20,17 @@ PHANTOM_PATCHES = [
 ]
 
 
+@click.command()
+@click.option('--run_name', required=True, help='The name of the run.')
+@click.option(
+    '--root_dir', required=True, help='The directory in which to put run directory.'
+)
+@click.option('--system', required=True, help='The Phantom SYSTEM Makefile variable.')
+@click.option('--fortran_compiler', required=False, help='The Fortran compiler.')
 def main(
-    prefix: str,
-    run_dir: Path,
-    input_dir: Path,
-    system: str,
-    fortran_compiler: str = None,
+    run_name: str, root_dir: str, system: str, fortran_compiler: str = None,
 ):
-
+    """Compile Phantom and setup calculation."""
     # Clone Phantom
     phantombuild.get_phantom(phantom_dir=PHANTOM_DIR)
 
@@ -52,22 +56,12 @@ def main(
     )
 
     # Set up calculation
+    run_dir = Path(root_dir).expanduser() / run_name
+    input_dir = IC_DIR / run_name
     phantombuild.setup_calculation(
-        prefix=prefix, run_dir=run_dir, input_dir=input_dir, phantom_dir=PHANTOM_DIR
+        prefix=PREFIX, run_dir=run_dir, input_dir=input_dir, phantom_dir=PHANTOM_DIR,
     )
 
 
 if __name__ == '__main__':
-
-    run_dir = pathlib.Path('~/runs/multigrain/radialdrift/test1').expanduser()
-    input_dir = CODE_DIR / 'initial-conditions' / 'radialdrift' / 'test1'
-    system = 'gfortran'
-    fortran_compiler = 'gfortran-9'
-
-    main(
-        prefix=PREFIX,
-        run_dir=run_dir,
-        input_dir=input_dir,
-        system=system,
-        fortran_compiler=fortran_compiler,
-    )
+    main()

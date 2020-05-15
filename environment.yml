@@ -5,6 +5,7 @@ dependencies:
   - python>=3.7
   - black
   - bokeh
+  - click
   - flake8
   - ipympl
   - ipython
@@ -20,7 +21,7 @@ dependencies:
   - pylint
   - scipy
   - pip:
-    - phantombuild>=0.1.4
+    - git+https://github.com/dmentipl/phantom-build#0101e1a47b1a4ac24255a730e579a5ba54b53b8f
     - phantomconfig>=0.2.2
     - phantomsetup
     - plonk>=0.5.0

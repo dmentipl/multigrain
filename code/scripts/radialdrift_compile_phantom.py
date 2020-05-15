@@ -24,7 +24,6 @@ PHANTOM_PATCHES = [
 
 
 @click.command()
-@click.command()
 @click.option(
     '--run_name',
     multiple=True,

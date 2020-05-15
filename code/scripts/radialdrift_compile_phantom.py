@@ -11,7 +11,7 @@ HDF5_DIR = getenv('HDF5_DIR')
 CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'radialdrift'
 
-PHANTOM_DIR = Path('~/repos/phantom').expanduser()
+PHANTOM_DIR = '~/repos/phantom'
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
 PHANTOM_PATCHES = [
     CODE_DIR / 'patches' / 'phantom-d9a5507f-multigrain_setup_shock.patch',
@@ -27,8 +27,13 @@ PHANTOM_PATCHES = [
 )
 @click.option('--system', required=True, help='The Phantom SYSTEM Makefile variable.')
 @click.option('--fortran_compiler', required=False, help='The Fortran compiler.')
+@click.option('--schedule_job', required=False, help='Schedule the run via Slurm.')
 def main(
-    run_name: str, root_dir: str, system: str, fortran_compiler: str = None,
+    run_name: str,
+    root_dir: str,
+    system: str,
+    fortran_compiler: str = None,
+    schedule_job: bool = False,
 ):
     """Compile Phantom and setup calculation."""
     # Clone Phantom
@@ -61,6 +66,23 @@ def main(
     phantombuild.setup_calculation(
         prefix=PREFIX, run_dir=run_dir, input_dir=input_dir, phantom_dir=PHANTOM_DIR,
     )
+
+    # Schedule calculation
+    if schedule_job:
+        _schedule(run_dir=run_dir)
+
+
+def _schedule(run_dir: Path):
+
+    shutil.copy(SLURM_FILE, run_dir)
+    try:
+        subprocess.run(['sbatch', SLURM_FILE], cwd=run_dir, check=True)
+    except FileNotFoundError:
+        print(
+            '\n\n\nsbatch not available on this machine.\n'
+            f'Open tmux, cd to run directory, and type: '
+            '"./phantom {PREFIX}.in 2>&1 | tee {PREFIX}01.log"'
+        )
 
 
 if __name__ == '__main__':

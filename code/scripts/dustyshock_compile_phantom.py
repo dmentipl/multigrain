@@ -1,8 +1,8 @@
 """Build Phantom for dustyshock and setup calculation."""
 
-import os
 import shutil
 import subprocess
+from os import getenv
 from pathlib import Path
 
 import click
@@ -10,13 +10,13 @@ import phantombuild
 
 PREFIX = 'dustyshock'
 
-HDF5_DIR = os.getenv('HDF5_DIR')
+HDF5_DIR = getenv('HDF5_DIR')
 
 CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'dustyshock'
 SLURM_FILE = CODE_DIR / 'misc' / 'dustyshock-slurm.swm'
 
-PHANTOM_DIR = Path('~/repos/phantom').expanduser()
+PHANTOM_DIR = '~/repos/phantom'
 PHANTOM_VERSION = 'd9a5507f3fd97b5ed5acf4547f82449476b29091'
 PHANTOM_PATCHES = [
     CODE_DIR / 'patches' / 'phantom-d9a5507f-multigrain_setup_shock.patch',
@@ -43,8 +43,8 @@ def main(
     root_dir: str,
     system: str,
     equation_of_state: str,
-    fortran_compiler: str,
-    schedule_job: bool,
+    fortran_compiler: str = None,
+    schedule_job: bool = False,
 ):
     """Compile Phantom and setup calculation."""
     if equation_of_state == 'isothermal':
@@ -67,18 +67,12 @@ def main(
         phantombuild.patch_phantom(phantom_dir=PHANTOM_DIR, phantom_patch=patch)
 
     # Compile Phantom
-    extra_makefile_options = {
-        'DUST': 'yes',
-        'KERNEL': 'quintic',
-        'PERIODIC': 'yes',
-        'ISOTHERMAL': isothermal,
-        'MAXP': '10000000',
-    }
+    extra_makefile_options = {'ISOTHERMAL': isothermal, 'MAXP': '10000000'}
     if fortran_compiler is not None:
         extra_makefile_options['FC'] = fortran_compiler
     phantombuild.build_phantom(
         phantom_dir=PHANTOM_DIR,
-        setup='shock',
+        setup='dustyshock',
         system=system,
         hdf5_location=HDF5_DIR,
         extra_makefile_options=extra_makefile_options,

@@ -1,7 +1,5 @@
 """Set up radial drift calculations."""
 
-import shutil
-import subprocess
 from pathlib import Path
 from typing import Tuple
 
@@ -36,7 +34,9 @@ PHANTOM_PATCHES = [
 @click.option('--system', required=True, help='The Phantom SYSTEM Makefile variable.')
 @click.option('--hdf5_dir', required=True, help='The path to HDF5 directory.')
 @click.option('--fortran_compiler', required=False, help='The Fortran compiler.')
-@click.option('--schedule_job', required=False, help='Schedule the run via Slurm.')
+@click.option(
+    '--schedule_job', is_flag=True, required=False, help='Schedule the run via Slurm.'
+)
 def main(
     run_name: Tuple[str],
     root_dir: str,
@@ -85,20 +85,7 @@ def main(
 
         # Schedule calculation
         if schedule_job:
-            _schedule(run_dir=run_dir)
-
-
-def _schedule(run_dir: Path):
-
-    shutil.copy(SLURM_FILE, run_dir)
-    try:
-        subprocess.run(['sbatch', SLURM_FILE], cwd=run_dir, check=True)
-    except FileNotFoundError:
-        print(
-            '\n\n\nsbatch not available on this machine.\n'
-            f'Open tmux, cd to run directory, and type: '
-            '"./phantom {PREFIX}.in 2>&1 | tee {PREFIX}01.log"'
-        )
+            phantombuild.schedule_job(run_dir=run_dir, job_file=SLURM_FILE)
 
 
 if __name__ == '__main__':

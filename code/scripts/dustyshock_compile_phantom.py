@@ -13,7 +13,7 @@ PREFIX = 'dustyshock'
 HDF5_DIR = os.getenv('HDF5_DIR')
 
 CODE_DIR = pathlib.Path('~/repos/multigrain/code').expanduser()
-IC_DIR = CODE_DIR / 'dustyshock' / 'initial-conditions'
+IC_DIR = CODE_DIR / 'initial-conditions' / 'dustyshock'
 SLURM_FILE = CODE_DIR / 'misc' / 'dustyshock-slurm.swm'
 
 PHANTOM_DIR = pathlib.Path('~/repos/phantom').expanduser()

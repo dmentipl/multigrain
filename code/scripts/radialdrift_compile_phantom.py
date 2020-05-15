@@ -2,7 +2,6 @@
 
 import shutil
 import subprocess
-from os import getenv
 from pathlib import Path
 from typing import Tuple
 
@@ -10,7 +9,6 @@ import click
 import phantombuild
 
 PREFIX = 'radialdrift'
-HDF5_DIR = getenv('HDF5_DIR')
 CODE_DIR = Path('~/repos/multigrain/code').expanduser()
 IC_DIR = CODE_DIR / 'initial-conditions' / 'radialdrift'
 SLURM_FILE = CODE_DIR / 'misc' / 'radialdrift-slurm.swm'
@@ -37,12 +35,14 @@ PHANTOM_PATCHES = [
     '--root_dir', required=True, help='The directory in which to put run directory.'
 )
 @click.option('--system', required=True, help='The Phantom SYSTEM Makefile variable.')
+@click.option('--hdf5_dir', required=True, help='The path to HDF5 directory.')
 @click.option('--fortran_compiler', required=False, help='The Fortran compiler.')
 @click.option('--schedule_job', required=False, help='Schedule the run via Slurm.')
 def main(
     run_name: Tuple[str],
     root_dir: str,
     system: str,
+    hdf5_dir: str,
     fortran_compiler: str = None,
     schedule_job: bool = False,
 ):
@@ -67,7 +67,7 @@ def main(
         phantom_dir=PHANTOM_DIR,
         setup=SETUP,
         system=system,
-        hdf5_location=HDF5_DIR,
+        hdf5_location=hdf5_dir,
         extra_makefile_options=extra_makefile_options,
     )
 

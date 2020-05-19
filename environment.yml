@@ -6,6 +6,7 @@ dependencies:
   - black
   - click
   - flake8
+  - h5py
   - ipympl
   - ipython
   - jupyterlab
@@ -14,11 +15,13 @@ dependencies:
   - numba
   - numpy
   - pandas
-  - pint
+  - pint>=0.10.1
   - pip
   - pydocstyle
   - pylint
   - scipy
+  - scikit-image>=0.16
+  - tomlkit
   - tqdm
   - pip:
     - git+https://github.com/dmentipl/phantom-build#474c3cd4e197aa037b6906738710b9197e4cc557

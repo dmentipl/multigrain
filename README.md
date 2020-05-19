@@ -17,7 +17,7 @@ using separate sets of particles for each dust species. We test these methods ag
 
 ## Software
 
-We implemented the multigrain dust methods in [Phantom](https://phantomsph.bitbucket.io/). In fact, this method for multigrain dust has been in the Phantom master branch since `64dbd2b1`, September 18, 2018.  For this manuscript, the focus is writing test problems.
+We implemented the multigrain dust methods in [Phantom](https://phantomsph.bitbucket.io/). In fact, this method for multigrain dust has been in the Phantom master branch since `64dbd2b1`, September 18, 2018. For this manuscript, the focus is writing test problems.
 
 ### Setting up the environment
 
@@ -27,19 +27,14 @@ All the code added to Phantom is in the code directory, as are Python scripts to
 conda env create --file environment.yml
 conda activate multigrain
 jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplotlib
+jupyter nbextension enable --py widgetsnbextension
 ```
 
 ## Results
 
 ### Running the Phantom multigrain tests
 
-To run the Phantom multigrain dust tests:
-
-```bash
-make run
-```
-
-This will get the required version of Phantom, apply any patches, compile Phantom for each problem, create directories with different parameters, setup the Phantom calculations, then run them.
+...
 
 ### Performing analysis on the tests
 

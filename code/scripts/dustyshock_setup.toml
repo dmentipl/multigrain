@@ -1,0 +1,84 @@
+# Dusty-shock tests to run on ozstar
+
+[phantom]
+path = "~/repos/phantom"
+setup = "dustyshock"
+system = "ifort"
+version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
+patches = [
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-multigrain_setup_shock.patch",
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-idustbound.patch",
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-printing.patch"
+]
+extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=yes"]
+hdf5_path = "${HDF5_DIR}"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=64"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=64/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=64/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=256"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=256/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=256/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=64"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=64/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=64/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=128"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=128/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=128/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=256"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=256/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=256/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_alpha=0"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_alpha=0/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_alpha=0/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_alpha=0"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_alpha=0/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_alpha=0/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_recon_off"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_recon_off/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_recon_off/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_recon_off"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"

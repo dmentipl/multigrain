@@ -21,7 +21,7 @@ dependencies:
   - pylint
   - scipy
   - pip:
-    - git+https://github.com/dmentipl/phantom-build#2ee0c50b8362049a29f9f935a5f14925bb6e196d
+    - git+https://github.com/dmentipl/phantom-build#474c3cd4e197aa037b6906738710b9197e4cc557
     - phantomconfig>=0.2.2
     - phantomsetup
     - plonk>=0.5.0

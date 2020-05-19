@@ -1,7 +1,7 @@
 [phantom]
 path = "~/repos/phantom"
 setup = "dustydisc"
-system = "gfortran"
+system = "ifort"
 version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
 patches = [
     "~/repos/multigrain/code/patches/phantom-d9a5507f-multigrain_setup_shock.patch",
@@ -9,7 +9,7 @@ patches = [
     "~/repos/multigrain/code/patches/phantom-d9a5507f-printing.patch"
 ]
 extra_make_flags = ["MAXP=10000000"]
-hdf5_path = "/usr/local/opt/hdf5"
+hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0/hdf5/1.10.1"
 
 [[runs]]
 prefix = "radialdrift"

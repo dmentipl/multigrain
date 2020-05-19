@@ -82,3 +82,17 @@ path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_recon_off"
 setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.setup"
 in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128_K=10"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_K=10/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_K=10/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
+
+[[runs]]
+prefix = "dustyshock"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128_hfact=1.5"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_hfact=1.5/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_hfact=1.5/dustyshock.in"
+job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"

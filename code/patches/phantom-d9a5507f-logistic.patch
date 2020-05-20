@@ -1,0 +1,35 @@
+diff --git a/src/main/utils_mathfunc.f90 b/src/main/utils_mathfunc.f90
+index cbb1e8c4..4daa12af 100644
+--- a/src/main/utils_mathfunc.f90
++++ b/src/main/utils_mathfunc.f90
+@@ -25,7 +25,7 @@ module mathfunc
+  implicit none
+ 
+  public :: bessi0_s, bessi1_s, bessk0_s, bessk1_s,IK01A
+- public :: poly,gegenbauer_poly,legendre_associated
++ public :: poly,gegenbauer_poly,legendre_associated,logistic
+ 
+  private
+ 
+@@ -562,4 +562,21 @@ real(kind=8) function poly(x,coeffs)
+ end function poly
+ !--------------------------------------------------------------------
+ 
++real(kind=8) function logistic(x, k)
++!--------------------------------------------------------------------
++! LOGISTIC computes the logistic function, i.e. the sigmoid curve
++!
++! The function is given by
++!   f(x) = \frac{1}{1 + e^{-k x}}
++!
++! Parameters
++!   x : logistic function input
++!   k : steepness
++!--------------------------------------------------------------------
++ real(kind=8) :: x
++ real(kind=8) :: k
++
++ logistic = 1 / (1 + exp(-k*x))
++end function logistic
++
+ end module mathfunc

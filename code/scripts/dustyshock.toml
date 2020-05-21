@@ -15,84 +15,84 @@ hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=64"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=64/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=64/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_64"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_64/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_64/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=256"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=256/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=256/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_256"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_256/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_256/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=64"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=64/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=64/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_3-nx_64"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_64/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_64/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=128"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=128/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=128/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_3-nx_128"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_128/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_128/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_nx=256"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=256/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_nx=256/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_3-nx_256"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_256/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_256/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_alpha=0"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_alpha=0/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_alpha=0/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128-alpha_0"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128_alpha_0/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128_alpha_0/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_alpha=0"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_alpha=0/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_alpha=0/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_3-nx_128-alpha_0"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_128_alpha_0/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-nx_128_alpha_0/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_recon_off"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_recon_off/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_recon_off/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128-recon_off"
+setup-file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-recon-off/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-recon-off/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=3_recon_off"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=3_recon_off/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_3-nx_128-recon_off"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-recon-off/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_3-recon-off/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128_K=10"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_K=10/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_K=10/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128-K_10"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-K_10/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-K_10/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"
 
 [[runs]]
 prefix = "dustyshock"
-path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N=1_nx=128_hfact=1.5"
-setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_hfact=1.5/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_hfact=1.5/dustyshock.in"
+path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128-hfact_1.5"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-hfact_1.5/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-hfact_1.5/dustyshock.in"
 job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh"

@@ -10,22 +10,24 @@
 {% set hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0/hdf5/1.10.1" %}
 
 {% set names =
-    ["N_1-nx_64",
-    "N_1-nx_128",
-    "N_1-nx_128-alpha_0",
-    "N_1-nx_128-hfact_1.5",
-    "N_1-nx_128-K_10",
-    "N_1-nx_128-k_smooth_2",
-    "N_1-nx_128-k_smooth_5",
-    "N_1-nx_128-recon_off",
-    "N_1-nx_256",
-    "N_3-nx_64",
-    "N_3-nx_128",
-    "N_3-nx_128-alpha_0",
-    "N_3-nx_128-recon_off",
-    "N_3-nx_256",
+    [
+        "N_1-nx_64",
+        "N_1-nx_128",
+        "N_1-nx_256",
+        "N_3-nx_64",
+        "N_3-nx_128",
+        "N_3-nx_256",
+        "N_1-nx_128-alpha_0",
+        "N_3-nx_128-alpha_0",
+        "N_1-nx_128-recon_off",
+        "N_3-nx_128-recon_off",
+        "N_1-nx_128-hfact_1.5",
+        "N_1-nx_128-K_10",
+        "N_1-nx_128-k_smooth_2",
+        "N_1-nx_128-k_smooth_5",
     ]
 %}
+
 
 [phantom]
 path = "~/repos/phantom"

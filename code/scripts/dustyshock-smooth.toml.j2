@@ -2,12 +2,15 @@
 
 {% set prefix = "dustyshock" %}
 {% set setup_path = "~/repos/multigrain/code/initial-conditions/dustyshock" %}
-{% set runs_path = "~/runs/multigrain/dustyshock" %}
+{% set runs_path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock" %}
+{% set job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh" %}
 
-
-{% set system = "gfortran" %}
+{% set system = "ifort" %}
 {% set patches_path = "~/repos/multigrain/code/patches" %}
-{% set hdf5_path = "/usr/local/opt/hdf5" %}
+{% set hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0/hdf5/1.10.1" %}
+
+{% set names = ["N_1-nx_128-k_smooth_2", "N_1-nx_128-k_smooth_5"] %}
+
 
 [phantom]
 path = "~/repos/phantom"
@@ -24,8 +27,6 @@ extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=yes"]
 hdf5_path = "{{ hdf5_path }}"
 
 
-{% set names = ["N_1-nx_128-k_smooth_2", "N_1-nx_128-k_smooth_5"] %}
-
 {% for name in names %}
 
 [[runs]]
@@ -33,5 +34,6 @@ prefix = "{{ prefix }}"
 path = "{{ runs_path }}/{{ name }}"
 setup_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.setup"
 in_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.in"
+job_script = "{{ job_script }}"
 
 {% endfor %}

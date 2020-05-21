@@ -1,0 +1,38 @@
+# Radial drift
+
+{% set prefix = "radialdrift" %}
+{% set setup_path = "~/repos/multigrain/code/initial-conditions/radialdrift" %}
+{% set runs_path = "~/runs/multigrain/radialdrift" %}
+{% set job_script = "~/repos/multigrain/code/misc/radialdrift-slurm.sh" %}
+
+{% set system = "ifort" %}
+{% set patches_path = "~/repos/multigrain/code/patches" %}
+{% set hdf5_path = env['HDF5_DIR'] %}
+
+{% set names = ["test1", "test2"] %}
+
+
+[phantom]
+path = "~/repos/phantom"
+setup = "dustydisc"
+system = "{{ system }}"
+version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
+patches = [
+    "{{ patches_path }}/phantom-d9a5507f-multigrain_setup_shock.patch",
+    "{{ patches_path }}/phantom-d9a5507f-idustbound.patch",
+    "{{ patches_path }}/phantom-d9a5507f-printing.patch"
+]
+extra_make_flags = ["MAXP=10000000"]
+hdf5_path = "{{ hdf5_path }}"
+
+
+{% for name in names %}
+
+[[runs]]
+prefix = "{{ prefix }}"
+path = "{{ runs_path }}/{{ name }}"
+setup_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.setup"
+in_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.in"
+job_script = "{{ job_script }}"
+
+{% endfor %}

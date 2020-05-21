@@ -18,4 +18,4 @@ hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0
 prefix = "dustyshock"
 path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock/N_1-nx_128-k_smooth_2"
 setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-k_smooth_2/dustyshock.setup"
-in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_12-k_smooth_2/dustyshock.in"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N_1-nx_128-k_smooth_2/dustyshock.in"

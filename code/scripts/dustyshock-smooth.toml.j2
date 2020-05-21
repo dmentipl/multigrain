@@ -2,12 +2,12 @@
 
 {% set prefix = "dustyshock" %}
 {% set setup_path = "~/repos/multigrain/code/initial-conditions/dustyshock" %}
-{% set runs_path = "/fred/oz015/dmentipl/runs/multigrain/dustyshock" %}
+{% set runs_path = "~/runs/multigrain/dustyshock" %}
 {% set job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh" %}
 
 {% set system = "ifort" %}
 {% set patches_path = "~/repos/multigrain/code/patches" %}
-{% set hdf5_path = "/apps/skylake/software/mpi/intel/2016.2.181-gcc-6.4.0/openmpi/3.0.0/hdf5/1.10.1" %}
+{% set hdf5_path = env['HDF5_DIR'] %}
 
 {% set names = ["N_1-nx_128-k_smooth_2", "N_1-nx_128-k_smooth_5"] %}
 

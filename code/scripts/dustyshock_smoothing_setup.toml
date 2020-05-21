@@ -1,0 +1,21 @@
+# Dusty-shock tests with smoothing
+
+[phantom]
+path = "~/repos/phantom"
+setup = "dustyshock"
+system = "gfortran"
+version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
+patches = [
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-multigrain_setup_shock_with_smoothing.patch",
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-logistic.patch",
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-idustbound.patch",
+    "~/repos/multigrain/code/patches/phantom-d9a5507f-printing.patch"
+]
+extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=yes"]
+hdf5_path = "/usr/local/opt/hdf5"
+
+[[runs]]
+prefix = "dustyshock"
+path = "~/runs/multigrain/dustyshock/N=1_nx=128_smooth"
+setup_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_smooth/dustyshock.setup"
+in_file = "~/repos/multigrain/code/initial-conditions/dustyshock/N=1_nx=128_smooth/dustyshock.in"

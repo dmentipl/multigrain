@@ -1,0 +1,37 @@
+# Dusty-shock tests with smoothing
+
+{% set prefix = "dustyshock" %}
+{% set setup_path = "~/repos/multigrain/code/initial-conditions/dustyshock" %}
+{% set runs_path = "~/runs/multigrain/dustyshock" %}
+
+
+{% set system = "gfortran" %}
+{% set patches_path = "~/repos/multigrain/code/patches" %}
+{% set hdf5_path = "/usr/local/opt/hdf5" %}
+
+[phantom]
+path = "~/repos/phantom"
+setup = "dustyshock"
+system = "{{ system }}"
+version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
+patches = [
+    "{{ patches_path }}/phantom-d9a5507f-multigrain_setup_shock_with_smoothing.patch",
+    "{{ patches_path }}/phantom-d9a5507f-logistic.patch",
+    "{{ patches_path }}/phantom-d9a5507f-idustbound.patch",
+    "{{ patches_path }}/phantom-d9a5507f-printing.patch"
+]
+extra_make_flags = ["MAXP=10000000", "ISOTHERMAL=yes"]
+hdf5_path = "{{ hdf5_path }}"
+
+
+{% set names = ["N_1-nx_128-k_smooth_2", "N_1-nx_128-k_smooth_5"] %}
+
+{% for name in names %}
+
+[[runs]]
+prefix = "{{ prefix }}"
+path = "{{ runs_path }}/{{ name }}"
+setup_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.setup"
+in_file = "{{ setup_path }}/{{ name }}/{{ prefix }}.in"
+
+{% endfor %}

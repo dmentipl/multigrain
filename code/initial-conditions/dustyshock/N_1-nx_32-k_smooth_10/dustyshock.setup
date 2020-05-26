@@ -21,10 +21,8 @@
               xright =         50.    ! x max boundary
 
 # resolution
-                  nx =         128    ! resolution (number of particles in x) for -xleft < x < xshock
-
-# smoothing
-                   k =           5    ! smoothing parameter
+                  nx =          32    ! resolution (number of particles in x) for -xleft < x < xshock
+          smooth_fac =         10.    ! smooth shock front over lengthscale smooth_fac*dxleft
 
 # Equation-of-state properties
                gamma =       1.000    ! Adiabatic index

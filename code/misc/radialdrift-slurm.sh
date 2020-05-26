@@ -10,7 +10,7 @@
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=16G
 
-INFILE='dustyshock.in'
+INFILE='radialdrift.in'
 
 echo "HOSTNAME = $HOSTNAME"
 echo "HOSTTYPE = $HOSTTYPE"

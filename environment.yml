@@ -25,7 +25,7 @@ dependencies:
   - tomlkit
   - tqdm
   - pip:
-    - git+https://github.com/dmentipl/phantom-build#bcfa5b1a68d2606f2075e86aece99fccfdc509c8
+    - git+https://github.com/dmentipl/phantom-build#df974845a50327281f49ccb4364719d80c8366b5
     - phantomconfig>=0.3.2
     - phantomsetup
     - plonk>=0.5.0

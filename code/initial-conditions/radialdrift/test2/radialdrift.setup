@@ -2,16 +2,16 @@
 
 # resolution
                   np =     1000000    ! number of gas particles
-            np_dust1 =       20000    ! number of large dust particles
-            np_dust2 =       20000    ! number of large dust particles
-            np_dust3 =       20000    ! number of large dust particles
-            np_dust4 =       20000    ! number of large dust particles
-            np_dust5 =       20000    ! number of large dust particles
-            np_dust6 =       20000    ! number of large dust particles
-            np_dust7 =       20000    ! number of large dust particles
-            np_dust8 =       20000    ! number of large dust particles
-            np_dust9 =       20000    ! number of large dust particles
-           np_dust10 =       20000    ! number of large dust particles
+            np_dust1 =      100000    ! number of large dust particles
+            np_dust2 =      100000    ! number of large dust particles
+            np_dust3 =      100000    ! number of large dust particles
+            np_dust4 =      100000    ! number of large dust particles
+            np_dust5 =      100000    ! number of large dust particles
+            np_dust6 =      100000    ! number of large dust particles
+            np_dust7 =      100000    ! number of large dust particles
+            np_dust8 =      100000    ! number of large dust particles
+            np_dust9 =      100000    ! number of large dust particles
+           np_dust10 =      100000    ! number of large dust particles
 
 # units
            dist_unit =          au    ! distance unit (e.g. au,pc,kpc,0.1pc)
@@ -43,11 +43,11 @@
 
 # options for dust
          dust_method =           2    ! dust method (1=one fluid,2=two fluid,3=Hybrid)
-         dust_to_gas =       0.010    ! dust to gas ratio
+         dust_to_gas =       0.500    ! dust to gas ratio
        ndusttypesinp =          10    ! number of grain sizes
           igrainsize =           0    ! grain size distribution (0=log-space,1=manually)
-             smincgs =       0.100    ! min grain size (in cm)
-             smaxcgs =       1000.    ! max grain size (in cm)
+             smincgs =       0.010    ! min grain size (in cm)
+             smaxcgs =        100.    ! max grain size (in cm)
               sindex =       3.500    ! grain size power-law index (e.g. MRN = 3.5)
           igraindens =           0    ! grain density input (0=equal,1=manually)
         graindensinp =       3.000    ! intrinsic grain density (in g/cm^3)
@@ -58,4 +58,4 @@
 
 # timestepping
              norbits =          10    ! maximum number of orbits at outer disc
-              deltat =       0.010    ! output interval as fraction of orbital period
+              deltat =       0.100    ! output interval as fraction of orbital period

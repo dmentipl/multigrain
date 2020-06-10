@@ -1,38 +1,39 @@
 diff --git a/src/setup/setup_shock.F90 b/src/setup/setup_shock.F90
-index 1bba61ec..3a7703de 100644
+index 9076a963..60e65041 100644
 --- a/src/setup/setup_shock.F90
 +++ b/src/setup/setup_shock.F90
-@@ -32,7 +32,7 @@
+@@ -34,7 +34,7 @@
  !--------------------------------------------------------------------------
  module setup
   implicit none
 - integer :: nx, icase, dust_method
 + integer :: nx, icase, dust_method, ndust
   real    :: xleft, xright, yleft, yright, zleft, zright
-  real    :: dxleft
+  real    :: dxleft, kappa, smooth_fac
   character(len=100) :: shocktype
-@@ -75,7 +75,7 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma,hfact,
-  use mpiutils,     only:bcast_mpi
-  use dim,          only:maxvxyzu,ndim,mhd,use_dust
-  use options,      only:use_dustfrac
-- use part,         only:labeltype,set_particle_type,igas,iboundary,hrho,Bxyz,mhd,periodic,dustfrac,gr
-+ use part,         only:labeltype,set_particle_type,igas,iboundary,hrho,Bxyz,mhd,periodic,dustfrac,gr,ndustlarge
-  use kernel,       only:radkern,hfact_default
-  use timestep,     only:tmax
-  use prompting,    only:prompt
-@@ -301,7 +301,10 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma,hfact,
+@@ -177,7 +177,7 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma,hfact,
+        ndustlarge = 0
+     elseif (dust_method==2) then
+        ndustsmall = 0
+-       ndustlarge = 1
++       ndustlarge = ndust
+     endif
+     ndusttypes = ndustsmall + ndustlarge
+  endif
+@@ -288,7 +288,11 @@ subroutine setpart(id,npart,npartoftype,xyzh,massoftype,vxyzu,polyk,gamma,hfact,
   ! set up dust (as separate set of particles)
   !
   if (use_dust .and. .not.use_dustfrac) then
 -    if (dtg > 0.) call set_dust_particles(dtg,npart,npartoftype,massoftype,xyzh,vxyzu,ierr)
-+   ndustlarge = ndust
-+    do i=1,ndust
-+      if (dtg > 0.) call set_dust_particles(i,dtg,npart,npartoftype,massoftype,xyzh,vxyzu,ierr)
-+    enddo
++    if (dtg > 0.) then
++       do i=1,ndustlarge
++          call set_dust_particles(i,dtg,npart,npartoftype,massoftype,xyzh,vxyzu,ierr)
++       enddo
++    endif
      if (ierr /= 0) call error('setup','could not set up dust particles')
   endif
   write(iprint,'(1x,a,es16.8)') 'Setup_shock: mass of gas & boundary particles   = ', massoftype(igas)
-@@ -352,15 +355,20 @@ end subroutine adjust_shock_boundaries
+@@ -306,15 +310,20 @@ end subroutine setpart
  !  dust-to-gas ratio, so we just make copies of the gas particles)
  !+
  !-----------------------------------------------------------------------
@@ -54,7 +55,7 @@ index 1bba61ec..3a7703de 100644
  
   if (maxphase /= maxp) then
      print "(a)",' ERROR: cannot set dust particles (iphase not stored)'
-@@ -372,32 +380,32 @@ subroutine set_dust_particles(dtg,npart,npartoftype,massoftype,xyzh,vxyzu,ierr)
+@@ -326,32 +335,32 @@ subroutine set_dust_particles(dtg,npart,npartoftype,massoftype,xyzh,vxyzu,ierr)
   do i=1,npart
      if (j+1 > maxp) then
         print*,' error: memory allocation too small for dust particles'
@@ -98,27 +99,18 @@ index 1bba61ec..3a7703de 100644
  
  end subroutine set_dust_particles
  
-@@ -502,7 +510,6 @@ subroutine choose_shock (gamma,polyk,dtg,iexist)
-     gamma      = 5./3.
-     leftstate  = (/1.000,1.0,0.,0.,0.,0.,0.,0./)
-     rightstate = (/0.125,0.1,0.,0.,0.,0.,0.,0./)
--    if (maxvxyzu < 4) call fatal('setup','Sod shock tube requires ISOTHERMAL=no')
-  case(2)
-     !--Ryu et al. shock 1a
-     shocktype = 'Ryu et al. shock 1a'
-@@ -659,9 +666,11 @@ subroutine choose_shock (gamma,polyk,dtg,iexist)
+@@ -623,8 +632,10 @@ subroutine choose_shock (gamma,polyk,dtg,iexist)
  
   if (use_dust) then
      !--shock setup supports both one-fluid and two-fluid dust
 +    ndust = 1
      dtg = 1.
-     idrag = 2
      K_code = 1000.
 +    call prompt('How many dust species do you want?',ndust,1)
      call prompt('Which dust method do you want? (1=one fluid,2=two fluid)',dust_method,1,2)
      use_dustfrac = (dust_method == 1)
      call prompt('Enter dust to gas ratio',dtg,0.)
-@@ -752,6 +761,7 @@ subroutine write_setupfile(filename,iprint,numstates,gamma,polyk,dtg)
+@@ -720,6 +731,7 @@ subroutine write_setupfile(filename,iprint,numstates,gamma,polyk,dtg)
  
   if (use_dust) then
      write(lu,"(/,a)") '# dust properties'
@@ -126,14 +118,7 @@ index 1bba61ec..3a7703de 100644
      call write_inopt(dust_method,'dust_method','1=one fluid, 2=two fluid',lu,ierr1)
      call write_inopt(dtg,'dtg','Dust to gas ratio',lu,ierr2)
      if (ierr1 /= 0 .or. ierr2 /= 0) write(*,*) 'ERROR writing dust options'
-@@ -790,12 +800,13 @@ subroutine read_setupfile(filename,iprint,numstates,gamma,polyk,dtg,ierr)
-  enddo
-  call read_inopt(xleft,'xleft',db,errcount=nerr)
-  call read_inopt(xright,'xright',db,min=xleft,errcount=nerr)
-- call read_inopt(nx,'nx',db,min=8,errcount=nerr)
-+ call read_inopt(nx,'nx',db,min=2,errcount=nerr)
- 
-  call read_inopt(gamma,'gamma',db,min=1.,errcount=nerr)
+@@ -770,6 +782,7 @@ subroutine read_setupfile(filename,iprint,numstates,gamma,polyk,dtg,ierr)
   if (maxvxyzu==3) call read_inopt(polyk,'polyk',db,min=0.,errcount=nerr)
  
   if (use_dust) then

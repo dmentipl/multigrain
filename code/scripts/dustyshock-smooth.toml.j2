@@ -4,6 +4,7 @@
 {% set setup_path = "~/runs/multigrain/dustyshock/_initial_conditions" %}
 {% set runs_path = "~/runs/multigrain/dustyshock" %}
 {% set job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh" %}
+{% set patches_path = "~/repos/multigrain/code/patches" %}
 
 {% set system = "ifort" %}
 {% set hdf5_path = env['HDF5_DIR'] %}
@@ -45,6 +46,9 @@ system = "{{ system }}"
 version = "666da9e892cb3f2d9f89e132504e185fe2f22f31"
 extra_options = ["MAXP=10000000", "ISOTHERMAL=yes"]
 hdf5_path = "{{ hdf5_path }}"
+patches = [
+    "{{ patches_path }}/phantom-666da9e8-multigrain_setup_shock",
+]
 
 
 {% for name in names %}

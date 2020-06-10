@@ -5,7 +5,7 @@ from pathlib import Path
 from phantomconfig import read_config
 
 DATA_PATH = Path(__file__).parent
-GENERATED_PATH = DATA_PATH / 'generated_files'
+GENERATED_PATH = Path('~/runs/multigrain/dustyshock/_initial_conditions').expanduser()
 
 # .setup and .in template files
 SETUPFILE_TEMPLATE = DATA_PATH / 'dustyshock.setup'

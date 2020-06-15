@@ -7,7 +7,7 @@ from matplotlib import animation
 
 from .exact import velocity as velocity_exact
 
-X_WIDTH_EXACT = 40.0
+X_WIDTH_EXACT = 100.0
 DUST_TO_GAS = 1.0
 DENSITY_LEFT = 1.0
 VELOCITY_LEFT = 2.0
@@ -111,8 +111,16 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
 
 
 def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
-
     fig = plot_velocity_density(snaps=snaps, xrange=xrange)
+
+    velocity_max = 2.2
+    if len(drag_coefficients) == 1:
+        density_max = 18.0
+    elif len(drag_coefficients) == 3:
+        density_max = 9.5
+    else:
+        raise ValueError('Exact solution must have 1 or 3 dust species')
+
     label = list(labels.keys())[0]
     _labels = list(labels.values())[0]
 
@@ -121,8 +129,8 @@ def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
         plot_velocity_density_exact(
             drag_coefficients=drag_coefficients, x_shock=x_shock[idx], axs=axs
         )
-        axs[0].set_ylim(0, 2.2)
-        axs[1].set_ylim(0, 9.5)
+        axs[0].set_ylim(0, velocity_max)
+        axs[1].set_ylim(0, density_max)
         axs[0].set_aspect('auto')
         axs[1].set_aspect('auto')
 

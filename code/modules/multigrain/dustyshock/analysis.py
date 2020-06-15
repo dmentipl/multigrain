@@ -16,6 +16,10 @@ VELOCITY_LEFT = 2.0
 MACH_NUMBER = 2.0
 
 
+def first_snap(directory):
+    return plonk.load_snap(sorted(Path(directory).glob('dustyshock_*.h5'))[0])
+
+
 def last_snap(directory):
     return plonk.load_snap(sorted(Path(directory).glob('dustyshock_*.h5'))[-1])
 

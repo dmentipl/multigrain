@@ -14,8 +14,19 @@ VELOCITY_LEFT = 2.0
 MACH_NUMBER = 2.0
 
 
+def plot_quantity_subsnaps(snap, quantity, ax, xrange):
+    mask = (snap['x'] > xrange[0]) & (snap['x'] < xrange[1])
+    plonk.visualize.particle_plot(
+        snap=snap[mask], x='x', y=quantity, ax=ax, marker='o', fillstyle='none'
+    )
+    ax.set(xlim=xrange)
+    ax.grid()
+
+    return ax
+
+
 def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
-    subsnaps = [snap['gas']] + snap['dust']
+    subsnaps = snap.subsnaps_as_list()
     for idx, subsnap in enumerate(subsnaps):
         label = 'gas' if idx == 0 else f'dust {idx}'
         prof = plonk.load_profile(
@@ -26,18 +37,9 @@ def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
             n_bins=n_bins,
         )
         x, y = prof['radius'], prof[quantity]
-        if quantity == 'surface_density':
-            header = snap._file_pointer['header']
-            ymin, ymax, zmin, zmax = (
-                header['ymin'][()],
-                header['ymax'][()],
-                header['zmin'][()],
-                header['zmax'][()],
-            )
-            area = (ymax - ymin) * (zmax - zmin)
-            y /= area
         ax.plot(x, y, 'o', label=label, fillstyle='none')
-        ax.set(xlim=xrange)
+    ax.set(xlim=xrange)
+
     return ax
 
 
@@ -48,12 +50,25 @@ def make_fig_axs(ncols, width=8, height=4):
         nrows=nrows,
         sharex=True,
         sharey=False,
+        squeeze=False,
         figsize=(width, height * nrows),
     )
     return fig, axs
 
 
-def plot_velocity_density(snaps, xrange, n_bins=50, fig_kwargs={}):
+def plot_velocity_density(snaps, xrange, fig_kwargs={}):
+    fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
+    for idx, snap in enumerate(snaps):
+        plot_quantity_subsnaps(
+            snap=snap, quantity='velocity_x', ax=axs[0, idx], xrange=xrange
+        )
+        plot_quantity_subsnaps(
+            snap=snap, quantity='density', ax=axs[1, idx], xrange=xrange
+        )
+    return fig
+
+
+def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
     fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
     for idx, snap in enumerate(snaps):
         plot_quantity_profile_subsnaps(
@@ -64,11 +79,7 @@ def plot_velocity_density(snaps, xrange, n_bins=50, fig_kwargs={}):
             n_bins=n_bins,
         )
         plot_quantity_profile_subsnaps(
-            snap=snap,
-            quantity='surface_density',
-            ax=axs[1, idx],
-            xrange=xrange,
-            n_bins=n_bins,
+            snap=snap, quantity='density', ax=axs[1, idx], xrange=xrange, n_bins=n_bins,
         )
     return fig
 
@@ -99,12 +110,34 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
         axs[1].plot(x, _p_dust, color=colors[idx + 1])
 
 
+def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
+
+    fig = dustyshock.plot_velocity_density(snaps=snaps, xrange=xrange)
+    label = list(labels.keys())[0]
+    _labels = list(labels.values())[0]
+
+    for idx, snap in enumerate(snaps):
+        axs = [fig.axes[idx], fig.axes[idx + len(snaps)]]
+        dustyshock.plot_velocity_density_exact(
+            drag_coefficients=drag_coefficients, x_shock=x_shock[idx], axs=axs
+        )
+        axs[0].set_ylim(0, 2.2)
+        axs[1].set_ylim(0, 9.5)
+        axs[0].set_aspect('auto')
+        axs[1].set_aspect('auto')
+
+        axs[0].set_title(f'{label}={_labels[idx]}\n time={snap.properties["time"].m}')
+        if idx == 0:
+            axs[0].set_ylabel('velocity')
+            axs[1].set_ylabel('density')
+
+
 def plot_particle_arrangement(
     *, snap, x='x', y='y', xrange, fig_kwargs={}, plot_kwargs={}
 ):
     fig, axs = make_fig_axs(ncols=1, **fig_kwargs)
-    subsnaps = [snap['gas']] + snap['dust']
-    for idx, (subsnap, ax) in enumerate(zip(subsnaps, axs)):
+    subsnaps = snap.subsnaps_as_list()
+    for idx, (subsnap, ax) in enumerate(zip(subsnaps, axs.flatten())):
         title = 'gas' if idx == 0 else f'dust {idx}'
         _subsnap = subsnap[(subsnap['x'] > xrange[0]) & (subsnap['x'] < xrange[1])]
         plonk.visualize.particle_plot(snap=_subsnap, x=x, y=y, ax=ax, **plot_kwargs)
@@ -117,7 +150,7 @@ def splash_like_plot(snap, xlim, ylim_density, ylim_velocity_x):
     fig, axs = plt.subplots(nrows=2, sharex=True, figsize=(9, 6))
     fig.subplots_adjust(hspace=0.05)
 
-    subsnaps = [snap['gas']] + snap['dust']
+    subsnaps = snap.subsnaps_as_list()
 
     marker_style = [
         {'linestyle': '', 'marker': 'o', 'markersize': 2, 'fillstyle': 'full'},
@@ -144,12 +177,9 @@ def splash_like_plot(snap, xlim, ylim_density, ylim_velocity_x):
     return fig, axs
 
 
-def splash_like_animation(snaps, filepath):
-
-    xlim = [40, 120]
-    ylim_density = [0, 16]
-    ylim_velocity_x = [0, 2.2]
-
+def splash_like_animation(
+    snaps, filepath, xlim=(-10, 30), ylim_density=(0, 16), ylim_velocity_x=(0, 2.2)
+):
     fig, axs = splash_like_plot(snaps[0], xlim, ylim_density, ylim_velocity_x)
 
     lines = axs[0].lines + axs[1].lines
@@ -160,7 +190,7 @@ def splash_like_animation(snaps, filepath):
     def animate(idxi):
         pbar.update(n=1)
         time = snaps[idxi].properties['time'].magnitude
-        subsnaps = [snaps[idxi]['gas']] + snaps[idxi]['dust']
+        subsnaps = snaps[idxi].subsnaps_as_list()
 
         texts[0].set_text(f't={time:.0f}')
         for idxj, subsnap in enumerate(subsnaps):

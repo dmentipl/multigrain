@@ -66,7 +66,7 @@ def make_fig_axs(ncols, width=8, height=4):
     return fig, axs
 
 
-def plot_velocity_density(snaps, xrange, fig_kwargs={}):
+def plot_velocity_density_as_particles(snaps, xrange, fig_kwargs={}):
     fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
     for idx, snap in enumerate(snaps):
         plot_quantity_subsnaps(
@@ -120,8 +120,25 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
         axs[1].plot(x, _p_dust, color=colors[idx + 1])
 
 
-def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
-    fig = plot_velocity_density(snaps=snaps, xrange=xrange)
+def plot_numerical_vs_exact(
+    snaps,
+    xrange,
+    drag_coefficients,
+    x_shock,
+    labels,
+    plot_type='particles',
+    fig_kwargs={},
+):
+    if plot_type == 'particles':
+        fig = plot_velocity_density_as_particles(
+            snaps=snaps, xrange=xrange, fig_kwargs=fig_kwargs
+        )
+    elif plot_type == 'profile':
+        fig = plot_velocity_density_as_profile(
+            snaps=snaps, xrange=xrange, n_bins=50, fig_kwargs=fig_kwargs
+        )
+    else:
+        raise ValueError('plot_type must be "particles" or "profile"')
 
     velocity_max = 2.2
     if len(drag_coefficients) == 1:

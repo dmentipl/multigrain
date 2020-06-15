@@ -17,7 +17,7 @@ MACH_NUMBER = 2.0
 
 
 def last_snap(directory):
-    return sorted(Path(directory).glob('dustyshock_*.h5'))[-1]
+    return plonk.load_snap(sorted(Path(directory).glob('dustyshock_*.h5'))[-1])
 
 
 def plot_quantity_subsnaps(snap, quantity, ax, xrange):

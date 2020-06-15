@@ -1,5 +1,7 @@
 """Dusty-shock analysis functions."""
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import plonk
 import tqdm
@@ -12,6 +14,10 @@ DUST_TO_GAS = 1.0
 DENSITY_LEFT = 1.0
 VELOCITY_LEFT = 2.0
 MACH_NUMBER = 2.0
+
+
+def last_snap(directory):
+    return sorted(Path(directory).glob('dustyshock_*.h5'))[-1]
 
 
 def plot_quantity_subsnaps(snap, quantity, ax, xrange):

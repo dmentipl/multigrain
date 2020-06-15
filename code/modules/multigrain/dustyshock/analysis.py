@@ -115,9 +115,9 @@ def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
 
     velocity_max = 2.2
     if len(drag_coefficients) == 1:
-        density_max = 18.0
-    elif len(drag_coefficients) == 3:
         density_max = 9.5
+    elif len(drag_coefficients) == 3:
+        density_max = 18.0
     else:
         raise ValueError('Exact solution must have 1 or 3 dust species')
 

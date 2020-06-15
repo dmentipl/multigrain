@@ -112,13 +112,13 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
 
 def plot_numerical_vs_exact(snaps, xrange, drag_coefficients, x_shock, labels):
 
-    fig = dustyshock.plot_velocity_density(snaps=snaps, xrange=xrange)
+    fig = plot_velocity_density(snaps=snaps, xrange=xrange)
     label = list(labels.keys())[0]
     _labels = list(labels.values())[0]
 
     for idx, snap in enumerate(snaps):
         axs = [fig.axes[idx], fig.axes[idx + len(snaps)]]
-        dustyshock.plot_velocity_density_exact(
+        plot_velocity_density_exact(
             drag_coefficients=drag_coefficients, x_shock=x_shock[idx], axs=axs
         )
         axs[0].set_ylim(0, 2.2)

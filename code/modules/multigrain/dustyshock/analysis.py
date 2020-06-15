@@ -36,7 +36,7 @@ def plot_quantity_subsnaps(snap, quantity, ax, xrange):
 
 
 def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
-    subsnaps = snap.subsnaps_as_list()
+    subsnaps = [snap['gas']] + snap['dust']
     for idx, subsnap in enumerate(subsnaps):
         label = 'gas' if idx == 0 else f'dust {idx}'
         prof = plonk.load_profile(

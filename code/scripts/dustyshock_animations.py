@@ -5,24 +5,54 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import plonk
 
-PATH = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock2')
+PATH1 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock')
+PATH2 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock2')
+NAME_GLOB = 'N_*-nx_*-smooth_fac_*-hfact_*'
+
+YS = ['velocity_x', 'density']
+XLIM = (-20, 40)
+YLIMS = [(-1, 25), (-0.5, 2.5)]
 
 
-def particle_animation(name, filename, snaps, xlim=None, dlim=None, vlim=None):
+def main():
+    paths = list(PATH1.glob(NAME_GLOB)) + list(PATH2.glob(NAME_GLOB))
+    for p in paths:
+        print(f'Simulation: {p.name}')
+        name = (
+            p.name.replace('smooth_fac', 'smooth^fac')
+            .replace('_', '=')
+            .replace('-', ', ')
+            .replace('smooth^fac', 'smooth_fac')
+        )
+        filename = p / 'anim.mp4'
 
-    fig, axs = plt.subplots(nrows=2, sharex=True, figsize=(9, 6))
+        print('Loading simulation...')
+        sim = plonk.load_sim(prefix='dustyshock', directory=p)
+
+        print('Loading snaps...')
+        snaps = sim.snaps
+
+        print('Animating...')
+        particle_animation(
+            name=name, filename=filename, snaps=snaps, ys=YS, xlim=XLIM, ylims=YLIMS
+        )
+        print('Finished!')
+
+
+def particle_animation(name, filename, snaps, ys, xlim=None, ylims=None):
+    figsize = (9, 3 * len(ys))
+    fig, axs = plt.subplots(nrows=len(ys), sharex=True, figsize=figsize)
     fig.subplots_adjust(hspace=0.05)
     marker_style = {'marker': 'o', 'fillstyle': 'none'}
 
-    plonk.visualize.particle_plot(
-        snap=snaps[0], y='velocity_x', **marker_style, ax=axs[0]
-    )
-    plonk.visualize.particle_plot(snap=snaps[0], y='density', **marker_style, ax=axs[1])
-
-    axs[0].set(xlim=xlim, ylim=vlim, ylabel='velocity', title=name)
-    axs[1].set(xlim=xlim, ylim=dlim, ylabel='density', xlabel='x')
+    for y, ylim, ax in zip(ys, ylims, axs):
+        plonk.visualize.particle_plot(snap=snaps[0], y=y, **marker_style, ax=ax)
+        ax.set(xlim=xlim, ylim=ylim, ylabel=y)
 
     text = [plonk.utils.time_string(snap, 'second', 's') for snap in snaps]
+    axs[0].text(0.9, 0.9, text[0], ha='right', transform=axs[0].transAxes)
+    axs[0].set_title(name)
+    axs[-1].set_xlabel('x')
 
     plonk.visualize.animation_particles(
         filename=filename,
@@ -37,20 +67,4 @@ def particle_animation(name, filename, snaps, xlim=None, dlim=None, vlim=None):
 
 
 if __name__ == '__main__':
-
-    for d in PATH.glob('N_3*'):
-        print(f'Simulation: {d.name}')
-        print('Loading simulation...')
-        sim = plonk.load_sim(prefix='dustyshock', directory=d)
-        print('Loading snaps...')
-        print(sim.snaps)
-        print('Animating...')
-        particle_animation(
-            name=d.name,
-            filename=d / 'anim.mp4',
-            snaps=sim.snaps,
-            xlim=(-20, 40),
-            dlim=(-1, 25),
-            vlim=(-0.5, 2.5),
-        )
-        print('Finished!')
+    main()

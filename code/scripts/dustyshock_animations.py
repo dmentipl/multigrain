@@ -5,18 +5,23 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import plonk
 
-PATH1 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock')
-PATH2 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock2')
 NAME_GLOB = 'N_*-nx_*-smooth_fac_*-hfact_*'
+PATH_1 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock')
+PATH_3 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock2')
 
 YS = ['velocity_x', 'density']
 XLIM = (-20, 40)
-YLIMS = [(-1, 25), (-0.5, 2.5)]
+YLIMS_1 = [(-0.5, 2.5), (-1, 19)]
+YLIMS_3 = [(-0.5, 2.5), (-1, 25)]
 
 
 def main():
-    paths = list(PATH1.glob(NAME_GLOB)) + list(PATH2.glob(NAME_GLOB))
-    for p in paths:
+    loop_over_sims(path=PATH_1, glob=NAME_GLOB, ys=YS, xlim=XLIM, ylims=YLIMS_1)
+    loop_over_sims(path=PATH_3, glob=NAME_GLOB, ys=YS, xlim=XLIM, ylims=YLIMS_3)
+
+
+def loop_over_sims(path, glob, ys, xlim, ylims):
+    for p in path.glob(glob):
         print(f'Simulation: {p.name}')
         name = (
             p.name.replace('smooth_fac', 'smooth^fac')
@@ -34,12 +39,12 @@ def main():
 
         print('Animating...')
         particle_animation(
-            name=name, filename=filename, snaps=snaps, ys=YS, xlim=XLIM, ylims=YLIMS
+            name=name, filename=filename, snaps=snaps, ys=ys, xlim=xlim, ylims=ylims
         )
         print('Finished!')
 
 
-def particle_animation(name, filename, snaps, ys, xlim=None, ylims=None):
+def particle_animation(name, filename, snaps, ys, xlim, ylims):
     figsize = (9, 3 * len(ys))
     fig, axs = plt.subplots(nrows=len(ys), sharex=True, figsize=figsize)
     fig.subplots_adjust(hspace=0.05)
@@ -58,7 +63,7 @@ def particle_animation(name, filename, snaps, ys, xlim=None, ylims=None):
         filename=filename,
         snaps=snaps,
         x='x',
-        y=['velocity_x', 'density'],
+        y=ys,
         fig=fig,
         adaptive_limits=False,
         text=text,

@@ -11,8 +11,8 @@ PATH_3 = Path('/fred/oz015/dmentipl/runs/multigrain/dustyshock2')
 
 YS = ['velocity_x', 'density']
 XLIM = (-20, 40)
-YLIMS_1 = [(-0.5, 2.5), (-1, 19)]
-YLIMS_3 = [(-0.5, 2.5), (-1, 25)]
+YLIMS_1 = [(-0.4, 2.8), (-0.4, 10.8)]
+YLIMS_3 = [(-0.4, 2.8), (-2.0, 22.0)]
 
 
 def main():

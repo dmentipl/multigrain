@@ -27,5 +27,5 @@ dependencies:
   - pip:
     - git+https://github.com/dmentipl/phantom-build#df974845a50327281f49ccb4364719d80c8366b5
     - git+https://github.com/dmentipl/phantom-config#8780bd7555ef914fd5e024cc147f4496c2e81867
-    - git+https://github.com/dmentipl/plonk#a0c1c4144644e96563ed85502492348c1d0b1034
+    - git+https://github.com/dmentipl/plonk#2d6ae4a2cd3d346f810d91f32fcfa8a9e2276391
     - phantomsetup

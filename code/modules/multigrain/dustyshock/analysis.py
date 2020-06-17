@@ -240,3 +240,55 @@ def splash_like_animation(
     pbar.close()
 
     return anim
+
+
+def particle_animation(filename, snaps, xlim=None, dlim=None, vlim=None):
+
+    fig, axs = plt.subplots(nrows=2, sharex=True, figsize=(9, 6))
+    fig.subplots_adjust(hspace=0.05)
+    marker_style = {'marker': 'o', 'fillstyle': 'none'}
+
+    plonk.visualize.particle_plot(
+        snap=snaps[0], y='velocity_x', **marker_style, ax=axs[0]
+    )
+    plonk.visualize.particle_plot(snap=snaps[0], y='density', **marker_style, ax=axs[1])
+
+    axs[0].set(xlim=xlim, ylim=vlim, ylabel='velocity')
+    axs[1].set(xlim=xlim, ylim=dlim, ylabel='density', xlabel='x')
+
+    plonk.visualize.animation_particles(
+        filename=filename,
+        snaps=snaps,
+        x='x',
+        y=['velocity_x', 'density'],
+        fig=fig,
+        adaptive_limits=False,
+        save_kwargs={'fps': 10, 'dpi': 300},
+    )
+
+
+def image_animation(filename, snaps, extent):
+
+    interp = 'cross_section'
+
+    fig, axs = plt.subplots(nrows=2, sharex=True, figsize=(9, 2))
+    fig.subplots_adjust(hspace=0.05)
+
+    plonk.visualize.plot(
+        snap=snaps[0], quantity='velocity_x', interp=interp, ax=axs[0], extent=extent
+    )
+    plonk.visualize.plot(
+        snap=snaps[0], quantity='density', interp=interp, ax=axs[1], extent=extent
+    )
+    axs[0].set_aspect('auto')
+    axs[1].set_aspect('auto')
+
+    plonk.visualize.animation(
+        filename=filename,
+        snaps=snaps,
+        quantity=['velocity_x', 'density'],
+        fig=fig,
+        interp=interp,
+        extent=extent,
+        save_kwargs={'fps': 10, 'dpi': 300},
+    )

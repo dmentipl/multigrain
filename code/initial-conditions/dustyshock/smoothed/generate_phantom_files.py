@@ -7,7 +7,11 @@ from phantomconfig import parameter_sweep, read_config
 FILE_DIR = Path(__file__).parent
 OUTPUT_DIR = Path('~/runs/multigrain/dustyshock/_initial_conditions').expanduser()
 
-PARAMETERS = {'nx': [32, 128], 'smooth_fac': [2.0, 5.0], 'hfact': [1.0, 1.2, 1.5]}
+PARAMETERS = {
+    'nx': [32, 64, 128, 256],
+    'smooth_fac': [2.0, 5.0],
+    'hfact': [1.0, 1.2, 1.5, 1.8],
+}
 
 
 def _main():

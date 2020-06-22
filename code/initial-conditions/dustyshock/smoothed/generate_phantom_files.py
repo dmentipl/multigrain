@@ -22,7 +22,7 @@ def _main():
             template=read_config(FILE_DIR / f'dustyshock-N_{N}.setup'),
             parameters=PARAMETERS,
             dummy_parameters=['hfact'],
-            prefix=f'N-{N}_',
+            prefix=f'N_{N}-',
             output_dir=OUTPUT_DIR,
         )
         parameter_sweep(
@@ -30,7 +30,7 @@ def _main():
             template=read_config(FILE_DIR / f'dustyshock-N_{N}.in'),
             parameters=PARAMETERS,
             dummy_parameters=['nx', 'smooth_fac'],
-            prefix=f'N-{N}_',
+            prefix=f'N_{N}-',
             output_dir=OUTPUT_DIR,
         )
 

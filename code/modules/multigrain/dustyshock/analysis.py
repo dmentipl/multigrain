@@ -95,9 +95,9 @@ def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
     return fig
 
 
-def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
+def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):
     n_dust = len(drag_coefficients)
-    x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2)
+    x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2, n_points)
     _v_gas, _v_dusts = velocity_exact(
         x_shock=x_shock,
         x_width=X_WIDTH_EXACT,

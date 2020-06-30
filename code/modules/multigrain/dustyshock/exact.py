@@ -1,12 +1,10 @@
 """Exact solution for dusty shock."""
 
-from typing import Tuple
-
 import matplotlib.pyplot as plt
 import numpy as np
-import plonk
 from numpy import ndarray
 from scipy.integrate import solve_ivp
+from scipy.interpolate import interp1d
 
 
 def _derivative(
@@ -44,10 +42,42 @@ def velocity(
     density_left: float,
     velocity_left: float,
     mach_number: float,
-) -> Tuple[ndarray, ndarray, ndarray]:
+    n_points: int = 500,
+):
+    """Exact solution for dusty shock velocity.
+
+    Parameters
+    ----------
+    x_shock
+        The x-position of the shock.
+    x_width
+        The width in x over which to compute the solution.
+    n_dust
+        The number of dust species.
+    dust_to_gas
+        The dust-to-gas ratio. Same for all species.
+    drag_coefficient
+        An array of drag-coefficients, one per dust species.
+    density_left
+        The density on the left. Same for gas and all dust species.
+    velocity_left
+        The velocity on the left. Same for gas and all dust species.
+    mach_number
+        The mach number.
+    n_points
+        The number of points to use in computing the solution. Default
+        is 500.
+
+    Returns
+    -------
+    velocity_gas
+        A scipy interp1d function that returns the gas velocity.
+    velocity_dust
+        A list of scipy interp1d functions that returns the dust
+        velocity per species.
+    """
     x_L = x_shock - x_width / 2
     x_R = x_shock + x_width / 2
-    n_points = 500
 
     _dust_to_gas = dust_to_gas * np.ones(n_dust)
     _mach_number = mach_number * np.ones(n_dust)
@@ -74,24 +104,28 @@ def velocity(
     wg[n_points // 2 :, :] = wg_R
     wd[n_points // 2 :, :] = wd_R
 
-    velocity_gas = velocity_left * wg[:, 0]
-    velocity_dust = velocity_left * wd
+    _velocity_gas = velocity_left * wg[:, 0]
+    _velocity_dust = velocity_left * wd
 
-    return position, velocity_gas, velocity_dust
+    velocity_gas = interp1d(position, _velocity_gas)
+    velocity_dust = [interp1d(position, vd) for vd in _velocity_dust.T]
+
+    return velocity_gas, velocity_dust
 
 
 if __name__ == '__main__':
 
     x_shock = 0.0
     x_width = 20.0
-    n_dust = 1
+    n_dust = 3
     dust_to_gas = 1.0
-    drag_coefficient = 1.0
+    drag_coefficient = [1.0, 3.0, 5.0]
     density_left = 1.0
     velocity_left = 2.0
     mach_number = 2.0
 
-    x, vg, vd = velocity(
+    x = np.linspace(-x_width / 6, x_width / 2, 500)
+    vg, vds = velocity(
         x_shock,
         x_width,
         n_dust,
@@ -103,20 +137,11 @@ if __name__ == '__main__':
     )
 
     fig, ax = plt.subplots()
-    ax.plot(x, vg, label='Gas')
-    for idx, _wd in enumerate(vd.T):
-        ax.plot(x, _wd, label=f'Dust {idx}')
+    ax.plot(x, vg(x), label='Gas')
+    for idx, vd in enumerate(vds):
+        ax.plot(x, vd(x), label=f'Dust {idx + 1}')
     ax.set_xlabel('Position')
     ax.set_ylabel('Velocity')
     ax.legend()
     ax.grid()
     plt.show()
-
-    snap = plonk.load_snap('dustyshock_00200.h5')
-    subsnaps = [snap['gas']] + snap['dust']
-    colors = [line.get_color() for line in ax.lines]
-    for subsnap, color in zip(subsnaps, colors):
-        ax.plot(subsnap['x'], subsnap['velocity_x'], 'o', fillstyle='none', color=color)
-
-    ax.set_xlim([x[0], x[-1]])
-    ax.set_title(f'N=1; t={snap.properties["time"].m}')

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import plonk
 import tqdm
 from matplotlib import animation
@@ -96,7 +97,8 @@ def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
 
 def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
     n_dust = len(drag_coefficients)
-    x, v_gas, v_dust = velocity_exact(
+    x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2)
+    _v_gas, _v_dusts = velocity_exact(
         x_shock=x_shock,
         x_width=X_WIDTH_EXACT,
         n_dust=n_dust,
@@ -106,18 +108,21 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs):
         velocity_left=VELOCITY_LEFT,
         mach_number=MACH_NUMBER,
     )
-    p_gas = DENSITY_LEFT * VELOCITY_LEFT / v_gas
-    p_dust = DENSITY_LEFT * VELOCITY_LEFT / v_dust
+
+    v_gas = _v_gas(x)
+    v_dusts = [_v_dust(x) for _v_dust in _v_dusts]
+    rho_gas = DENSITY_LEFT * VELOCITY_LEFT / v_gas
+    rho_dusts = [DENSITY_LEFT * VELOCITY_LEFT / v_dust for v_dust in v_dusts]
 
     colors = [line.get_color() for line in axs[0].lines]
     axs[0].plot(x, v_gas, color=colors[0])
-    for idx, _v_dust in enumerate(v_dust.T):
-        axs[0].plot(x, _v_dust, color=colors[idx + 1])
+    for idx, v_dust in enumerate(v_dusts):
+        axs[0].plot(x, v_dust, color=colors[idx + 1])
 
     colors = [line.get_color() for line in axs[1].lines]
-    axs[1].plot(x, p_gas, color=colors[0])
-    for idx, _p_dust in enumerate(p_dust.T):
-        axs[1].plot(x, _p_dust, color=colors[idx + 1])
+    axs[1].plot(x, rho_gas, color=colors[0])
+    for idx, rho_dust in enumerate(rho_dusts):
+        axs[1].plot(x, rho_dust, color=colors[idx + 1])
 
 
 def plot_numerical_vs_exact(

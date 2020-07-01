@@ -230,6 +230,26 @@ def density_error_norm(snap, drag_coefficients, x_shock, xrange, n_bins=50):
     return np.sqrt(error_squared)
 
 
+def plot_velocity_error_convergence(
+    snaps, nxs, drag_coefficients, x_shock, xrange, n_bins=50
+):
+    err = list()
+    for snap, _x_shock in zip(snaps, x_shock):
+        err.append(
+            velocity_error_norm(
+                snap=snap,
+                drag_coefficients=drag_coefficients,
+                x_shock=_x_shock,
+                xrange=xrange,
+                n_bins=n_bins,
+            )
+        )
+    fig, ax = plt.subplots()
+    ax.plot(np.log10(nxs), np.log10(err))
+    ax.set_xlabel('log10(Resolution [nx])')
+    ax.set_ylabel('log10(Error [L2 norm])')
+
+
 def plot_velocity_density_error(
     snap, drag_coefficients, x_shock, xrange, error_type='absolute', n_points=1000
 ):

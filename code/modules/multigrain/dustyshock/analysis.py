@@ -95,6 +95,36 @@ def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
     return fig
 
 
+def velocity_error(snap, drag_coefficients, x_shock, xrange, n_bins=50):
+    n_dust = len(drag_coefficients)
+    v_gas, v_dusts = velocity_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+    v_exact = [v_gas] + v_dusts
+
+    subsnaps = [snap['gas']] + snap['dust']
+    error_squared = 0.0
+    for idx, subsnap in enumerate(subsnaps):
+        prof = plonk.load_profile(
+            snap=subsnap,
+            radius_min=xrange[0],
+            radius_max=xrange[1],
+            ndim=1,
+            n_bins=n_bins,
+        )
+        x, v_numerical = prof['radius'], prof['velocity_x']
+        error_squared += np.sum((v_exact[idx](x) - v_numerical) ** 2)
+
+    return np.sqrt(error_squared)
+
+
 def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):
     n_dust = len(drag_coefficients)
     x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2, n_points)

@@ -9,6 +9,7 @@ import tqdm
 from matplotlib import animation
 
 from .exact import velocity as velocity_exact
+from .exact import density as density_exact
 
 X_WIDTH_EXACT = 100.0
 DUST_TO_GAS = 1.0
@@ -95,7 +96,81 @@ def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
     return fig
 
 
-def velocity_error(snap, drag_coefficients, x_shock, xrange, n_bins=50):
+def velocity_error(
+    snap, drag_coefficients, x_shock, xrange, error_type='absolute', n_bins=50
+):
+    if error_type not in ['absolute', 'relative']:
+        raise ValueError('Wrong error type: must be "absolute" or "relative"')
+    n_dust = len(drag_coefficients)
+    v_gas, v_dusts = velocity_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+    v_exact = [v_gas] + v_dusts
+
+    subsnaps = [snap['gas']] + snap['dust']
+    error = list()
+    for idx, subsnap in enumerate(subsnaps):
+        prof = plonk.load_profile(
+            snap=subsnap,
+            radius_min=xrange[0],
+            radius_max=xrange[1],
+            ndim=1,
+            n_bins=n_bins,
+        )
+        x, v_numerical = prof['radius'], prof['velocity_x']
+        if error_type == 'absolute':
+            error.append(np.abs(v_exact[idx](x) - v_numerical))
+        elif error_type == 'relative':
+            error.append(np.abs((v_exact[idx](x) - v_numerical) / v_exact[idx](x)))
+
+    return x, error[0], error[1:]
+
+
+def density_error(
+    snap, drag_coefficients, x_shock, xrange, error_type='absolute', n_bins=50
+):
+    if error_type not in ['absolute', 'relative']:
+        raise ValueError('Wrong error type: must be "absolute" or "relative"')
+    n_dust = len(drag_coefficients)
+    d_gas, d_dusts = density_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+    d_exact = [d_gas] + d_dusts
+
+    subsnaps = [snap['gas']] + snap['dust']
+    error = list()
+    for idx, subsnap in enumerate(subsnaps):
+        prof = plonk.load_profile(
+            snap=subsnap,
+            radius_min=xrange[0],
+            radius_max=xrange[1],
+            ndim=1,
+            n_bins=n_bins,
+        )
+        x, d_numerical = prof['radius'], prof['density']
+        if error_type == 'absolute':
+            error.append(np.abs(d_exact[idx](x) - d_numerical))
+        elif error_type == 'relative':
+            error.append(np.abs((d_exact[idx](x) - d_numerical) / d_exact[idx](x)))
+
+    return x, error[0], error[1:]
+
+
+def velocity_error_norm(snap, drag_coefficients, x_shock, xrange, n_bins=50):
     n_dust = len(drag_coefficients)
     v_gas, v_dusts = velocity_exact(
         x_shock=x_shock,
@@ -123,6 +198,74 @@ def velocity_error(snap, drag_coefficients, x_shock, xrange, n_bins=50):
         error_squared += np.sum((v_exact[idx](x) - v_numerical) ** 2)
 
     return np.sqrt(error_squared)
+
+
+def density_error_norm(snap, drag_coefficients, x_shock, xrange, n_bins=50):
+    n_dust = len(drag_coefficients)
+    d_gas, d_dusts = density_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+    d_exact = [d_gas] + d_dusts
+
+    subsnaps = [snap['gas']] + snap['dust']
+    error_squared = 0.0
+    for idx, subsnap in enumerate(subsnaps):
+        prof = plonk.load_profile(
+            snap=subsnap,
+            radius_min=xrange[0],
+            radius_max=xrange[1],
+            ndim=1,
+            n_bins=n_bins,
+        )
+        x, d_numerical = prof['radius'], prof['velocity_x']
+        error_squared += np.sum((d_exact[idx](x) - d_numerical) ** 2)
+
+    return np.sqrt(error_squared)
+
+
+def plot_velocity_density_error(
+    snap, drag_coefficients, x_shock, xrange, error_type='absolute', n_points=1000
+):
+    fig, axs = make_fig_axs(ncols=1, width=8, height=4)
+    axs = axs.flatten()
+
+    x, verr_gas, verr_dusts = velocity_error(
+        snap=snap,
+        drag_coefficients=drag_coefficients,
+        x_shock=x_shock,
+        xrange=xrange,
+        error_type=error_type,
+    )
+    x, derr_gas, derr_dusts = density_error(
+        snap=snap,
+        drag_coefficients=drag_coefficients,
+        x_shock=x_shock,
+        xrange=xrange,
+        error_type=error_type,
+    )
+
+    axs[0].plot(x, verr_gas)
+    for verr_dust in verr_dusts:
+        axs[0].plot(x, verr_dust)
+    axs[0].set_ylabel(f'Velocity {error_type} error')
+
+    axs[1].plot(x, derr_gas)
+    for derr_dust in derr_dusts:
+        axs[1].plot(x, derr_dust)
+    axs[1].set_ylabel(f'Density {error_type} error')
+    axs[1].set_xlabel('x')
+
+    for ax in axs:
+        ax.grid()
+
+    return fig, axs
 
 
 def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):

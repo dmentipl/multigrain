@@ -38,7 +38,7 @@ def find_x_shock(snap, drag_coefficients, xrange):
             xrange=xrange,
         )
 
-    result = minimize_scalar(fn)
+    result = minimize_scalar(fn, bounds=xrange)
     if result.success:
         return result.x
     print('Failed to find x-shock')

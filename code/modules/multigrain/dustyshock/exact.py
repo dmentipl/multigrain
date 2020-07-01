@@ -113,10 +113,79 @@ def velocity(
     return velocity_gas, velocity_dust
 
 
+def density(
+    x_shock: float,
+    x_width: float,
+    n_dust: int,
+    dust_to_gas: float,
+    drag_coefficient: ndarray,
+    density_left: float,
+    velocity_left: float,
+    mach_number: float,
+    n_points: int = 500,
+):
+    """Exact solution for dusty shock density.
+
+    Parameters
+    ----------
+    x_shock
+        The x-position of the shock.
+    x_width
+        The width in x over which to compute the solution.
+    n_dust
+        The number of dust species.
+    dust_to_gas
+        The dust-to-gas ratio. Same for all species.
+    drag_coefficient
+        An array of drag-coefficients, one per dust species.
+    density_left
+        The density on the left. Same for gas and all dust species.
+    velocity_left
+        The velocity on the left. Same for gas and all dust species.
+    mach_number
+        The mach number.
+    n_points
+        The number of points to use in computing the solution. Default
+        is 500.
+
+    Returns
+    -------
+    density_gas
+        A scipy interp1d function that returns the gas density.
+    density_dust
+        A list of scipy interp1d functions that returns the dust
+        density per species.
+    """
+    v_gas, v_dusts = velocity(
+        x_shock,
+        x_width,
+        n_dust,
+        dust_to_gas,
+        drag_coefficient,
+        density_left,
+        velocity_left,
+        mach_number,
+        n_points,
+    )
+
+    def density_gas(x):
+        return density_left * velocity_left / v_gas(x)
+
+    def outer_fn(x, v_dust):
+        def inner_fn(x):
+            return density_left * velocity_left / v_dust(x)
+
+        return inner_fn
+
+    density_dust = [outer_fn(x, v_dust) for v_dust in v_dusts]
+
+    return density_gas, density_dust
+
+
 if __name__ == '__main__':
 
     x_shock = 0.0
-    x_width = 20.0
+    x_width = 40.0
     n_dust = 3
     dust_to_gas = 1.0
     drag_coefficient = [1.0, 3.0, 5.0]
@@ -135,13 +204,30 @@ if __name__ == '__main__':
         velocity_left,
         mach_number,
     )
+    rg, rds = density(
+        x_shock,
+        x_width,
+        n_dust,
+        dust_to_gas,
+        drag_coefficient,
+        density_left,
+        velocity_left,
+        mach_number,
+    )
 
-    fig, ax = plt.subplots()
-    ax.plot(x, vg(x), label='Gas')
+    fig, ax = plt.subplots(ncols=2, figsize=(10, 4))
+
+    ax[0].plot(x, vg(x), label='Gas')
     for idx, vd in enumerate(vds):
-        ax.plot(x, vd(x), label=f'Dust {idx + 1}')
-    ax.set_xlabel('Position')
-    ax.set_ylabel('Velocity')
-    ax.legend()
-    ax.grid()
+        ax[0].plot(x, vd(x), label=f'Dust {idx + 1}')
+    ax[1].plot(x, rg(x), label='Gas')
+    for idx, rd in enumerate(rds):
+        ax[1].plot(x, rd(x), label=f'Dust {idx + 1}')
+    ax[0].set_xlabel('Position')
+    ax[0].set_ylabel('Velocity')
+    ax[1].set_ylabel('Density')
+    ax[0].legend()
+    ax[0].grid()
+    ax[1].grid()
+
     plt.show()

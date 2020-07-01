@@ -171,13 +171,13 @@ def density(
     def density_gas(x):
         return density_left * velocity_left / v_gas(x)
 
-    def outer_fn(x, v_dust):
+    def outer_fn(v_dust):
         def inner_fn(x):
             return density_left * velocity_left / v_dust(x)
 
         return inner_fn
 
-    density_dust = [outer_fn(x, v_dust) for v_dust in v_dusts]
+    density_dust = [outer_fn(v_dust) for v_dust in v_dusts]
 
     return density_gas, density_dust
 

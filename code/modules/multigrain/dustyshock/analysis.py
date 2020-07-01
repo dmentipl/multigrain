@@ -7,6 +7,7 @@ import numpy as np
 import plonk
 import tqdm
 from matplotlib import animation
+from scipy.optimize import minimize_scalar
 
 from .exact import velocity as velocity_exact
 from .exact import density as density_exact
@@ -24,6 +25,24 @@ def first_snap(directory):
 
 def last_snap(directory):
     return plonk.load_snap(sorted(Path(directory).glob('dustyshock_*.h5'))[-1])
+
+
+def find_x_shock(snap, drag_coefficients, xrange):
+    print('Finding x-shock via optimization, may take some time...')
+
+    def fn(x_shock):
+        return velocity_error_norm(
+            snap=snap,
+            drag_coefficients=drag_coefficients,
+            x_shock=x_shock,
+            xrange=xrange,
+        )
+
+    result = minimize_scalar(fn)
+    if result.success:
+        return result.x
+    print('Failed to find x-shock')
+    return
 
 
 def plot_quantity_subsnaps(snap, quantity, ax, xrange):

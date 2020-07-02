@@ -1,0 +1,44 @@
+"""Dusty wave figures.
+
+Make figures showing time evolution of dusty wave test:
+
+- for 1 and 4 dust species.
+"""
+
+import pathlib
+import sys
+
+import plonk
+
+sys.path.insert(0, '../modules')
+from multigrain import dustywave
+
+
+PATH = '~/runs/multigrain/dustywave'
+
+# Path to data
+root_directory = pathlib.Path(PATH).expanduser()
+_paths = sorted(list(root_directory.glob('*')))
+paths = {p.name: p for p in _paths}
+
+
+# Calculate velocity and density time evolution
+
+# Set the sound speed and wave amplitude
+sound_speed = 1.0
+amplitude = 1e-4
+
+# Set the number of particles in the x direction.
+num_particles_x = 128
+
+# Loop over each simulation.
+dataframes = dict()
+for name, path in paths.items():
+    print(f'Running analysis for {name}...')
+    sim = plonk.load_sim(prefix='dustywave', directory=path)
+    dataframes[name] = dustywave.calculate_velocity_density(
+        sim, amplitude, sound_speed, num_particles_x
+    )
+
+# Plot results
+fig = dustywave.plot_velocity_density(dataframes)

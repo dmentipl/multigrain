@@ -357,22 +357,26 @@ def plot_numerical_vs_exact(
     else:
         raise ValueError('plot_type must be "particles" or "profile"')
 
-    velocity_max = 2.2
-    if len(drag_coefficients) == 1:
-        density_max = 9.5
-    elif len(drag_coefficients) == 3:
-        density_max = 18.0
+    if not isinstance(drag_coefficients[0], list):
+        _drag_coefficients = [drag_coefficients for _ in snaps]
     else:
-        raise ValueError('Exact solution must have 1 or 3 dust species')
+        _drag_coefficients = drag_coefficients
+
+    velocity_max = 2.2
 
     label = list(labels.keys())[0]
     _labels = list(labels.values())[0]
 
     for idx, snap in enumerate(snaps):
+        K = _drag_coefficients[idx]
+        if len(K) == 1:
+            density_max = 9.5
+        elif len(K) == 3:
+            density_max = 18.0
+        else:
+            raise ValueError('Exact solution must have 1 or 3 dust species')
         axs = [fig.axes[idx], fig.axes[idx + len(snaps)]]
-        plot_velocity_density_exact(
-            drag_coefficients=drag_coefficients, x_shock=x_shock[idx], axs=axs
-        )
+        plot_velocity_density_exact(drag_coefficients=K, x_shock=x_shock[idx], axs=axs)
         axs[0].set_ylim(0, velocity_max)
         axs[1].set_ylim(0, density_max)
         axs[0].set_aspect('auto')
@@ -380,8 +384,8 @@ def plot_numerical_vs_exact(
 
         axs[0].set_title(f'{label}={_labels[idx]}\n time={snap.properties["time"].m}')
         if idx == 0:
-            axs[0].set_ylabel('velocity')
-            axs[1].set_ylabel('density')
+            axs[0].set_ylabel('Velocity')
+            axs[1].set_ylabel('Density')
 
 
 def plot_particle_arrangement(

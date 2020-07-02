@@ -1,6 +1,7 @@
 """Dusty wave figures.
 
-Make figures showing time evolution of dusty wave test:
+Make figures showing time evolution of the velocity and density in the
+dusty wave test:
 
 - for 1 and 4 dust species.
 """
@@ -21,9 +22,6 @@ root_directory = pathlib.Path(PATH).expanduser()
 _paths = sorted(list(root_directory.glob('*')))
 paths = {p.name: p for p in _paths}
 
-
-# Calculate velocity and density time evolution
-
 # Set the sound speed and wave amplitude
 sound_speed = 1.0
 amplitude = 1e-4
@@ -31,7 +29,7 @@ amplitude = 1e-4
 # Set the number of particles in the x direction.
 num_particles_x = 128
 
-# Loop over each simulation.
+# Calculate velocity and density time evolution
 dataframes = dict()
 for name, path in paths.items():
     print(f'Running analysis for {name}...')

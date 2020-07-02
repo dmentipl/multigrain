@@ -1,6 +1,7 @@
 """Dusty box figures.
 
-Make figures showing time evolution of dusty box test:
+Make figures showing time evolution of differential velocity in the
+dusty box test:
 
 - for 1, 2, and 5 dust species,
 - for dust-to-gas ratio of 0.01 and 0.5.

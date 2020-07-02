@@ -22,11 +22,13 @@ from multigrain import dustybox
 PATH = '~/runs/multigrain/dustybox/time_evolution'
 
 # Path to data
+print('Get path to data...')
 root_directory = pathlib.Path(PATH).expanduser()
 _paths = sorted(list(root_directory.glob('*')))
 paths = {p.name: p for p in _paths}
 
 # Calculate velocity differential time evolution
+print('Calculate velocity differential time evolution...')
 velocity_differential = dict()
 for name, path in paths.items():
     print(f'Running analysis for {name}...')
@@ -34,7 +36,11 @@ for name, path in paths.items():
     velocity_differential[name] = dustybox.calculate_differential_velocity(sim)
 
 # Plot time evolution
+print('Plotting figure...')
 fig = dustybox.plot_differential_velocity_all(velocity_differential)
+name = 'dustybox_differential_velocity_comparison.pdf'
+print(f'Saving figure to {name}')
+fig.savefig(name)
 
 # Calculate velocity differential error
 error = dict()
@@ -43,4 +49,8 @@ for name, path in paths.items():
     error[name] = dustybox.calculate_error(velocity_differential[name])
 
 # Plot error
+print('Plotting figure...')
 fig = dustybox.plot_error_all(error)
+name = 'dustybox_differential_velocity_error.pdf'
+print(f'Saving figure to {name}')
+fig.savefig(name)

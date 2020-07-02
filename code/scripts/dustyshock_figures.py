@@ -56,6 +56,7 @@ fig = dustyshock.plot_numerical_vs_exact(
     drag_coefficients=drag_coefficients,
     x_shock=x_shock,
     plot_type='profile',
+    n_bins=40,
 )
 for ax in fig.axes:
     ax.grid()

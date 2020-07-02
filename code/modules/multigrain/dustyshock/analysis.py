@@ -345,6 +345,7 @@ def plot_numerical_vs_exact(
     labels=None,
     plot_type='particles',
     fig_kwargs={},
+    n_bins=50,
 ):
     if plot_type == 'particles':
         fig = plot_velocity_density_as_particles(
@@ -352,7 +353,7 @@ def plot_numerical_vs_exact(
         )
     elif plot_type == 'profile':
         fig = plot_velocity_density_as_profile(
-            snaps=snaps, xrange=xrange, n_bins=50, fig_kwargs=fig_kwargs
+            snaps=snaps, xrange=xrange, n_bins=n_bins, fig_kwargs=fig_kwargs
         )
     else:
         raise ValueError('plot_type must be "particles" or "profile"')
@@ -375,7 +376,7 @@ def plot_numerical_vs_exact(
         elif len(K) == 3:
             density_max = 18.0
         else:
-            raise ValueError('Exact solution must have 1 or 3 dust species')
+            density_max = None
         axs = [fig.axes[idx], fig.axes[idx + len(snaps)]]
         plot_velocity_density_exact(drag_coefficients=K, x_shock=x_shock[idx], axs=axs)
         axs[0].set_ylim(0, velocity_max)

@@ -50,7 +50,7 @@ def calculate_velocity_density(
 
 def plot_velocity_density(dataframes):
 
-    fig, axs = plt.subplots(ncols=len(dataframes), nrows=2, sharex=True, figsize=(8, 6))
+    fig, axs = plt.subplots(ncols=len(dataframes), nrows=2, sharex=True, figsize=(8, 8))
     fig.subplots_adjust(hspace=0.1)
 
     for idxi, (name, data) in enumerate(dataframes.items()):

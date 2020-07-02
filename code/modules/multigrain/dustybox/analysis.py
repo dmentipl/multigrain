@@ -157,12 +157,10 @@ def plot_differential_velocity_all(dataframes):
     fig
         Matplotlib Figure.
     """
-    fig, axs = plt.subplots(ncols=2, nrows=3, sharex=True, sharey=True, figsize=(8, 8))
+    fig, axs = plt.subplots(ncols=3, nrows=2, sharex=True, sharey=True, figsize=(14, 8))
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
-    for df, ax in zip(dataframes.values(), axs.T.flatten()):
+    for df, ax in zip(dataframes.values(), axs.flatten()):
         plot_differential_velocity(df, ax)
-    axs[0, 0].set(title='Dust-to-gas: 0.01')
-    axs[0, 1].set(title='Dust-to-gas: 0.5')
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')
     for ax in axs[:, 0]:
@@ -195,12 +193,10 @@ def plot_error(df, ax):
 
 
 def plot_error_all(dataframes):
-    fig, axs = plt.subplots(ncols=2, nrows=3, sharex=True, sharey=True, figsize=(8, 8))
+    fig, axs = plt.subplots(ncols=3, nrows=2, sharex=True, sharey=True, figsize=(14, 8))
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
-    for df, ax in zip(dataframes.values(), axs.T.flatten()):
+    for df, ax in zip(dataframes.values(), axs.flatten()):
         plot_error(df, ax)
-    axs[0, 0].set(title='Dust-to-gas: 0.01')
-    axs[0, 1].set(title='Dust-to-gas: 0.5')
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')
     for ax in axs[:, 0]:

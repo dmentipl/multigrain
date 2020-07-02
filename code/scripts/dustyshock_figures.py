@@ -44,10 +44,8 @@ snaps = [dustyshock.last_snap(paths[name]) for name in sim_names]
 # Find shock x-positions.
 print('Calculation x-position of shock...')
 x_shock = [
-    dustyshock.find_x_shock(
-        snap=snap, drag_coefficients=drag_coefficients, xrange=xrange
-    )
-    for snap in snaps
+    dustyshock.find_x_shock(snap=snap, drag_coefficients=K, xrange=xrange)
+    for snap, K in zip(snaps, drag_coefficients)
 ]
 
 # Plot the x-velocity and density for the gas and each dust species at the final time.

@@ -57,10 +57,10 @@ fig = dustyshock.plot_numerical_vs_exact(
     x_shock=x_shock,
     plot_type='profile',
     n_bins=40,
-    fig_kwargs={'width': 15, 'height': 4},
+    fig_kwargs={'width': 10, 'height': 4},
 )
 for ax in fig.axes:
     ax.grid()
 name = 'dustyshock_velocity_density.pdf'
 print(f'Saving figure to {name}')
-fig.savefig(name)
+fig.savefig(name, bbox_inches='tight', pad_inches=0)

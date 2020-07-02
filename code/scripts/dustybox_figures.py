@@ -42,7 +42,7 @@ for ax in fig.axes:
     ax.grid()
 name = 'dustybox_differential_velocity_comparison.pdf'
 print(f'Saving figure to {name}')
-fig.savefig(name)
+fig.savefig(name, bbox_inches='tight', pad_inches=0)
 
 # Calculate velocity differential error
 error = dict()
@@ -57,4 +57,4 @@ for ax in fig.axes:
     ax.grid()
 name = 'dustybox_differential_velocity_error.pdf'
 print(f'Saving figure to {name}')
-fig.savefig(name)
+fig.savefig(name, bbox_inches='tight', pad_inches=0)

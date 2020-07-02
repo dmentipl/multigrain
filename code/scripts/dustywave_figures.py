@@ -47,4 +47,4 @@ for ax in fig.axes:
     ax.grid()
 name = 'dustywave_velocity_density.pdf'
 print(f'Saving figure to {name}')
-fig.savefig(name)
+fig.savefig(name, bbox_inches='tight', pad_inches=0)

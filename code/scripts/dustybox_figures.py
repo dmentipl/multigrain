@@ -38,6 +38,8 @@ for name, path in paths.items():
 # Plot time evolution
 print('Plotting figure...')
 fig = dustybox.plot_differential_velocity_all(velocity_differential)
+for ax in fig.axes:
+    ax.grid()
 name = 'dustybox_differential_velocity_comparison.pdf'
 print(f'Saving figure to {name}')
 fig.savefig(name)

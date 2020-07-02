@@ -342,7 +342,7 @@ def plot_numerical_vs_exact(
     xrange,
     drag_coefficients,
     x_shock,
-    labels,
+    labels=None,
     plot_type='particles',
     fig_kwargs={},
 ):
@@ -364,8 +364,9 @@ def plot_numerical_vs_exact(
 
     velocity_max = 2.2
 
-    label = list(labels.keys())[0]
-    _labels = list(labels.values())[0]
+    if labels is not None:
+        label = list(labels.keys())[0]
+        _labels = list(labels.values())[0]
 
     for idx, snap in enumerate(snaps):
         K = _drag_coefficients[idx]
@@ -382,7 +383,11 @@ def plot_numerical_vs_exact(
         axs[0].set_aspect('auto')
         axs[1].set_aspect('auto')
 
-        axs[0].set_title(f'{label}={_labels[idx]}\n time={snap.properties["time"].m}')
+        if labels is not None:
+            axs[0].set_title(
+                f'{label}={_labels[idx]}\n time={snap.properties["time"].m}'
+            )
+        axs[1].set_xlabel('x')
         if idx == 0:
             axs[0].set_ylabel('Velocity')
             axs[1].set_ylabel('Density')

@@ -42,7 +42,7 @@ for name, path in paths.items():
 
 # Plot results
 print('Plotting figure...')
-fig = dustywave.plot_velocity_density(dataframes)
+fig = dustywave.plot_velocity_density(dataframes, figsize=(10, 8))
 for ax in fig.axes:
     ax.grid()
 name = 'dustywave_velocity_density.pdf'

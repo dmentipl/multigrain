@@ -48,9 +48,11 @@ def calculate_velocity_density(
     return pd.DataFrame(arrays, columns=columns)
 
 
-def plot_velocity_density(dataframes):
+def plot_velocity_density(dataframes, figsize=(10, 8)):
 
-    fig, axs = plt.subplots(ncols=len(dataframes), nrows=2, sharex=True, figsize=(8, 8))
+    fig, axs = plt.subplots(
+        ncols=len(dataframes), nrows=2, sharex=True, figsize=figsize
+    )
     fig.subplots_adjust(hspace=0.1)
 
     for idxi, (name, data) in enumerate(dataframes.items()):

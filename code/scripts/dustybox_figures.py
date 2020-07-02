@@ -37,7 +37,7 @@ for name, path in paths.items():
 
 # Plot time evolution
 print('Plotting figure...')
-fig = dustybox.plot_differential_velocity_all(velocity_differential)
+fig = dustybox.plot_differential_velocity_all(velocity_differential, figsize=(15, 8))
 for ax in fig.axes:
     ax.grid()
 name = 'dustybox_differential_velocity_comparison.pdf'
@@ -52,7 +52,7 @@ for name, path in paths.items():
 
 # Plot error
 print('Plotting figure...')
-fig = dustybox.plot_error_all(error)
+fig = dustybox.plot_error_all(error, figsize=(15, 8))
 for ax in fig.axes:
     ax.grid()
 name = 'dustybox_differential_velocity_error.pdf'

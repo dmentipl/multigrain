@@ -42,7 +42,6 @@
 % Only include extra packages if you really need them. Common packages are:
 \usepackage{graphicx} % Including figure files
 \usepackage{amsmath} % Advanced maths commands
-\usepackage{amssymb} % Extra maths symbols
 \usepackage{xcolor} % Colour text for draft
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -647,7 +646,7 @@ time step constraint for a particle:
 
 \begin{figure*}
    \begin{center}
-      \includegraphics[width=\textwidth]{figs/dustybox.png}
+      \includegraphics[width=\textwidth]{figs/dustybox_differential_velocity_comparison.pdf}
       \caption{Dusty box numerical test showing the differential velocity
          between the dust and gas. The total dust-to-gas ratio is 0.01 (top row)
          and 0.5 (bottom row). From left to right: the number of dust species is
@@ -736,7 +735,7 @@ the physics of dust drag accurately
 
 \begin{figure*}
    \begin{center}
-      \includegraphics[width=\textwidth]{figs/dustywave.png}
+      \includegraphics[width=\textwidth]{figs/dustywave_velocity_density.pdf}
       \caption{Dusty wave numerical test showing the normalised velocity (top)
          and density (bottom) perturbation at \(x = 0\), for gas with one dust
          species (left) and gas with four dust species (right). The open circles
@@ -802,6 +801,18 @@ accurately reproduces the analytical solution. In all cases we see the wave
 damping effect.
 
 \subsection{Dusty shock}
+
+\begin{figure*}
+   \begin{center}
+      \includegraphics[width=\textwidth]{figs/dustyshock_velocity_density.pdf}
+      \caption{Dusty shock numerical test showing the velocity (top) and the
+         density (bottom) at time \(t=300\). The left figures have gas (in blue)
+         and one dust species; the right figures have gas (blue) and three dust
+         species. The open circles represent the results from the Phantom
+         simulation. The solid lines represent the analytical solution from
+         \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustybox}}
+   \end{center}
+\end{figure*}
 
 \textcolor{red}{
 See \citet{Benitez-Llambay2019ApJS..241...25B},

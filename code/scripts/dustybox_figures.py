@@ -51,6 +51,8 @@ for name, path in paths.items():
 # Plot error
 print('Plotting figure...')
 fig = dustybox.plot_error_all(error)
+for ax in fig.axes:
+    ax.grid()
 name = 'dustybox_differential_velocity_error.pdf'
 print(f'Saving figure to {name}')
 fig.savefig(name)

@@ -387,6 +387,8 @@ def plot_numerical_vs_exact(
             axs[0].set_ylabel('Velocity')
             axs[1].set_ylabel('Density')
 
+    return fig
+
 
 def plot_particle_arrangement(
     *, snap, x='x', y='y', xrange, fig_kwargs={}, plot_kwargs={}

@@ -137,7 +137,7 @@ def variation_hfact():
 
     for idx, N in enumerate(Ns):
         _variation_hfact(
-            N, axs[idx], paths, hfacts, nx, smooth_fac, drag_coefficients, xrange
+            N, axs[idx], paths, hfacts, nx, smooth_fac, drag_coefficients[idx], xrange
         )
 
     name = 'dustyshock_hfact.pdf'

@@ -91,7 +91,8 @@ def initial_conditions():
 
     # Make plot
     print('Plotting figure...')
-    fig = dustyshock.plot_velocity_density_as_profile([snap], [-15, 15])
+    fig, axs = plt.subplots(nrows=2, sharex=True, squeeze=False)
+    dustyshock.plot_velocity_density_as_profile(snaps=[snap], xrange=[-15, 15], axs=axs)
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0)

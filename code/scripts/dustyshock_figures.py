@@ -122,7 +122,10 @@ def variation_hfact():
     hfacts = [1.0, 1.2, 1.5, 1.8]
     nx = 128
     smooth_fac = 2.0
-    drag_coefficients = [[1.0], [1.0, 3.0, 5.0]]
+    drag_coefficients = [
+        [[1.0], [1.0], [1.0], [1.0]],
+        [[1.0, 3.0, 5.0], [1.0, 3.0, 5.0], [1.0, 3.0, 5.0], [1.0, 3.0, 5.0]],
+    ]
     xrange = (-5, 15)
 
     # Figure

@@ -159,3 +159,10 @@ def _variation_hfact(N, axs, paths, hfacts, nx, smooth_fac, drag_coefficients, x
     )
     for ax in axs:
         ax.grid()
+
+
+if __name__ == '__main__':
+
+    initial_conditions()
+    final_velocity_density()
+    variation_hfact()

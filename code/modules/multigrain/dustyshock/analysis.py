@@ -87,8 +87,21 @@ def make_fig_axs(ncols, width=8, height=4):
     return fig, axs
 
 
-def plot_velocity_density_as_particles(snaps, xrange, fig_kwargs={}):
-    fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
+def plot_velocity_as_particles(snaps, xrange, axs):
+    for idx, snap in enumerate(snaps):
+        plot_quantity_subsnaps(
+            snap=snap, quantity='velocity', ax=axs[idx], xrange=xrange
+        )
+
+
+def plot_density_as_particles(snaps, xrange, axs):
+    for idx, snap in enumerate(snaps):
+        plot_quantity_subsnaps(
+            snap=snap, quantity='density', ax=axs[idx], xrange=xrange
+        )
+
+
+def plot_velocity_density_as_particles(snaps, xrange, axs):
     for idx, snap in enumerate(snaps):
         plot_quantity_subsnaps(
             snap=snap, quantity='velocity_x', ax=axs[0, idx], xrange=xrange
@@ -96,11 +109,23 @@ def plot_velocity_density_as_particles(snaps, xrange, fig_kwargs={}):
         plot_quantity_subsnaps(
             snap=snap, quantity='density', ax=axs[1, idx], xrange=xrange
         )
-    return fig
 
 
-def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
-    fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
+def plot_velocity_as_profile(snaps, xrange, axs, n_bins=50):
+    for idx, snap in enumerate(snaps):
+        plot_quantity_profile_subsnaps(
+            snap=snap, quantity='velocity_x', ax=axs[idx], xrange=xrange, n_bins=n_bins,
+        )
+
+
+def plot_density_as_profile(snaps, xrange, axs, n_bins=50):
+    for idx, snap in enumerate(snaps):
+        plot_quantity_profile_subsnaps(
+            snap=snap, quantity='density', ax=axs[idx], xrange=xrange, n_bins=n_bins,
+        )
+
+
+def plot_velocity_density_as_profile(snaps, xrange, axs, n_bins=50):
     for idx, snap in enumerate(snaps):
         plot_quantity_profile_subsnaps(
             snap=snap,
@@ -112,7 +137,6 @@ def plot_velocity_density_as_profile(snaps, xrange, n_bins=50, fig_kwargs={}):
         plot_quantity_profile_subsnaps(
             snap=snap, quantity='density', ax=axs[1, idx], xrange=xrange, n_bins=n_bins,
         )
-    return fig
 
 
 def velocity_error(
@@ -307,7 +331,30 @@ def plot_velocity_density_error(
     return fig, axs
 
 
-def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):
+def plot_velocity_exact(drag_coefficients, x_shock, ax, n_points=1000):
+    n_dust = len(drag_coefficients)
+    x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2, n_points)
+    _v_gas, _v_dusts = velocity_exact(
+        x_shock=x_shock,
+        x_width=X_WIDTH_EXACT,
+        n_dust=n_dust,
+        dust_to_gas=DUST_TO_GAS,
+        drag_coefficient=drag_coefficients,
+        density_left=DENSITY_LEFT,
+        velocity_left=VELOCITY_LEFT,
+        mach_number=MACH_NUMBER,
+    )
+
+    v_gas = _v_gas(x)
+    v_dusts = [_v_dust(x) for _v_dust in _v_dusts]
+
+    colors = [line.get_color() for line in ax.lines]
+    ax.plot(x, v_gas, color=colors[0])
+    for idx, v_dust in enumerate(v_dusts):
+        ax.plot(x, v_dust, color=colors[idx + 1])
+
+
+def plot_density_exact(drag_coefficients, x_shock, ax, n_points=1000):
     n_dust = len(drag_coefficients)
     x = np.linspace(x_shock - X_WIDTH_EXACT / 2, x_shock + X_WIDTH_EXACT / 2, n_points)
     _v_gas, _v_dusts = velocity_exact(
@@ -326,15 +373,81 @@ def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):
     rho_gas = DENSITY_LEFT * VELOCITY_LEFT / v_gas
     rho_dusts = [DENSITY_LEFT * VELOCITY_LEFT / v_dust for v_dust in v_dusts]
 
-    colors = [line.get_color() for line in axs[0].lines]
-    axs[0].plot(x, v_gas, color=colors[0])
-    for idx, v_dust in enumerate(v_dusts):
-        axs[0].plot(x, v_dust, color=colors[idx + 1])
-
-    colors = [line.get_color() for line in axs[1].lines]
-    axs[1].plot(x, rho_gas, color=colors[0])
+    colors = [line.get_color() for line in ax.lines]
+    ax.plot(x, rho_gas, color=colors[0])
     for idx, rho_dust in enumerate(rho_dusts):
-        axs[1].plot(x, rho_dust, color=colors[idx + 1])
+        ax.plot(x, rho_dust, color=colors[idx + 1])
+
+
+def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):
+    plot_velocity_exact(drag_coefficients, x_shock, axs[0], n_points=1000)
+    plot_density_exact(drag_coefficients, x_shock, axs[1], n_points=1000)
+
+
+def plot_numerical_vs_exact_velocity(
+    snaps,
+    xrange,
+    drag_coefficients,
+    x_shock,
+    axs,
+    labels=None,
+    plot_type='particles',
+    n_bins=50,
+):
+    if plot_type == 'particles':
+        plot_velocity_as_particles(snaps=snaps, xrange=xrange, axs=axs)
+    elif plot_type == 'profile':
+        plot_velocity_as_profile(snaps=snaps, xrange=xrange, axs=axs, n_bins=n_bins)
+    else:
+        raise ValueError('plot_type must be "particles" or "profile"')
+
+    if not isinstance(drag_coefficients[0], list):
+        _drag_coefficients = [drag_coefficients for _ in snaps]
+    else:
+        _drag_coefficients = drag_coefficients
+
+    velocity_max = 2.2
+
+    for idx, snap in enumerate(snaps):
+        K = _drag_coefficients[idx]
+        plot_velocity_exact(drag_coefficients=K, x_shock=x_shock[idx], ax=axs[idx])
+        axs[idx].set_ylim(0, velocity_max)
+        axs[idx].set_aspect('auto')
+
+
+def plot_numerical_vs_exact_density(
+    snaps,
+    xrange,
+    drag_coefficients,
+    x_shock,
+    axs,
+    labels=None,
+    plot_type='particles',
+    n_bins=50,
+):
+    if plot_type == 'particles':
+        plot_density_as_particles(snaps=snaps, xrange=xrange, axs=axs)
+    elif plot_type == 'profile':
+        plot_density_as_profile(snaps=snaps, xrange=xrange, axs=axs, n_bins=n_bins)
+    else:
+        raise ValueError('plot_type must be "particles" or "profile"')
+
+    if not isinstance(drag_coefficients[0], list):
+        _drag_coefficients = [drag_coefficients for _ in snaps]
+    else:
+        _drag_coefficients = drag_coefficients
+
+    for idx, snap in enumerate(snaps):
+        K = _drag_coefficients[idx]
+        if len(K) == 1:
+            density_max = 9.5
+        elif len(K) == 3:
+            density_max = 18.0
+        else:
+            density_max = None
+        plot_density_exact(drag_coefficients=K, x_shock=x_shock[idx], ax=axs[idx])
+        axs[idx].set_ylim(0, density_max)
+        axs[idx].set_aspect('auto')
 
 
 def plot_numerical_vs_exact(
@@ -347,51 +460,38 @@ def plot_numerical_vs_exact(
     fig_kwargs={},
     n_bins=50,
 ):
-    if plot_type == 'particles':
-        fig = plot_velocity_density_as_particles(
-            snaps=snaps, xrange=xrange, fig_kwargs=fig_kwargs
-        )
-    elif plot_type == 'profile':
-        fig = plot_velocity_density_as_profile(
-            snaps=snaps, xrange=xrange, n_bins=n_bins, fig_kwargs=fig_kwargs
-        )
-    else:
-        raise ValueError('plot_type must be "particles" or "profile"')
+    fig, axs = make_fig_axs(ncols=len(snaps), **fig_kwargs)
 
-    if not isinstance(drag_coefficients[0], list):
-        _drag_coefficients = [drag_coefficients for _ in snaps]
-    else:
-        _drag_coefficients = drag_coefficients
-
-    velocity_max = 2.2
+    plot_numerical_vs_exact_velocity(
+        snaps,
+        xrange,
+        drag_coefficients,
+        x_shock,
+        axs[0],
+        labels=labels,
+        plot_type=plot_type,
+        n_bins=n_bins,
+    )
+    plot_numerical_vs_exact_density(
+        snaps,
+        xrange,
+        drag_coefficients,
+        x_shock,
+        axs[1],
+        labels=labels,
+        plot_type=plot_type,
+        n_bins=n_bins,
+    )
 
     if labels is not None:
         label = list(labels.keys())[0]
         _labels = list(labels.values())[0]
-
-    for idx, snap in enumerate(snaps):
-        K = _drag_coefficients[idx]
-        if len(K) == 1:
-            density_max = 9.5
-        elif len(K) == 3:
-            density_max = 18.0
-        else:
-            density_max = None
-        axs = [fig.axes[idx], fig.axes[idx + len(snaps)]]
-        plot_velocity_density_exact(drag_coefficients=K, x_shock=x_shock[idx], axs=axs)
-        axs[0].set_ylim(0, velocity_max)
-        axs[1].set_ylim(0, density_max)
-        axs[0].set_aspect('auto')
-        axs[1].set_aspect('auto')
-
-        if labels is not None:
-            axs[0].set_title(
-                f'{label}={_labels[idx]}\n time={snap.properties["time"].m}'
-            )
-        axs[1].set_xlabel('x')
-        if idx == 0:
-            axs[0].set_ylabel('Velocity')
-            axs[1].set_ylabel('Density')
+        for idx, (snap, ax) in enumerate(zip(snaps, axs[0])):
+            ax.set_title(f'{label}={_labels[idx]}\n time={snap.properties["time"].m}')
+        for idx, ax in enumerate(axs[1]):
+            ax.set_xlabel('x')
+        axs.T[0][0].set_ylabel('Velocity')
+        axs.T[0][1].set_ylabel('Density')
 
     return fig
 

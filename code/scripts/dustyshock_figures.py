@@ -31,6 +31,9 @@ def get_paths():
 
 
 def final_velocity_density():
+    print('Final time velocity and density')
+    print('-------------------------------')
+
     # Get data
     paths = get_paths()
 
@@ -75,6 +78,9 @@ def final_velocity_density():
 
 
 def initial_conditions():
+    print('Initial conditions')
+    print('------------------')
+
     # Get data
     paths = get_paths()
 
@@ -99,6 +105,9 @@ def initial_conditions():
 
 
 def variation_hfact():
+    print('Variation with hfact')
+    print('--------------------')
+
     # Get data
     paths = get_paths()
 

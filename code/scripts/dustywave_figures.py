@@ -11,7 +11,7 @@ import sys
 
 import plonk
 
-sys.path.insert(0, '../modules')
+sys.path.insert(0, str(Path(__file__).resolve().parent / '../modules'))
 from multigrain import dustywave
 
 

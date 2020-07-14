@@ -16,7 +16,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, '../modules')
+sys.path.insert(0, str(Path(__file__).resolve().parent / '../modules'))
 from multigrain import dustyshock
 
 
@@ -120,9 +120,9 @@ def variation_hfact():
         figsize=(10, 8),
     )
 
-    for N in Ns:
+    for idx, N in enumerate(Ns):
         _variation_hfact(
-            N, axs, paths, hfacts, nx, smooth_fac, drag_coefficients, xrange
+            N, axs[idx], paths, hfacts, nx, smooth_fac, drag_coefficients, xrange
         )
 
     name = 'dustyshock_hfact.pdf'

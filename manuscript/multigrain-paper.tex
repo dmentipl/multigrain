@@ -127,8 +127,8 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
    \item \citet{Haworth2016PASA...33...53H}---grand challenges in protoplanetary
       disc modeling.
    \item Single grain size vs multiple dust species.
-   \item Phantom dust methods---\citet{Price2018PASA...35...31P}.
-   \item Phantom 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
+   \item \textsc{Phantom} dust methods---\citet{Price2018PASA...35...31P}.
+   \item \textsc{Phantom} 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
    \item Applications: protoplanetary discs, debris discs.
 \end{itemize}
 }
@@ -640,10 +640,8 @@ time step constraint for a particle:
 
 \section{Numerical tests}
 
-\textcolor{red}{
-   We implemented the above scheme in Phantom... Each test is performed in 3d.
-   Quintic kernel. hfact value.
-}
+\textcolor{red}{We implemented the above scheme in \textsc{Phantom}... Each test
+   is performed in 3d. Quintic kernel. hfact value.}
 
 \subsection{Dusty box}
 
@@ -653,9 +651,9 @@ time step constraint for a particle:
       \caption{Dusty box numerical test showing the differential velocity
          between the dust and gas. The total dust-to-gas ratio is 0.01 (top row)
          and 0.5 (bottom row). From left to right: the number of dust species is
-         1, 2, 5. The open circles represent the results from the Phantom
-         simulation. The solid and dashed lines represent the analytical
-         solution with and without taking back reaction into account,
+         1, 2, 5. The open circles represent the results from the
+         \textsc{Phantom} simulation. The solid and dashed lines represent the
+         analytical solution with and without taking back reaction into account,
          respectively.\label{fig:dustybox}}
    \end{center}
 \end{figure*}
@@ -724,9 +722,9 @@ solutions. The dashed lines represent the analytical solution without
 backreaction from the dust on the gas. The solid lines represent the analytical
 solution including backreaction. For low dust-to-gas ratio (0.01) both
 analytical solutions give the same decay of differential velocity, with which
-the Phantom simulation agrees. For a larger dust-to-gas ratio (0.5) the
-analytical solutions diverge, and the Phantom simulation data follows the
-backreaction-inclusive solution. For large dust-to-gas ratio we see that the
+the \textsc{Phantom} simulation agrees. For a larger dust-to-gas ratio (0.5) the
+analytical solutions diverge, and the \textsc{Phantom} simulation data follows
+the backreaction-inclusive solution. For large dust-to-gas ratio we see that the
 smaller grains (0.1 cm and 0.316 cm) rapidly slow and the differential velocity
 reverses sign. I.e. the small grains slow to the gas velocity; then, as the
 larger grains speed up the gas via drag, the gas drags the small grains along
@@ -743,8 +741,8 @@ the physics of dust drag accurately
       \caption{Dusty wave numerical test showing the normalised velocity (top)
          and density (bottom) perturbation at \(x = 0\), for gas with one dust
          species (left) and gas with four dust species (right). The open circles
-         represent the Phantom simulation, and the solid line represents the
-         analytical solution from
+         represent the \textsc{Phantom} simulation, and the solid line
+         represents the analytical solution from
          \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustywave}}
    \end{center}
 \end{figure*}
@@ -800,9 +798,9 @@ Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
 and density perturbations at a particular location within the domain (\(x=0\)).
 The solid lines represent the analytical solution from
 \citet{Benitez-Llambay2019ApJS..241...25B} and the open circles represent the
-numerical solution from Phantom. We first note that the numerical solution
-accurately reproduces the analytical solution. In all cases we see the wave
-damping effect.
+numerical solution from \textsc{Phantom}. We first note that the numerical
+solution accurately reproduces the analytical solution. In all cases we see the
+wave damping effect.
 
 \subsection{Dusty shock}
 
@@ -820,8 +818,9 @@ damping effect.
       \caption{Dusty shock numerical test showing the velocity (top) and the
          density (bottom) at time \(t=300\). The left figures have gas (in blue)
          and one dust species; the right figures have gas (blue) and three dust
-         species. The open circles represent the results from the Phantom
-         simulation. The solid lines represent the analytical solution from
+         species. The open circles represent the results from the
+         \textsc{Phantom} simulation. The solid lines represent the analytical
+         solution from
          \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustyshock_final}}
    \end{center}
 \end{figure*}
@@ -848,17 +847,17 @@ dust species method. We use that same parameters as
 \citet{Benitez-Llambay2019ApJS..241...25B}; see their Table~3.
 
 We set up initial conditions as shown in Figure~\ref{fig:dustyshock_initial}.
-\textcolor{red}{(Should this figure be of the particles?)} We set up the
-particles on two close-packed lattices, one on each side of a discontinuity in
-the density and velocity in the x-direction with values on either side of the
-shock set by their asymptotic values. Due to the resolution-follows-the-mass
-nature of SPH, the numerical resolution is higher in the high density region.
-\textcolor{red}{Add number of particles.} We smoothed the density distribution,
-but not the velocity, using a logistic function, \(f(x) \propto {\left(1 +
-e^{-k(x-x_{\rm shock})} \right)}^{-1}\). The large (infinite) gradient in
-density at the shock boundary leads to errors in evolving the dust.
-
-\textcolor{red}{discussion of SPH parameters---hfact; dust same as gas}
+\textcolor{red}{(Should this figure be of the particles?)} For the gas and each
+dust species, we set up the particles on two close-packed lattices, one on each
+side of a discontinuity in the density and velocity in the x-direction with
+values on either side of the shock set by their asymptotic values. We use the
+same resolution for the gas and each dust species. Due to the
+resolution-follows-the-mass nature of SPH, the numerical resolution is higher in
+the high density region. \textcolor{red}{Add number of particles.} We smoothed
+the density distribution, but not the velocity, using a logistic function,
+\(f(x) \propto {\left(1 + e^{-k(x-x_{\rm shock})} \right)}^{-1}\). The large (in
+principe, infinite) gradient in density at the shock boundary leads to errors in
+evolving the dust.
 
 Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
 at \(t = 300\) which is long enough so that any transient behaviour has died
@@ -866,7 +865,33 @@ out. We have binned the particles into 40 bins in the x-direction and calculated
 a mass-weighted average for both density and velocity. We have over-plotted the
 analytical solution for comparison. Note that the shock position has drifted
 from its initial position and we have shifted the analytical solution shock
-position to minimise the error.
+position to minimise the error. Our numerical method reproduces the exact
+solution in this non-linear test problem.
+
+To achieve an accurate solution we used a larger number of particle neighbours
+in the SPH density sum than is typical in dust-gas simulations with
+\textsc{Phantom}. The typical neighbour number for quintic kernel, used by
+default for dust, density sums in \textsc{Phantom} is 113
+\citep{Price2018PASA...35...31P}. The mean neighbour number \(\overline{N}_{\rm
+neigh}\) is related to the proportionality constant \(h_{\rm fact}\) by
+%
+\begin{align}
+   \overline{N}_{\rm neigh} = \frac{4}{3} \pi
+   {\left( R_{\rm kern} h_{\rm fact} \right)}^3.
+\end{align}
+%
+For the quintic kernel, \( R_{\rm kern} = 3.0 \). So, by default, \( h_{\rm
+fact} = 1.0 \).
+
+Figure~\ref{fig:dustyshock_hfact} shows the comparison between the analytical
+and numerical solutions for the density varying the value of \( h_{\rm fact} =
+1.0, 1.2, 1.5, 1.8 \), corresponding to \(\overline{N}_{\rm neigh} = 113, 195,
+381, 660\). We can see that the accuracy of the gas density is independent (or
+only weakly dependent) on the neighbour number. In contrast, the dust density
+depends strongly on the neighbour number. We require \( h_{\rm fact} = 1.5\),
+for the single dust species case, and \(h_{\rm fact} = 1.8\), for the three dust
+species case.
+
 
 \section{Discussion}
 
@@ -902,9 +927,9 @@ position to minimise the error.
 
 \section*{Acknowledgements}
 
-We used Phantom to perform the numerical simulations
-\citep{Price2018PASA...35...31P}. We used Plonk for analysis and visualisation
-of Phantom data \citep{Mentiplay2019JOSS....4.1884M}.
+We used \textsc{Phantom} to perform the numerical simulations
+\citep{Price2018PASA...35...31P}. We used \textsc{Plonk} for analysis and
+visualisation of \textsc{Phantom} data \citep{Mentiplay2019JOSS....4.1884M}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

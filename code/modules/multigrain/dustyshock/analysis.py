@@ -84,6 +84,7 @@ def make_fig_axs(ncols, width=8, height=4):
         squeeze=False,
         figsize=(width, height * nrows),
     )
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
     return fig, axs
 
 

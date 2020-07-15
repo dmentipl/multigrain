@@ -83,6 +83,7 @@ def initial_conditions():
     hfact = 1.8
     nx = 128
     smooth_fac = 2.0
+    xrange = (-5, 15)
 
     # Get snap
     print('Load data...')
@@ -92,7 +93,10 @@ def initial_conditions():
     # Make plot
     print('Plotting figure...')
     fig, axs = plt.subplots(nrows=2, sharex=True, squeeze=False)
-    dustyshock.plot_velocity_density_as_profile(snaps=[snap], xrange=[-15, 15], axs=axs)
+    axs[0, 0].set_ylabel('Velocity')
+    axs[1, 0].set_ylabel('Density')
+    axs[1, 0].set_xlabel('x')
+    dustyshock.plot_velocity_density_as_profile(snaps=[snap], xrange=xrange, axs=axs)
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0)
@@ -109,12 +113,12 @@ def variation_hfact():
 
     # Set parameters
     Ns = [1, 3]
-    hfacts = [1.0, 1.2, 1.5, 1.8]
+    hfacts = [1.2, 1.5, 1.8]
     nx = 128
     smooth_fac = 2.0
     drag_coefficients = [
-        [[1.0], [1.0], [1.0], [1.0]],
-        [[1.0, 3.0, 5.0], [1.0, 3.0, 5.0], [1.0, 3.0, 5.0], [1.0, 3.0, 5.0]],
+        [[1.0], [1.0], [1.0]],
+        [[1.0, 3.0, 5.0], [1.0, 3.0, 5.0], [1.0, 3.0, 5.0]],
     ]
     xrange = (-5, 15)
 
@@ -123,10 +127,16 @@ def variation_hfact():
         ncols=len(hfacts),
         nrows=len(Ns),
         sharex=True,
-        sharey=False,
+        sharey='row',
         squeeze=False,
-        figsize=(10, 8),
+        figsize=(15, 8),
     )
+    fig.subplots_adjust(hspace=0.1, wspace=0.1)
+
+    for idx, ax in enumerate(axs[1]):
+        ax.set_xlabel('x')
+    axs.T[0][0].set_ylabel('Density')
+    axs.T[0][1].set_ylabel('Density')
 
     for idx, N in enumerate(Ns):
         _variation_hfact(

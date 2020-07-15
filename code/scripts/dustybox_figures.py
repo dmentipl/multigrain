@@ -10,8 +10,8 @@ Also, make figures showing the time evolution of the error of the above
 tests.
 """
 
-import pathlib
 import sys
+from pathlib import Path
 
 import plonk
 
@@ -23,8 +23,8 @@ PATH = '~/runs/multigrain/dustybox/time_evolution'
 
 # Path to data
 print('Get path to data...')
-root_directory = pathlib.Path(PATH).expanduser()
-_paths = sorted(list(root_directory.glob('*')))
+root_directory = Path(PATH).expanduser()
+_paths = sorted(list(root_directory.glob('f_*-N_*')))
 paths = {p.name: p for p in _paths}
 
 # Calculate velocity differential time evolution

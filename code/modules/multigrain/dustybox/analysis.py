@@ -138,7 +138,7 @@ def plot_differential_velocity(df, ax):
 
     for yd, ye1, ye2 in zip(y_data, y_exact1, y_exact2):
         [line] = ax.plot(x, ye1)
-        ax.plot(x, ye2, '--', color=line.get_color())
+        ax.plot(x, ye2, '--', color=line.get_color(), alpha=0.33)
         ax.plot(x, yd, 'o', ms=4, fillstyle='none', color=line.get_color())
 
     return ax

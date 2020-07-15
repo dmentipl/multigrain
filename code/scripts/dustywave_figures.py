@@ -6,8 +6,8 @@ dusty wave test:
 - for 1 and 4 dust species.
 """
 
-import pathlib
 import sys
+from pathlib import Path
 
 import plonk
 
@@ -19,7 +19,7 @@ PATH = '~/runs/multigrain/dustywave'
 
 # Path to data
 print('Get path to data...')
-root_directory = pathlib.Path(PATH).expanduser()
+root_directory = Path(PATH).expanduser()
 _paths = sorted(list(root_directory.glob('*')))
 paths = {p.name: p for p in _paths}
 

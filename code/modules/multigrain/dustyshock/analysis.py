@@ -488,10 +488,11 @@ def plot_numerical_vs_exact(
         _labels = list(labels.values())[0]
         for idx, (snap, ax) in enumerate(zip(snaps, axs[0])):
             ax.set_title(f'{label}={_labels[idx]}\n time={snap.properties["time"].m}')
-        for idx, ax in enumerate(axs[1]):
-            ax.set_xlabel('x')
-        axs.T[0][0].set_ylabel('Velocity')
-        axs.T[0][1].set_ylabel('Density')
+
+    for idx, ax in enumerate(axs[1]):
+        ax.set_xlabel('x')
+    axs.T[0][0].set_ylabel('Velocity')
+    axs.T[0][1].set_ylabel('Density')
 
     return fig
 

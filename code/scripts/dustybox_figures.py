@@ -21,7 +21,7 @@ from multigrain import dustybox
 PATH = '~/runs/multigrain/dustybox/time_evolution'
 
 
-def get_paths():
+def _get_paths():
     print('Get path to data...')
     root_directory = Path(PATH).expanduser()
     _paths = sorted(list(root_directory.glob('f_*-N_*')))
@@ -30,7 +30,9 @@ def get_paths():
     return paths
 
 
-def calculate_velocity_differential(paths):
+def _calculate_velocity_differential():
+    paths = _get_paths()
+
     print('Calculate velocity differential time evolution...')
     velocity_differential = dict()
     for name, path in paths.items():
@@ -41,7 +43,14 @@ def calculate_velocity_differential(paths):
     return velocity_differential
 
 
-def time_evolution(velocity_differential):
+def time_evolution():
+    print('')
+    print('Time evolution of velocity differential')
+    print('---------------------------------------')
+    print('')
+
+    velocity_differential = _calculate_velocity_differential()
+
     print('Plotting figure...')
     fig = dustybox.plot_differential_velocity_all(
         velocity_differential, figsize=(15, 8)
@@ -53,7 +62,14 @@ def time_evolution(velocity_differential):
     fig.savefig(name, bbox_inches='tight', pad_inches=0)
 
 
-def time_evolution_error(velocity_differential):
+def time_evolution_error():
+    print('')
+    print('Time evolution of velocity differential error')
+    print('---------------------------------------------')
+    print('')
+
+    velocity_differential = _calculate_velocity_differential()
+
     error = dict()
     for name, vd in velocity_differential.items():
         print(f'Calculating error for {name}...')
@@ -69,7 +85,5 @@ def time_evolution_error(velocity_differential):
 
 
 if __name__ == "__main__":
-    paths = get_paths()
-    velocity_differential = calculate_velocity_differential(paths)
-    time_evolution(velocity_differential)
-    time_evolution_error(velocity_differential)
+    time_evolution()
+    time_evolution_error()

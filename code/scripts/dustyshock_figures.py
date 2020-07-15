@@ -20,16 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / '../modules'))
 from multigrain import dustyshock
 
 
-def get_paths():
-    print('Get path to data...')
-    _paths = (
-        Path('~/runs/multigrain/dustyshock')
-        .expanduser()
-        .glob('N_*-nx_*-smooth_fac_*-hfact_*')
-    )
-    return {p.name: p for p in _paths}
-
-
 def final_velocity_density():
     print('')
     print('Final time velocity and density')
@@ -37,7 +27,7 @@ def final_velocity_density():
     print('')
 
     # Get data
-    paths = get_paths()
+    paths = _get_paths()
 
     # Set parameters for "final time" plot
     Ns = [1, 3]
@@ -86,7 +76,7 @@ def initial_conditions():
     print('')
 
     # Get data
-    paths = get_paths()
+    paths = _get_paths()
 
     # Set parameters for "final time" plot
     N = 1
@@ -115,7 +105,7 @@ def variation_hfact():
     print('')
 
     # Get data
-    paths = get_paths()
+    paths = _get_paths()
 
     # Set parameters
     Ns = [1, 3]
@@ -178,6 +168,16 @@ def _variation_hfact(N, axs, paths, hfacts, nx, smooth_fac, drag_coefficients, x
     )
     for ax in axs:
         ax.grid()
+
+
+def _get_paths():
+    print('Get path to data...')
+    _paths = (
+        Path('~/runs/multigrain/dustyshock')
+        .expanduser()
+        .glob('N_*-nx_*-smooth_fac_*-hfact_*')
+    )
+    return {p.name: p for p in _paths}
 
 
 if __name__ == '__main__':

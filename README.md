@@ -1,6 +1,6 @@
 # A smoothed particle hydrodynamics algorithm for multigrain dust with separate sets of particles
 
-by Daniel Mentiplay, Daniel Price, Christophe Pinte, and Guillaume Laibe
+by Daniel Mentiplay, Daniel Price, and Christophe Pinte
 
 We plan to submit the manuscript to *Monthly Notices of the Royal Astronomical Society*.
 > (FOR FUTURE REFERENCE) CITATION GOES HERE

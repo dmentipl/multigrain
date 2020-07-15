@@ -802,6 +802,14 @@ damping effect.
 
 \subsection{Dusty shock}
 
+\begin{figure}
+   \begin{center}
+      \includegraphics[width=\columnwidth]{figs/dustyshock_initial.pdf}
+      \caption{Dusty shock numerical test initial conditions showing the
+         velocity (top) and the density (bottom).\label{fig:dustyshock_initial}}
+   \end{center}
+\end{figure}
+
 \begin{figure*}
    \begin{center}
       \includegraphics[width=0.66\textwidth]{figs/dustyshock_velocity_density.pdf}
@@ -810,7 +818,7 @@ damping effect.
          and one dust species; the right figures have gas (blue) and three dust
          species. The open circles represent the results from the Phantom
          simulation. The solid lines represent the analytical solution from
-         \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustybox}}
+         \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustyshock_final}}
    \end{center}
 \end{figure*}
 
@@ -830,10 +838,42 @@ shock described by the following set of equations:
 %
 We use a constant drag coefficient, \(K_i\) per species.
 
-We use that same parameters as \citet{Benitez-Llambay2019ApJS..241...25B}.
+We set up two tests. One test with a single dust species to validate against
+previous work. And one test with three dust species to validate our multiple
+dust species method. We use that same parameters as
+\citet{Benitez-Llambay2019ApJS..241...25B}; see their Table~3.
 
+We set up initial conditions as shown in Figure~\ref{fig:dustyshock_initial}.
+\textcolor{red}{(Should this figure be of the particles?)} We set up the
+particles on two close-packed lattices, one on each side of a discontinuity in
+the density and velocity in the x-direction with values on either side of the
+shock set by their asymptotic values. Due to errors in evolving the dust derived
+from the (infinite) gradient at the shock boundary we smooth the density
+distribution using a logistic function, \(f(x) \propto {\left(1 + e^{-k(x-x_{\rm
+shock})} \right)}^{-1}\).
+
+\textcolor{red}{
+   \begin{itemize}
+      \item discussion of SPH parameters---hfact, nx
+   \end{itemize}
+}
+
+Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
+at \(t = 300\) which is long enough so that any transient behaviour has died
+out. We have binned the particles into 40 bins in the x-direction and calculated
+a mass-weighted average for both density and velocity. We have over-plotted the
+analytical solution for comparison. Note that the shock position has drifted
+from its initial position and we have shifted the analytical solution shock
+position to minimise the error.
 
 \section{Discussion}
+
+\begin{figure*}
+   \begin{center}
+      \includegraphics[width=0.66\textwidth]{figs/dustyshock_hfact.pdf}
+      \caption{\label{fig:dustyshock_hfact}}
+   \end{center}
+\end{figure*}
 
 \textcolor{red}{
 \begin{itemize}
@@ -841,6 +881,7 @@ We use that same parameters as \citet{Benitez-Llambay2019ApJS..241...25B}.
       large grains.
    \item Memory constraint: extra set of particles per dust species requires
       position, velocity, etc.\ unlike the mixture method.
+   \item Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
 \end{itemize}
 }
 
@@ -859,6 +900,8 @@ We use that same parameters as \citet{Benitez-Llambay2019ApJS..241...25B}.
 
 \section*{Acknowledgements}
 
+We used Plonk for analysis and visualisation of Phantom data
+\citep{Mentiplay2019JOSS....4.1884M}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

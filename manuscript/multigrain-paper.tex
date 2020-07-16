@@ -113,36 +113,6 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 
 \section{Introduction}
 
-\textcolor{red}{
-\begin{itemize}
-   \item Dust is important for ISM, star formation, protoplanetary discs, debris
-      discs.
-   \item Dust makes planets.
-   \item Dust regulates temperature of disc.
-   \item Dust is observable.
-   \item Multi-wavelength observations show that the radial extent of emission
-      scales inversely with wavelength. I.e. larger grains drift inwards more --
-      \citet{Andrews2012ApJ...744..162A}. Cite \citet{Testi2014prpl.conf..339T}?
-   \item Dust-gas modeling in astrophysical fluids.
-   \item \citet{Haworth2016PASA...33...53H}---grand challenges in protoplanetary
-      disc modeling.
-   \item Single grain size vs multiple dust species.
-   \item \textsc{Phantom} dust methods---\citet{Price2018PASA...35...31P}.
-   \item \textsc{Phantom} 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
-   \item Applications: protoplanetary discs, debris discs.
-\end{itemize}
-Motivations for multigrain:
-\begin{itemize}
-   \item circumbinary discs
-   \item outward migration of dust
-   \item backreaction
-   \item spectral index maps
-   \item coupling with MCFOST
-   \item self-gravitating discs
-   \item time scale for gap opening
-\end{itemize}
-}
-
 Multi-wavelength observations of protoplanetary discs show that the radial
 extent of the dust disc scales inversely with wavelength
 \citep{Andrews2015PASP..127..961A}. This suggests that larger grains drift
@@ -168,16 +138,41 @@ producing synthetic spectral index maps to compare with observations.
 Discs containing dust asymmetries and spiral arms around central cavities can
 show greater concentration at different wavelengths. Previous work has suggested
 that the cause of these features is a (possibly unseen) companion in the cavity
-\citep{Price2018MNRAS.477.1270P,Poblete2019MNRAS.489.2204P}. The ability to
+\citep{Price2018MNRAS.477.1270P, Poblete2019MNRAS.489.2204P}. The ability to
 perform multi-wavelength synthetic observations in single species dust-gas
 hydrodynamical models is compromised. One option is to stack, in
 post-processing, multiple single dust species simulations. However, due to back
 reaction, there may be a phase difference in the location of the concentration
 making this procedure unreliable.
 
+There are two approaches to modelling of dust-gas mixtures in SPH: (i) the dust
+and gas are represented by separate sets of SPH particles
+\citep{Monaghan1995CoPhC..87..225M, Laibe2012MNRAS.420.2345L,
+Laibe2012MNRAS.420.2365L}. In this approach the dust and gas SPH particles
+interact via a drag coupling term. In the other approach, (ii) the dust and gas
+are modelled by a single set of SPH particles representing the mixture
+\citep{Price2015MNRAS.451..813P}. In this approach the dust fraction is stored
+on the particles and evolved in time.
+
+In the description for both of these approaches the methods are applicable to a
+single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L}
+described a multiple species approach for the single SPH fluid method.
+\citet{Hutchison2018MNRAS.476.2186H} provided an algorithmic implementation of
+this method and tested this in the \textsc{Phantom} SPH code
+\citep{Price2018PASA...35...31P}.
+
+In this paper we extend method (i), in which dust is represented by separate
+sets of particles, from a single species to multiple species. We present the
+continuum equations to solve in Section~\ref{subsec:continuum}, and the SPH
+discretisation of those equations in Section~\ref{subsec:sph}. We describe
+several tests of the method, as implemented in \textsc{Phantom}, in
+Section~\ref{sec:tests}. We discuss some of the challenges of the method in
+Section~\ref{sec:discussion}.
+
 \section{Methods}
 
-\subsection{Continuum equations for multiple dust species}
+\subsection{Continuum equations for multiple dust species}%
+\label{subsec:continuum}
 
 We consider a mixture of gas, indexed by \(g\), and \(N\) dust species, indexed
 by \(d_i\). We neglect the finite size of the dust particles, and thus set the
@@ -236,13 +231,6 @@ We discuss discretising these equations with smoothed particle hydrodynamics in
 Section~\ref{subsec:sph}.
 
 \subsection{Drag timescale}
-
-\textcolor{red}{
-\begin{itemize}
-   \item Differentiate between Epstein and Stokes regimes?
-   \item Mention terminal velocity approximation?
-\end{itemize}
-}
 
 \subsubsection{Drag coefficient and stopping time}
 
@@ -405,14 +393,6 @@ motivation to the current work.
 
 \subsection{SPH with multiple dust species}%
 \label{subsec:sph}
-
-\textcolor{red}{
-\begin{itemize}
-   \item Mention use of quintic kernel?
-   \item Show details of drag kernel?
-   \item Mention use of gas smoothing length in drag kernel.
-\end{itemize}
-}
 
 \subsubsection{SPH density with multiple dust species}
 
@@ -668,10 +648,8 @@ time step constraint for a particle:
 \end{align}
 %
 
-\section{Numerical tests}
-
-\textcolor{red}{We implemented the above scheme in \textsc{Phantom}... Each test
-   is performed in 3d. Quintic kernel. hfact value.}
+\section{Numerical tests}%
+\label{sec:tests}
 
 \subsection{Dusty box}
 
@@ -923,7 +901,8 @@ single dust species case, and \(h_{\rm fact} = 1.8\), for the three dust species
 case.
 
 
-\section{Discussion}
+\section{Discussion}%
+\label{sec:discussion}
 
 \begin{figure*}
    \begin{center}
@@ -936,28 +915,9 @@ case.
    \end{center}
 \end{figure*}
 
-\textcolor{red}{
-\begin{itemize}
-   \item Time step constraint via Stokes number. I.e.\ only appropriate for
-      large grains.
-   \item Memory constraint: extra set of particles per dust species requires
-      position, velocity, etc.\ unlike the mixture method.
-   \item Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
-\end{itemize}
-}
 
 \section{Conclusions}
 
-\textcolor{red}{
-\begin{itemize}
-   \item Implemented SPH numerical scheme for multiple dust species represented
-      by separate sets of SPH particles, appropriate for large Stokes number
-      regime.
-   \item Demonstrated that the method is accurate by testing on known problems.
-   \item Applied the method to simulate physical processes in protoplanetary
-      discs.
-\end{itemize}
-}
 
 \section*{Acknowledgements}
 

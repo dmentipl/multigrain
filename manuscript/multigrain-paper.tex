@@ -131,6 +131,16 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
    \item \textsc{Phantom} 1-fluid multigrain---\citet{Hutchison2018MNRAS.476.2186H}.
    \item Applications: protoplanetary discs, debris discs.
 \end{itemize}
+Motivations for multigrain:
+\begin{itemize}
+   \item circumbinary discs
+   \item outward migration of dust
+   \item backreaction
+   \item spectral index maps
+   \item coupling with MCFOST
+   \item self-gravitating discs
+   \item time scale for gap opening
+\end{itemize}
 }
 
 Multi-wavelength observations of protoplanetary discs show that the radial
@@ -144,6 +154,26 @@ species---one of the grand challenges in protoplanetary disc modeling
 the collective backreaction of multiple dust species on the gas. For example,
 the inward drift of small grains can be reversed by the inward drift of large
 grains.
+
+Grains of multiple sizes emit at the same wavelength. In order to interpret dust
+continuum emission, for example in ALMA observations showing gaps and rings
+\citep{ALMAPartnership2015ApJ...808L...3A, Andrews2016ApJ...820L..40A}, we must
+model planet-disc interactions including multiple species. In particular,
+interpretation of spectral index maps of discs with gaps requires models with
+multiple dust species. Spectral index maps can put constraints on the size
+distribution of dust grains within gaps \citep{Huang2018ApJ...852..122H}.
+Multi-species dust models allow us to test the underlying disc models by
+producing synthetic spectral index maps to compare with observations.
+
+Discs containing dust asymmetries and spiral arms around central cavities can
+show greater concentration at different wavelengths. Previous work has suggested
+that the cause of these features is a (possibly unseen) companion in the cavity
+\citep{Price2018MNRAS.477.1270P,Poblete2019MNRAS.489.2204P}. The ability to
+perform multi-wavelength synthetic observations in single species dust-gas
+hydrodynamical models is compromised. One option is to stack, in
+post-processing, multiple single dust species simulations. However, due to back
+reaction, there may be a phase difference in the location of the concentration
+making this procedure unreliable.
 
 \section{Methods}
 

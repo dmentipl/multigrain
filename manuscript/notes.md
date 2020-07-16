@@ -43,6 +43,7 @@ Motivations for multigrain:
 - Each test is performed in 3d.
 - Quintic kernel.
 - hfact value.
+- Add particular version of Phantom specified by git commit hash.
 
 # Discussion
 

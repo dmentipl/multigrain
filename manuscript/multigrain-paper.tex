@@ -755,7 +755,8 @@ first set had a total dust-to-gas ratio of 0.01, and the second set 0.5. The
 tests within each set had 1, 2, and 5 dust species, respectively, with grain
 sizes given in Table~\ref{tab:box}. Each test had equal mass in each grain size
 bin. The gas is initially motionless, and each dust species has uniform velocity
-in the positive x-direction.
+in the positive x-direction. We turned off the SPH viscosity, i.e. set
+\texttt{alpha} to zero in \textsc{Phantom}.
 
 For each test problem, we set up each of the gas and dust fluids on a
 close-packed lattice, such that there were 44928 gas particles (32 particles in
@@ -875,7 +876,9 @@ initial perturbations from Table~2 in
 length, with 8192 particles for each species (128 particles in the wave
 direction). We use constant drag, \(K_i\), for each dust species, where \(K_i =
 \rho_{d_i} / t_{s_i}\), and \(\rho_{d_i}\) and \(t_{s_i}\) from
-Table~\ref{tab:wave} (following \citet{Benitez-Llambay2019ApJS..241...25B}).
+Table~\ref{tab:wave} (following \citet{Benitez-Llambay2019ApJS..241...25B}). We
+turned off the SPH viscosity, i.e. set \texttt{alpha} to zero in
+\textsc{Phantom}.
 
 Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
 and density perturbations at a particular location within the domain (\(x=0\)).

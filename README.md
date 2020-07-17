@@ -17,7 +17,7 @@ using separate sets of particles for each dust species. We test these methods ag
 
 ## Software
 
-We implemented the multigrain dust methods in [Phantom](https://phantomsph.bitbucket.io/). In fact, this method for multigrain dust has been in the Phantom master branch since `64dbd2b1`, September 18, 2018. For this manuscript, the focus is writing test problems.
+We implemented the multigrain dust methods in [Phantom](https://github.com/danieljprice/phantom). In fact, this method for multigrain dust has been in the Phantom master branch since [`64dbd2b1`](https://github.com/danieljprice/phantom/commit/64dbd2b124ca74051eed920d6cad0a2e83157478), September 18, 2018. For this manuscript, the focus is writing test problems.
 
 ### Setting up the environment
 

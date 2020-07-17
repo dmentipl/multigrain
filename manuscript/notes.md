@@ -1,4 +1,10 @@
-# Introduction
+Notes
+=====
+
+Notes on the manuscript.
+
+Introduction
+------------
 
 Ideas:
 
@@ -17,36 +23,39 @@ Motivations for multigrain:
 - self-gravitating discs
 - time scale for gap opening
 
-# Methods
+Methods
+-------
 
-## Drag timescale
+### Drag timescale
 
 - Differentiate between Epstein and Stokes regimes?
 - Mention terminal velocity approximation?
 
-## SPH with multiple dust species
+### SPH with multiple dust species
 
 - Mention use of quintic kernel?
 - Show details of drag kernel?
 - Mention use of gas smoothing length in drag kernel.
 
-# Numerical tests
+Numerical tests
+---------------
 
 - Add particular version of Phantom specified by git commit hash.
 
-## Dusty box
+### Dusty box
 
 - alpha = 0, beta = 2
 
-## Dusty wave
+### Dusty wave
 
 - alpha = 0, beta = 2
 
-## Dusty shock
+### Dusty shock
 
 - alpha = 1, beta = 2
 
-# Discussion
+Discussion
+----------
 
 - Time step constraint via Stokes number. I.e. only appropriate for large grains.
 - Memory constraint: extra set of particles per dust species requires position, velocity, etc. unlike the mixture method.
@@ -54,7 +63,8 @@ Motivations for multigrain:
 - Dust particles don't rearrange like gas particles (due to the lack of pressure gradient force) and that requires summing over more neighbours (i.e. larger `hfact`).
 - Using a larger `hfact` for the dust compared with the gas. This is a novel idea.
 
-# Conclusions
+Conclusions
+-----------
 
 - Implemented SPH numerical scheme for multiple dust species represented by separate sets of SPH particles, appropriate for large Stokes number regime.
 - Demonstrated that the method is accurate by testing on known problems.

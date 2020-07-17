@@ -684,27 +684,41 @@ acceleration \( C_{\rm force} \) of 0.25, where \(\Delta t_a < C_{\rm force}
          between the dust and gas. The total dust-to-gas ratio is 0.01 (top row)
          and 0.5 (bottom row). From left to right: the number of dust species is
          1, 2, 5. The open circles represent the results from the
-         \textsc{Phantom} simulation. The solid and dashed lines represent the
-         analytical solution with and without taking back reaction into account,
-         respectively.\label{fig:dustybox}}
+         \textsc{Phantom} numerical solution. The solid and dashed lines
+         represent the analytical solution with and without taking back reaction
+         into account, respectively. In the top row, the solid and dash lines
+         lie on top of each other. In the bottom row, the numerical solution
+         matches the analytical solution including backreaction. Each colour
+         represents the differential velocity of a dust species.%
+         \label{fig:dustybox}}
    \end{center}
 \end{figure*}
 
 We performed the multigrain version of the dusty box test described in
 \citet{Laibe2011MNRAS.418.1491L}. We set up a periodic box of uniform density
 gas and dust with an initial differential velocity between the gas and each dust
-species. In this test the equation of motion simplifies to
+species. In this test, the equation of motion simplifies to
 %
 \begin{align}
-   \frac{\partial \Delta \vec{V}}{\partial t} = - \Omega_n \Delta \vec{V},
+   \frac{\partial \Delta \vec{V}}{\partial t} = - \Omega \Delta \vec{V},
 \end{align}
 %
 where \(\Delta \vec{V}\) is the differential velocity vector in the direction of
 motion, i.e. \(\vec{v}_{d_i} - \vec{v}_g\) for each \(i\) projected along the
-direction of motion, and \(\Omega_n\) is the drag matrix given in Eq.~64 of
-\citet{Laibe2014MNRAS.444.1940L}. This problem tests how well the numerical
-scheme captures the exchange of momentum between gas and each dust species via
-the drag force. We ran the test in the linear Epstein drag regime.
+direction of motion, and \(\Omega\) is the drag matrix (Equation~65 of
+\citet{Laibe2014MNRAS.444.1940L}) given by,
+%
+\begin{align}
+   \Omega_{ij} =
+   \begin{cases}
+      \frac{1}{t''_{s_i}} \frac{1}{(1 - \varepsilon)}, &i \neq j,\\
+      \frac{1}{t''_{s_i}} \left( \frac{1}{\varepsilon_i} +
+         \frac{1}{1 - \varepsilon} \right), &i = j,
+   \end{cases}
+\end{align}
+%
+where \( \varepsilon = \sum_i \varepsilon_i \), and \( t''_{s_i} = \left( \sum_i
+\rho_i \right) / K_i \).
 
 \begin{table}
    \centering
@@ -730,16 +744,18 @@ the drag force. We ran the test in the linear Epstein drag regime.
       \hline
       \hline
    \end{tabular}
-   \caption{Grain sizes for dusty box test.}
-   \label{tab:dustybox}
+   \caption{Grain sizes for dusty box test.}%
+   \label{tab:box}
 \end{table}
 
-We performed six tests in two sets of three. The first set had a total
-dust-to-gas ratio of 0.01, and the second set 0.5. The tests within each set had
-1, 2, and 5 dust species, respectively, with grain sizes given in
-Table~\ref{tab:dustybox}. Each test had equal mass in each grain size bin. The
-gas is initially motionless, and each dust species has uniform velocity in the
-positive x-direction.
+This problem tests how well the numerical scheme captures the exchange of
+momentum between gas and each dust species via the drag force. All tests were in
+the linear Epstein drag regime. We performed six tests in two sets of three. The
+first set had a total dust-to-gas ratio of 0.01, and the second set 0.5. The
+tests within each set had 1, 2, and 5 dust species, respectively, with grain
+sizes given in Table~\ref{tab:box}. Each test had equal mass in each grain size
+bin. The gas is initially motionless, and each dust species has uniform velocity
+in the positive x-direction.
 
 For each test problem, we set up each of the gas and dust fluids on a
 close-packed lattice, such that there were 44928 gas particles (32 particles in
@@ -750,19 +766,24 @@ the dust grain density to \(0.5 \times 10^{-14}\)~g~cm\({}^{-3}\).
 
 Figure~\ref{fig:dustybox} shows the time evolution of the mean velocity
 differential between the gas and each dust species, compared with analytical
-solutions. The dashed lines represent the analytical solution without
-backreaction from the dust on the gas. The solid lines represent the analytical
-solution including backreaction. For low dust-to-gas ratio (0.01) both
-analytical solutions give the same decay of differential velocity, with which
-the \textsc{Phantom} simulation agrees. For a larger dust-to-gas ratio (0.5) the
-analytical solutions diverge, and the \textsc{Phantom} simulation data follows
-the backreaction-inclusive solution. For large dust-to-gas ratio we see that the
-smaller grains (0.1 cm and 0.316 cm) rapidly slow and the differential velocity
-reverses sign. I.e. the small grains slow to the gas velocity; then, as the
-larger grains speed up the gas via drag, the gas drags the small grains along
-with it. This shows that the behaviour of multiple dust species for large
-dust-to-gas ratios requires taking back reaction into consideration to capture
-the physics of dust drag accurately
+solutions. Given that there are no spatial gradients in the problem, all
+particles follow the mean velocity. The dashed lines represent the analytical
+solution without backreaction from the dust on the gas. The solid lines
+represent the analytical solution including backreaction.
+
+For low dust-to-gas ratio (0.01) both analytical solutions give the same decay
+of differential velocity, with which the \textsc{Phantom} simulation agrees. For
+a larger dust-to-gas ratio (0.5) the analytical solutions diverge, and the
+\textsc{Phantom} simulation data follows the backreaction-inclusive solution. In
+all cases, the numerical solution matches the analytical solution with relative
+error less than 0.01.
+
+For large dust-to-gas ratio we see that the smaller grains (0.1 cm and 0.316 cm)
+rapidly slow and the differential velocity reverses sign. I.e. the small grains
+slow to the gas velocity; then, as the larger grains speed up the gas via drag,
+the gas drags the small grains along with it. This shows that the behaviour of
+multiple dust species for large dust-to-gas ratios requires taking back reaction
+into consideration to capture the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
 
 \subsection{Dusty wave}%
@@ -776,7 +797,9 @@ the physics of dust drag accurately
          species (left) and gas with four dust species (right). The open circles
          represent the \textsc{Phantom} simulation, and the solid line
          represents the analytical solution from
-         \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustywave}}
+         \citet{Benitez-Llambay2019ApJS..241...25B}. The gas is blue, and other
+         colours represent different dust species.%
+         \label{fig:dustywave}}
    \end{center}
 \end{figure*}
 
@@ -784,12 +807,13 @@ We performed the multigrain version of the dusty wave test described in
 \citet{Laibe2011MNRAS.418.1491L}. This is a test of the dust-gas drag coupling
 in the context of a damped sound wave. The dust is a pressureless fluid and
 cannot support sound waves. However, the gas can support sounds waves and drags
-the dust. This leads to damping of the wave.
+the dust. This leads to damping of the wave. This tests the numerical
+method in a problem including spatial gradients in a linear regime.
 
 Considering small perturbations around an equilibrium state, \(\rho_j = \rho_j^0
-+ \delta \rho_j\), and \(v_j = \delta v_j\), where \(j\) is \(g\) for the gas
-species, and \(d_i\) for each of the dust species, the linearised equations of
-motion for this system are
++ \delta \rho_j\), and \(v_j = \delta v_j\), where the index \(j\) is \(g\) for
+the gas species, and \(d_i\) for each of the dust species, the linearised
+equations of motion for this system are
 %
 \begin{align}
    \frac{\partial \delta \rho_g}{\partial t}
@@ -805,7 +829,7 @@ motion for this system are
 %
 For the particular setup we followed \citet{Benitez-Llambay2019ApJS..241...25B}.
 They derive solutions for the above equations as a dispersion relation (their
-equation 45) and associated set of eigenfunctions (their equations 46--48).
+Equation~45) and associated set of eigenfunctions (their Equations~46--48).
 Following \citet{Benitez-Llambay2019ApJS..241...25B}, we set the initial
 condition to constant density and zero velocity, with perturbations of the form
 %
@@ -819,21 +843,55 @@ i\omega t}\). We set the sound speed \(c_s = 1\), and the wave amplitude \(A\)
 to \(10^{-4} c_s\) and \(10^{-4} \rho_g^0\) for the velocity and density
 perturbations, respectively.
 
+\begin{table}
+   \centering
+   \begin{tabular}{ccc}
+      \hline
+      \hline
+      Species & Density & Stopping time \\
+      \hline
+      \hline
+      One dust species \\
+      g & 1.0 & - \\
+      1 & 2.24 & 0.4 \\
+      \hline
+      Four dust species \\
+      g & 1.0 & - \\
+      1 & 0.1 & 0.1 \\
+      2 & 0.2333 & 0.2154 \\
+      3 & 0.3667 & 0.4642 \\
+      4 & 0.5 & 1.0 \\
+      \hline
+      \hline
+   \end{tabular}
+   \caption{Mean density and stopping times for dusty wave test.}%
+   \label{tab:wave}
+\end{table}
+
 We performed two tests: (1) with gas and a single dust species, and (2) with gas
 and four dust species. We set the background density, drag coefficients, and
-initial perturbations from Table 2 in
-\citet{Benitez-Llambay2019ApJS..241...25B}. We chose a periodic box of unit
-length, with 8192 for each species (128 particles in the wave direction). We use
-constant drag, \(K_i\), for each dust species, with \(K_i = \rho_{d_i} /
-t_{s_i}\), and \(\rho_{d_i}\) and \(t_{s_i}\) from Table 2.
+initial perturbations from Table~2 in
+\citet{Benitez-Llambay2019ApJS..241...25B}. We set up a periodic box of unit
+length, with 8192 particles for each species (128 particles in the wave
+direction). We use constant drag, \(K_i\), for each dust species, where \(K_i =
+\rho_{d_i} / t_{s_i}\), and \(\rho_{d_i}\) and \(t_{s_i}\) from
+Table~\ref{tab:wave} (following \citet{Benitez-Llambay2019ApJS..241...25B}).
 
 Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
 and density perturbations at a particular location within the domain (\(x=0\)).
-The solid lines represent the analytical solution from
-\citet{Benitez-Llambay2019ApJS..241...25B} and the open circles represent the
-numerical solution from \textsc{Phantom}. We first note that the numerical
-solution accurately reproduces the analytical solution. In all cases we see the
-wave damping effect.
+The normalised velocity \( v_N \) and density \( \rho_N \) are defined by
+%
+\begin{align}
+   \rho_N &= \frac{\overline{\rho} - \overline{\rho}_0}{A \overline{\rho}_0}, \\
+   v_N &= \frac{\overline{v}}{A c_s},
+\end{align}
+%
+where the zero subscript represents the initial value. The solid lines represent
+the analytical solution from \citet{Benitez-Llambay2019ApJS..241...25B} and the
+open circles represent the numerical solution from \textsc{Phantom}. We see that
+the numerical solution accurately reproduces the analytical solution, i.e. the
+relative error is everywhere less than 0.01. We see, in both cases, the wave
+damping effect, and within a few wave periods the wave dissipates.
 
 \subsection{Dusty shock}%
 \label{subsec:shock}

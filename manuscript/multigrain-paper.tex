@@ -651,7 +651,28 @@ time step constraint for a particle:
 \section{Numerical tests}%
 \label{sec:tests}
 
-\subsection{Dusty box}
+We implemented the numerical method described in Section~\ref{subsec:sph} in the
+smoothed particle hydrodynamics code \textsc{Phantom}\footnote{See the git
+commit labelled by the hash \texttt{64dbd2b1} in the \textsc{Phantom} source
+code repository.}. We then performed several tests to validate the method
+against known analytical solutions. The dusty box test
+(Section~\ref{subsec:box}) validates the drag force coupling in the absence of
+spatial gradients. The dusty wave test (Section~\ref{subsec:wave}) validates the
+method with spatial gradients in a linear regime. The dusty shock test
+(Section~\ref{subsec:shock}) validates the method in a challenging non-linear
+regime.
+
+The tests all have analytical solutions in one dimension. We peformed each of
+the tests in three dimensions, and then reduced the data to one dimension for
+comparison with the analytical solutions. In each of the tests we used, unless
+stated otherwise: a Courant factor of 0.3 (\texttt{C\_cour} in
+\textsc{Phantom}); a time step constraint on the acceleration \( C_{\rm force}
+\), where \( \Delta t_a < C_{\rm force} \sqrt{h_a / |\vec{a}_a|} \), of 0.25
+(\texttt{C\_force} in \textsc{Phantom}).
+
+
+\subsection{Dusty box}%
+\label{subsec:box}
 
 \begin{figure*}
    \begin{center}
@@ -741,7 +762,8 @@ dust-to-gas ratios requires taking back reaction into consideration to capture
 the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
 
-\subsection{Dusty wave}
+\subsection{Dusty wave}%
+\label{subsec:wave}
 
 \begin{figure*}
    \begin{center}
@@ -810,7 +832,8 @@ numerical solution from \textsc{Phantom}. We first note that the numerical
 solution accurately reproduces the analytical solution. In all cases we see the
 wave damping effect.
 
-\subsection{Dusty shock}
+\subsection{Dusty shock}%
+\label{subsec:shock}
 
 \begin{figure}
    \begin{center}

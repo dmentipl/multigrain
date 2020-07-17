@@ -42,8 +42,12 @@ Motivations for multigrain:
 - We implemented the above scheme in Phantom...
 - Each test is performed in 3d.
 - Quintic kernel.
-- hfact value.
+- Numerical parameters including: hfact, Courant, force dt.
 - Add particular version of Phantom specified by git commit hash.
+
+## Dusty shock
+
+Equation of state -- adiabatic with gamma = 1.
 
 # Discussion
 

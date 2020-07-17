@@ -654,21 +654,24 @@ time step constraint for a particle:
 We implemented the numerical method described in Section~\ref{subsec:sph} in the
 smoothed particle hydrodynamics code \textsc{Phantom}\footnote{See the git
 commit labelled by the hash \texttt{64dbd2b1} in the \textsc{Phantom} source
-code repository.}. We then performed several tests to validate the method
-against known analytical solutions. The dusty box test
+code repository for the implemented changes.}. We then performed several tests
+to validate the method against known analytical solutions. The dusty box test
 (Section~\ref{subsec:box}) validates the drag force coupling in the absence of
 spatial gradients. The dusty wave test (Section~\ref{subsec:wave}) validates the
 method with spatial gradients in a linear regime. The dusty shock test
 (Section~\ref{subsec:shock}) validates the method in a challenging non-linear
 regime.
 
-The tests all have analytical solutions in one dimension. We peformed each of
-the tests in three dimensions, and then reduced the data to one dimension for
-comparison with the analytical solutions. In each of the tests we used, unless
-stated otherwise: a Courant factor of 0.3 (\texttt{C\_cour} in
-\textsc{Phantom}); a time step constraint on the acceleration \( C_{\rm force}
-\), where \( \Delta t_a < C_{\rm force} \sqrt{h_a / |\vec{a}_a|} \), of 0.25
-(\texttt{C\_force} in \textsc{Phantom}).
+The tests all have analytical solutions in one spatial dimension. We peformed
+each of the tests in three dimensions, and then reduced the data to one
+dimension for comparison with the analytical solutions. In each of the tests we
+used, unless stated otherwise: a globally isothermal equation of state
+(\texttt{ieos} = 1 in \textsc{Phantom}); the quintic kernel with 113 mean
+particle neighbours (\texttt{hfact} = 1.0 in \textsc{Phantom}); global
+timestepping, i.e., all particles have the same time step; a Courant factor of
+0.3 (\texttt{C\_cour} in \textsc{Phantom}); a time step constraint on the
+acceleration \( C_{\rm force} \) of 0.25, where \(\Delta t_a < C_{\rm force}
+\sqrt{h_a / |\vec{a}_a|} \) (\texttt{C\_force} in \textsc{Phantom}).
 
 
 \subsection{Dusty box}%

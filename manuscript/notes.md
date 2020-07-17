@@ -66,6 +66,6 @@ Discussion
 Conclusions
 -----------
 
-- [ ] Implemented SPH numerical scheme for multiple dust species represented by separate sets of SPH particles, appropriate for large Stokes number regime.
-- [ ] Demonstrated that the method is accurate by testing on known problems.
-- [ ] Suggest that `hfact` should be larger for dust compared to gas.
+- [x] Implemented SPH numerical scheme for multiple dust species represented by separate sets of SPH particles, appropriate for large Stokes number regime.
+- [x] Demonstrated that the method is accurate by testing on known problems.
+- [x] Suggest that `hfact` should be larger for dust compared to gas.

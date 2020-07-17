@@ -1005,6 +1005,29 @@ case.
 
 \section{Conclusions}
 
+We have derived a smoothed particle hydrodynamics numerical scheme to model a
+dust and gas mixture using a separate set of SPH particles per species. This
+method can be applied to any distribution of dust grain sizes. It is not
+restricted to grain sizes such that the terminal velocity approximation holds.
+Although, given that it uses an explicit time stepping scheme, it becomes
+inefficient for grain sizes with small Stokes number, i.e. \(\lesssim 0.01\).
+
+We have implemented this method in the SPH code \textsc{Phantom}. We have
+demonstrated that the method is accurate by testing it on three test problems
+with analytical solutions: a dusty box, to test the drag coupling and time
+stepping in the absence of spatial gradients; a dusty wave, to test those
+factors with spatial gradients in a linear regime; and a dusty shock, to test
+those factors in a highly non-linear regime. In all cases we show the method is
+accurate.
+
+We suggest that dust particles may require a larger number of particle
+neighbours in computing SPH sums than the gas. This is due to the lack of
+inter-particle forces, i.e. dust is pressureless fluid and does not rearrange
+into a glassy structure like the gas does. Dust can numerically clump resulting
+in artificial high density regions. Using a greater number of particle
+neighbours leads to a smoother density field. This may reduce the performance
+degrading effect of high density dust clumps on the time step.
+
 
 \section*{Acknowledgements}
 

@@ -70,3 +70,8 @@ Conclusions
 - [x] Implemented SPH numerical scheme for multiple dust species represented by separate sets of SPH particles, appropriate for large Stokes number regime.
 - [x] Demonstrated that the method is accurate by testing on known problems.
 - [x] Suggest that `hfact` should be larger for dust compared to gas.
+
+Appendix
+--------
+
+- [ ] Reproducibility: github/zenodo for Phantom config files.

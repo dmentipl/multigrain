@@ -902,8 +902,9 @@ damping effect, and within a few wave periods the wave dissipates.
 \begin{figure}
    \begin{center}
       \includegraphics[width=\columnwidth]{figs/dustyshock_initial.pdf}
-      \caption{Dusty shock numerical test initial conditions showing the
-         velocity (top) and the density (bottom).\label{fig:dustyshock_initial}}
+      \caption{\textcolor{red}{(CHANGE THE FIGURE TO PARTICLES?)}Dusty shock numerical test
+         initial conditions showing the velocity (top) and the density
+         (bottom).\label{fig:dustyshock_initial}}
    \end{center}
 \end{figure}
 
@@ -928,21 +929,28 @@ dust species. The solution, in steady state, for this shock is described by the
 following set of equations:
 %
 \begin{align}
-   \frac{\partial}{\partial x} \left( \rho_g v_g \right) &= 0, \label{eqn:shock-gas-continuity} \\
-   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i} \right) &= 0, \label{eqn:shock-dust-continuity} \\
-   \frac{\partial}{\partial x} \left[ \rho_g (v_g^2 + c_s^2)\right] &= - \sum_{i=1}^N K_i (v_g - v_{\dd_i}), \\
-   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i}^2 \right) &= K_i (v_g - v_{\dd_i}).
+   \frac{\partial}{\partial x} \left( \rho_g v_g \right)
+      &= 0, \label{eqn:shock-gas-continuity} \\
+   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i} \right)
+      &= 0, \label{eqn:shock-dust-continuity} \\
+   \frac{\partial}{\partial x} \left[ \rho_g (v_g^2 + c_s^2)\right]
+      &= - \sum_{i=1}^N K_i (v_g - v_{\dd_i}), \\
+   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i}^2 \right)
+      &= K_i (v_g - v_{\dd_i}).
 \end{align}
 %
-We use a constant drag coefficient \(K_i\) per species. The constant isothermal
-sound speed is \(c_s\). In steady state the gas and all dust species have the
-same pre-shock velocity \(v_s\) and the same asymptotic post-shock velocity. We
-define normalised velocities \(\omega_g = v_g / v_s\) and \(\omega_{d_i} =
-v_{d_i} / v_s\), then these equations can be integrated to give
+We assume a constant drag coefficient \(K_i\) per species. The constant
+isothermal sound speed is \(c_s\). In steady state, due to the drag force, the
+gas and all dust species have the same pre-shock velocity \(v_s\) and the same
+asymptotic post-shock velocity. We define normalised velocities \(\omega_g = v_g
+/ v_s\) and \(\omega_{d_i} = v_{d_i} / v_s\), then these equations can be
+integrated to give
 %
 \begin{align}
-   0 &= \omega_g^2 + \omega_g \left[ \sum_i \varepsilon_i (\omega_{d_i} - 1) - \mathcal{M}^{-2} -1 \right] + \mathcal{M}^{-2}, \\
-   \frac{\dd \omega_{d_i}}{\dd x} &= \frac{K_i}{\rho_{d_i}} \left( \omega_g - \omega_{d_i} \right),
+   0 &= \omega_g^2 + \omega_g \left[ \sum_i \varepsilon_i (\omega_{d_i} - 1)
+      - \mathcal{M}^{-2} -1 \right] + \mathcal{M}^{-2}, \\
+   \frac{\dd \omega_{d_i}}{\dd x} &= \frac{K_i}{\rho_{d_i}}
+      \left( \omega_g - \omega_{d_i} \right),
 \end{align}
 %
 where \(x_0\) is the shock position and \(\mathcal{M} = v_s / c_s\) is the Mach
@@ -958,58 +966,77 @@ the densities:
 where the index \(j\) refers to either \(g\) or \(d_i\).
 
 We set up two tests. One test with a single dust species to validate against
-previous work. And one test with three dust species to validate our multiple
-dust species method. We use that same parameters as
-\citet{Benitez-Llambay2019ApJS..241...25B}; see their Table~3. For both tests we
-chose \(\mathcal{M} = 2\), \(c_s = 1\), and \(\varepsilon_i = 1\).
+previous single dust species tests. And another test with three dust species to
+validate our multiple dust species method. We used that same parameters as shown
+in Table~3 in \citet{Benitez-Llambay2019ApJS..241...25B}. For both tests we
+chose \(\mathcal{M} = 2\), \(c_s = 1\), and \(\varepsilon_i = 1\) for all dust
+species. The left (pre-shock) velocities are set be the Mach number, i.e. \(v_j=
+2\), where \(j\) represents both gas and all dust species. We set the left
+(pre-shock) gas density \(\rho_g\) to 1. We set the drag coefficients \(K_i\)
+to: 1.0 for the single dust species test, and 1.0, 3.0, and 5.0 for the three
+dust species test. The right (post-shock) asymptotic values are given by
+%
+\begin{align}
+   \rho_{j}^{\rm R} &=
+      \frac{\rho_{j}^{\rm L} \omega_{j}^{\rm L}} {\omega_{j}^{\rm R}}, \\
+   \omega_j^{\rm R} &= \left(1 + N \right)^{-1} \mathcal{M}^{-2},
+\end{align}
+%
+where \(j\) represents both gas and all dust species, \(N\) is the number of
+dust species, and the superscripts L and R represent left and right asymptotic
+states, respectively. We set the SPH numerical viscosity parameter to 1
+(\texttt{alpha} = 1.0 in \textsc{Phantom}).
 
-\textcolor{red}{----}
+We set up initial conditions such that the velocities are constant with their
+asymptotic values on either side of the shock at \(x_{\rm shock} = 0\). We set
+up the densities similarly except that we smoothed the shock at shock boundary,
+using a logistic function, \(f(x) \propto {(1 + \exp(-kx))}^{-1}\). This is due
+to the large (in principle, infinite) gradient in density at the shock boundary
+leading to errors in evolving the dust.
 
-We set up initial conditions as shown in Figure~\ref{fig:dustyshock_initial}.
-\textcolor{red}{(Should this figure be of the particles?)} For the gas and each
-dust species, we set up the particles on two close-packed lattices, one on each
-side of a discontinuity in the density and velocity in the x-direction with
-values on either side of the shock set by their asymptotic values. We use the
-same resolution for the gas and each dust species. Due to the
+Figure~\ref{fig:dustyshock_initial} shows a sample of the initial particle
+positions. \textcolor{red}{((CHANGE THE FIGURE TO PARTICLES?))} For the gas and
+each dust species, we set up the particles on two close-packed lattices; one on
+each side of the shock, with the density and velocity set by their asymptotic
+values. We use the same resolution for the gas and each dust species. Due to the
 resolution-follows-the-mass nature of SPH, the numerical resolution is higher in
-the high density region. \textcolor{red}{Add number of particles.} We smoothed
-the density distribution, but not the velocity, using a logistic function,
-\(f(x) \propto {\left(1 + e^{-k(x-x_{\rm shock})} \right)}^{-1}\). The large (in
-principe, infinite) gradient in density at the shock boundary leads to errors in
-evolving the dust.
+the high density region. \textcolor{red}{Add number of particles.}
 
 Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
 at \(t = 300\) which is long enough so that any transient behaviour has died
 out. We have binned the particles into 40 bins in the x-direction and calculated
 a mass-weighted average for both density and velocity. We have over-plotted the
 analytical solution for comparison. Note that the shock position has drifted
-from its initial position and we have shifted the analytical solution shock
+from its initial position. We have shifted the analytical solution shock
 position to minimise the error. Our numerical method reproduces the exact
 solution in this non-linear test problem.
 
 To achieve an accurate solution we used a larger number of particle neighbours
 in the SPH density sum than is typical in dust-gas simulations with
-\textsc{Phantom}. The typical neighbour number for quintic kernel, used by
-default for dust, density sums in \textsc{Phantom} is 113
-\citep{Price2018PASA...35...31P}. The mean neighbour number \(\overline{N}_{\rm
-neigh}\) is related to the proportionality constant \(h_{\rm fact}\) by
+\textsc{Phantom}. The typical mean neighbour number when using the quintic
+kernel, used by default for dust-gas simulations, in calculating density sums is
+113 \citep{Price2018PASA...35...31P}. The mean neighbour number
+\(\overline{N}_{\rm neigh}\) is related to the proportionality constant \(h_{\rm
+fact}\) by
 %
 \begin{align}
    \overline{N}_{\rm neigh} = \frac{4}{3} \pi
-   {\left( R_{\rm kern} h_{\rm fact} \right)}^3.
+      {\left( R_{\rm kern} h_{\rm fact} \right)}^3.
 \end{align}
 %
 For the quintic kernel, \( R_{\rm kern} = 3.0 \). So, by default, \( h_{\rm
-fact} = 1.0 \).
+fact} = 1.0 \). We used a \(h_{\rm fact}\) value of 1.8 in
+Figure~\ref{fig:dustyshock_final}.
 
 Figure~\ref{fig:dustyshock_hfact} shows the comparison between the analytical
 and numerical solutions for the density varying the value of \( h_{\rm fact} =
 1.2, 1.5, 1.8 \), corresponding to \(\overline{N}_{\rm neigh} = 195, 381, 660\).
-We can see that the accuracy of the gas density is independent (or only weakly
-dependent) on the neighbour number. In contrast, the dust density depends
-strongly on the neighbour number. We require \( h_{\rm fact} = 1.5\), for the
-single dust species case, and \(h_{\rm fact} = 1.8\), for the three dust species
-case.
+We can see that the accuracy of the gas density (blue line and markers) is
+independent (or weakly dependent) on the neighbour number. In contrast, the dust
+density depends strongly on the neighbour number. To avoid large errors, we
+require \( h_{\rm fact} = 1.5\), for the single dust species case, and \(h_{\rm
+fact} = 1.8\), for the three dust species case. We discuss the implications of
+this in Section~\ref{sec:discussion} below.
 
 
 \section{Discussion}%

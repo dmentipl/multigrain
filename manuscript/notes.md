@@ -52,7 +52,8 @@ Numerical tests
 
 ### Dusty shock
 
-- [ ] alpha = 1, beta = 2
+- [x] alpha = 1, beta = 2
+- [ ] Add parameter table?
 
 Discussion
 ----------

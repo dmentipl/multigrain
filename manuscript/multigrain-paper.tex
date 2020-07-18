@@ -915,31 +915,55 @@ damping effect, and within a few wave periods the wave dissipates.
          and one dust species; the right figures have gas (blue) and three dust
          species. The open circles represent the results from the
          \textsc{Phantom} simulation. The solid lines represent the analytical
-         solution from
-         \citet{Benitez-Llambay2019ApJS..241...25B}.\label{fig:dustyshock_final}}
+         solution from \citet{Benitez-Llambay2019ApJS..241...25B}.%
+         \label{fig:dustyshock_final}}
    \end{center}
 \end{figure*}
 
-We performed the multiple dust species version of the dusty shock test
-described, for the single dust species, in \citet{Laibe2012MNRAS.420.2345L} with
-exact solution described in \citet{Lehmann2018MNRAS.476.3185L}. We compare our
-numerical solution with the multiple species exact solution
-\citep{Benitez-Llambay2019ApJS..241...25B}. The solution is for a steady state
-shock described by the following set of equations:
+We performed a multiple species version of the isothermal steady state single
+species dusty shock test with exact solution described in
+\citet{Lehmann2018MNRAS.476.3185L}. This is a J-type shock.
+\citet{Benitez-Llambay2019ApJS..241...25B} generalised that solution to multiple
+dust species. The solution, in steady state, for this shock is described by the
+following set of equations:
 %
 \begin{align}
-   \frac{\partial}{\partial x} \left( \rho_g v_g \right) &= 0, \\
-   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i} \right) &= 0, \\
+   \frac{\partial}{\partial x} \left( \rho_g v_g \right) &= 0, \label{eqn:shock-gas-continuity} \\
+   \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i} \right) &= 0, \label{eqn:shock-dust-continuity} \\
    \frac{\partial}{\partial x} \left[ \rho_g (v_g^2 + c_s^2)\right] &= - \sum_{i=1}^N K_i (v_g - v_{\dd_i}), \\
    \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i}^2 \right) &= K_i (v_g - v_{\dd_i}).
 \end{align}
 %
-We use a constant drag coefficient, \(K_i\) per species.
+We use a constant drag coefficient \(K_i\) per species. The constant isothermal
+sound speed is \(c_s\). In steady state the gas and all dust species have the
+same pre-shock velocity \(v_s\) and the same asymptotic post-shock velocity. We
+define normalised velocities \(\omega_g = v_g / v_s\) and \(\omega_{d_i} =
+v_{d_i} / v_s\), then these equations can be integrated to give
+%
+\begin{align}
+   0 &= \omega_g^2 + \omega_g \left[ \sum_i \varepsilon_i (\omega_{d_i} - 1) - \mathcal{M}^{-2} -1 \right] + \mathcal{M}^{-2}, \\
+   \frac{\dd \omega_{d_i}}{\dd x} &= \frac{K_i}{\rho_{d_i}} \left( \omega_g - \omega_{d_i} \right),
+\end{align}
+%
+where \(x_0\) is the shock position and \(\mathcal{M} = v_s / c_s\) is the Mach
+number \citep{Benitez-Llambay2019ApJS..241...25B}. These equations can be
+numerically integrated to give the normalised velocities. Then
+Equations~\ref{eqn:shock-gas-continuity}~\&~\ref{eqn:shock-dust-continuity} give
+the densities:
+%
+\begin{align}
+   \rho_j &= \frac{\rho_j(x_0) v_j(x_0)}{v_j},
+\end{align}
+%
+where the index \(j\) refers to either \(g\) or \(d_i\).
 
 We set up two tests. One test with a single dust species to validate against
 previous work. And one test with three dust species to validate our multiple
 dust species method. We use that same parameters as
-\citet{Benitez-Llambay2019ApJS..241...25B}; see their Table~3.
+\citet{Benitez-Llambay2019ApJS..241...25B}; see their Table~3. For both tests we
+chose \(\mathcal{M} = 2\), \(c_s = 1\), and \(\varepsilon_i = 1\).
+
+\textcolor{red}{----}
 
 We set up initial conditions as shown in Figure~\ref{fig:dustyshock_initial}.
 \textcolor{red}{(Should this figure be of the particles?)} For the gas and each
@@ -1022,7 +1046,7 @@ accurate.
 
 We suggest that dust particles may require a larger number of particle
 neighbours in computing SPH sums than the gas. This is due to the lack of
-inter-particle forces, i.e. dust is pressureless fluid and does not rearrange
+inter-particle forces, i.e.\ dust is pressureless fluid and does not rearrange
 into a glassy structure like the gas does. Dust can numerically clump resulting
 in artificial high density regions. Using a greater number of particle
 neighbours leads to a smoother density field. This may reduce the performance

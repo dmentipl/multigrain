@@ -1000,7 +1000,7 @@ each dust species, we set up the particles on two close-packed lattices; one on
 each side of the shock, with the density and velocity set by their asymptotic
 values. We use the same resolution for the gas and each dust species. Due to the
 resolution-follows-the-mass nature of SPH, the numerical resolution is higher in
-the high density region. \textcolor{red}{Add number of particles.}
+the high density region.
 
 Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
 at \(t = 300\) which is long enough so that any transient behaviour has died
@@ -1078,8 +1078,10 @@ get that
 %
 The parameters \(c_s\) and \(\varepsilon\) are physical parameters set by the
 problem of interest. Whereas \(C_{\rm Cour} = 0.3\) and \(h\) are numerical
-parameters. Considering protoplanetary discs, converting this into an inequality
-for the Stokes number \(\mathrm{St}_i\) we get
+parameters.
+
+Considering protoplanetary discs, converting this into an inequality for the
+midplane Stokes number \(\mathrm{St}_i\) we get
 %
 \begin{align}
    \mathrm{St}_i > \frac{1}{2} C_{\rm Cour} (1 - \varepsilon) \frac{h}{H},
@@ -1089,8 +1091,17 @@ where \(H\) is the gas disc scale height. Using values of \(h/H \approx 0.5\)
 and \(\varepsilon \approx 0.1\) we find a minimum Stokes number, such that the
 time step is unconstrained compared with the CFL condition, of \(\mathrm{St}_i
 \gtrsim 0.08\). Note that the numerical resolution is inversely proportional to
-\(h\). So as the resolution increases this restriction is loosened. However as
+\(h\). So, as the resolution increases this restriction is loosened. However, as
 the resolution increases the CFL timestep decreases.
+
+The Stokes number is linearly proportional to the grain size (in the Epstein
+regime). So this constraint on the Stokes number provides a constraint on the
+dust grain size; one that is dependent on the disc parameters too. Considering a
+disc with surface density \(\Sigma \approx 1\)~g/cm\({}^2\) and effective grain
+size \(\varrho_{\rm eff} = 3\)~g/cm\({}^3\) we find that the minimum grain size
+is approximately 0.2~mm. Note that this is \emph{not} a minimum grain size that
+can be represented, however, using smaller grains is inefficient given the
+explicit time stepping scheme.
 
 
 \subsection{Memory constraint}

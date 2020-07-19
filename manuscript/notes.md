@@ -52,13 +52,14 @@ Numerical tests
 
 ### Dusty shock
 
+- Add number of particles.
 - [x] alpha = 1, beta = 2
 - [ ] Add parameter table?
 
 Discussion
 ----------
 
-- [ ] Time step constraint via Stokes number. I.e. only appropriate for large grains.
+- [x] Time step constraint via Stokes number. I.e. only appropriate for large grains.
 - [ ] Memory constraint: extra set of particles per dust species requires position, velocity, etc. unlike the mixture method.
 - [ ] Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
 - [ ] Dust particles don't rearrange like gas particles (due to the lack of pressure gradient force) and that requires summing over more neighbours (i.e. larger `hfact`).

@@ -1106,6 +1106,14 @@ explicit time stepping scheme.
 
 \subsection{Memory constraint}
 
+The method requires storing an extra set of particles per dust species. For each
+particle we store the position, smoothing length, and velocity, in total
+requiring seven 64-bit floating point numbers per particle. This is in contrast
+to the mixture method. In that method there is only a single set of particles
+(representing he mixture) and for each dust species an additional four 64-bit
+floating point numbers are required: one for the dust fraction, and three for
+the velocity differential \citep{Hutchison2018MNRAS.476.2186H}.
+
 
 \subsection{Dust particles as a pressureless fluid}
 

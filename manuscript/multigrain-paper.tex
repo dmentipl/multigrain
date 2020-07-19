@@ -1056,14 +1056,60 @@ this in Section~\ref{sec:discussion} below.
 \end{figure*}
 
 
+\subsection{Time step constraint}
+
+In deriving our method we made no assumptions on the size of the dust grains.
+This is unlike the method described in \citet{Hutchison2018MNRAS.476.2186H}
+which makes the terminal velocity approximation, appropriate for small,
+well-coupled grains \citep{Youdin2005ApJ...620..459Y}.
+
+However, we use an explicit timestepping scheme
+\citep{Price2018PASA...35...31P}. In addition to the usual CFL time step
+constraint, \(\Delta t_{\rm CFL} < C_{\rm Cour} h/c_s\), there is an
+extra constraint given in Equation~\ref{eqn:timestep-dust}. This restricts the
+minimum stopping time of grains that can be simulated. To get an estimate on
+this restriction we compare this constraint with the CFL constraint. If we
+require that the stopping time constrained time step is less restrictive then we
+get that
+%
+\begin{align}
+   t_{s_i} > \frac{C_{\rm Cour} h (1 - \varepsilon)}{2 c_s}.
+\end{align}
+%
+The parameters \(c_s\) and \(\varepsilon\) are physical parameters set by the
+problem of interest. Whereas \(C_{\rm Cour} = 0.3\) and \(h\) are numerical
+parameters. Considering protoplanetary discs, converting this into an inequality
+for the Stokes number \(\mathrm{St}_i\) we get
+%
+\begin{align}
+   \mathrm{St}_i > \frac{1}{2} C_{\rm Cour} (1 - \varepsilon) \frac{h}{H},
+\end{align}
+%
+where \(H\) is the gas disc scale height. Using values of \(h/H \approx 0.5\)
+and \(\varepsilon \approx 0.1\) we find a minimum Stokes number, such that the
+time step is unconstrained compared with the CFL condition, of \(\mathrm{St}_i
+\gtrsim 0.08\). Note that the numerical resolution is inversely proportional to
+\(h\). So as the resolution increases this restriction is loosened. However as
+the resolution increases the CFL timestep decreases.
+
+
+\subsection{Memory constraint}
+
+
+\subsection{Dust particles as a pressureless fluid}
+
+
 \section{Conclusions}
 
 We have derived a smoothed particle hydrodynamics numerical scheme to model a
-dust and gas mixture using a separate set of SPH particles per species. This
-method can be applied to any distribution of dust grain sizes. It is not
-restricted to grain sizes such that the terminal velocity approximation holds.
-Although, given that it uses an explicit time stepping scheme, it becomes
-inefficient for grain sizes with small Stokes number, i.e. \(\lesssim 0.01\).
+dust and gas mixture using a separate set of SPH particles per species. The
+method includes a drag force coupling between the gas and each dust species that
+conserves momentum. Thus the method captures the full effects of backreaction
+between the gas and dust. This method can be applied to any distribution of dust
+grain sizes. It is not restricted to grain sizes such that the terminal velocity
+approximation holds. Although, given that it uses an explicit time stepping
+scheme, it becomes inefficient for grain sizes with small Stokes number, i.e.
+\(\lesssim 0.01\).
 
 We have implemented this method in the SPH code \textsc{Phantom}. We have
 demonstrated that the method is accurate by testing it on three test problems

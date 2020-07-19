@@ -63,6 +63,8 @@ Discussion
 - [ ] Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
 - [ ] Dust particles don't rearrange like gas particles (due to the lack of pressure gradient force) and that requires summing over more neighbours (i.e. larger `hfact`).
 - [ ] Using a larger `hfact` for the dust compared with the gas. This is a novel idea.
+- [ ] The pressureless fluid approximation - crossing trajectories.
+- [ ] Ignore: grain growth; radiation effects.
 
 Conclusions
 -----------
@@ -70,6 +72,11 @@ Conclusions
 - [x] Implemented SPH numerical scheme for multiple dust species represented by separate sets of SPH particles, appropriate for large Stokes number regime.
 - [x] Demonstrated that the method is accurate by testing on known problems.
 - [x] Suggest that `hfact` should be larger for dust compared to gas.
+
+Acknowledgements
+----------------
+
+- [ ] Add IPython and Jupyter.
 
 Appendix
 --------

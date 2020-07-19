@@ -1117,6 +1117,37 @@ the velocity differential \citep{Hutchison2018MNRAS.476.2186H}.
 
 \subsection{Dust particles as a pressureless fluid}
 
+We represent each dust species as a pressureless fluid that interacts with gas
+via the drag force and with massive objects such as stars and planets
+(represented by sink particles) by the gravitational force. The gas, in
+contrast, has a non-zero pressure. The pressure gradient force leads to a
+rearrangement of particles into a regular glass-like lattice
+\citep{Monaghan2005RPPh...68.1703M} that minimises the energy of the Hamiltonian
+system of particles \citep{Price2012JCoPh.231..759P}. So, if the gas particles
+are initialised in a ``pathological'' arrangement, e.g. such that particles are
+almost on top of each other or randomised, they will rearrange into a
+quasi-regular lattice. This rearrangement leads to an improved density estimate
+\citep{Price2012JCoPh.231..759P}. The lack of rearranging due to the lack of a
+pressure gradient force can lead to noisy density estimates.
+
+In calculating the density we sum over neighbours of the same type. So the gas
+and each dust species has a smoothing length per particle independent of each
+other species. In \textsc{Phantom}, the smoothing length proportionality factor
+\(h_{\rm fact}\) is constant. This means that the mean number of neighbours
+\(\overline{N}_{\rm neigh}\) is the same for both the gas and dust. Given that
+the dust particle arrangement does not re-mesh, unlike the gas, using a larger
+number of neighbours may improve the density estimate for the dust. I.e.\
+\(h_{\rm fact}\) should be set independently for the gas and dust. The dusty
+shock test (Section~\ref{subsec:shock}) provides some evidence for this. In
+that test the gas density was accurate for \(h_{\rm fact} = 1.2\). However, the
+dust density required \(h_{\rm fact} = 1.8\) in the three dust species case.
+
+An alternative approach would be to provide a pressure gradient force for the
+dust. This would provide for a rearrangement of particles to improve the density
+estimates and reduce artificial clumping of dust. Such a force would necessarily
+be a short range one. It is not clear at what distance it should activate. Any
+such prescription would be a sub-grid model and resolution dependent.
+
 
 \section{Conclusions}
 

@@ -61,9 +61,9 @@ Discussion
 
 - [x] Time step constraint via Stokes number. I.e. only appropriate for large grains.
 - [x] Memory constraint: extra set of particles per dust species requires position, velocity, etc. unlike the mixture method.
-- [ ] Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
-- [ ] Dust particles don't rearrange like gas particles (due to the lack of pressure gradient force) and that requires summing over more neighbours (i.e. larger `hfact`).
-- [ ] Using a larger `hfact` for the dust compared with the gas. This is a novel idea.
+- [x] Dustyshock hfact comparison; see Figure~\ref{fig:dustyshock_hfact}.
+- [x] Dust particles don't rearrange like gas particles (due to the lack of pressure gradient force) and that requires summing over more neighbours (i.e. larger `hfact`).
+- [x] Using a larger `hfact` for the dust compared with the gas. This is a novel idea.
 - [ ] The pressureless fluid approximation - crossing trajectories.
 - [ ] Ignore: grain growth; radiation effects.
 

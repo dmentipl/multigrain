@@ -1120,7 +1120,7 @@ between the gas and dust. This method can be applied to any distribution of dust
 grain sizes. It is not restricted to grain sizes such that the terminal velocity
 approximation holds. Although, given that it uses an explicit time stepping
 scheme, it becomes inefficient for grain sizes with small Stokes number, i.e.
-\(\lesssim 0.01\).
+\(\lesssim 0.05\).
 
 We have implemented this method in the SPH code \textsc{Phantom}. We have
 demonstrated that the method is accurate by testing it on three test problems
@@ -1144,13 +1144,15 @@ degrading effect of high density dust clumps on the time step.
 We used \textsc{Phantom} to perform the numerical simulations
 \citep{Price2018PASA...35...31P}. We used \textsc{Plonk} for analysis and
 visualisation of \textsc{Phantom} data \citep{Mentiplay2019JOSS....4.1884M}. We
-also used the following Python packages: \textsc{NumPy} \citep{Oliphant2006,
-van-der-Walt2011CSE....13b..22V}, \textsc{h5py} \citep{Collette2013},
-\textsc{matplotlib} \citep{Hunter2007CSE.....9...90H}, and \textsc{pandas}
-\citep{McKinney2010}. DM is funded by a Research Training Program Stipend from
-the Australian government. We acknowledge Australia Research Council funding via
-DP180104235, FT130100034, and FT170100040. We used OzStar, funded by Swinburne
-University of Technology and the Australian government, for computation.
+also used the following Python packages and tools: \textsc{NumPy}
+\citep{Oliphant2006, van-der-Walt2011CSE....13b..22V}, \textsc{h5py}
+\citep{Collette2013}, \textsc{matplotlib} \citep{Hunter2007CSE.....9...90H},
+\textsc{pandas} \citep{McKinney2010}, \textsc{IPython}
+\citep{Perez2007CSE.....9c..21P}, and \textsc{Jupyter} \citep{Kluyver2016}. DM
+is funded by a Research Training Program Stipend from the Australian government.
+We acknowledge Australia Research Council funding via DP180104235, FT130100034,
+and FT170100040. We used OzStar, funded by Swinburne University of Technology
+and the Australian government, for computation.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

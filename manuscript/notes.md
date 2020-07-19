@@ -77,7 +77,7 @@ Conclusions
 Acknowledgements
 ----------------
 
-- [ ] Add IPython and Jupyter.
+- [x] Add IPython and Jupyter.
 
 Appendix
 --------

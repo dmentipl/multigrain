@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
+import plonk
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / '../modules'))
 from multigrain import dustyshock
@@ -100,6 +102,29 @@ def initial_conditions():
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0)
+
+
+def initial_conditions_particles():
+    print('')
+    print('Initial conditions particles')
+    print('----------------------------')
+    print('')
+
+    DIR = Path('~/runs/multigrain/dustyshock').expanduser()
+    RUN = 'N_1-nx_32-smooth_fac_2.0-hfact_1.0'
+    FILE = 'dustyshock_00000.h5'
+    PATH = DIR / RUN / FILE
+
+    snap = plonk.load_snap(PATH)
+    subsnap = snap[np.abs(snap['z']) < 2]['gas']
+
+    ax = plonk.visualize.particle_plot(snap=subsnap, color='k', ms=2.0)
+    ax.set_aspect('equal')
+    ax.set_xlim(-20, 20)
+    ax.set(xlabel='x', ylabel='y')
+
+    fig = ax.figure
+    fig.savefig('dustyshock_initial_particles.pdf', bbox_inches='tight', pad_inches=0)
 
 
 def variation_hfact():

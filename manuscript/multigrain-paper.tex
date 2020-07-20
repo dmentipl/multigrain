@@ -892,7 +892,7 @@ The normalised velocity \( v_N \) and density \( \rho_N \) are defined by
 where the zero subscript represents the initial value. The solid lines represent
 the analytical solution from \citet{Benitez-Llambay2019ApJS..241...25B} and the
 open circles represent the numerical solution from \textsc{Phantom}. We see that
-the numerical solution accurately reproduces the analytical solution, i.e. the
+the numerical solution accurately reproduces the analytical solution, i.e.\@ the
 relative error is everywhere less than 0.01. We see, in both cases, the wave
 damping effect, and within a few wave periods the wave dissipates.
 
@@ -902,9 +902,12 @@ damping effect, and within a few wave periods the wave dissipates.
 \begin{figure}
    \begin{center}
       \includegraphics[width=\columnwidth]{figs/dustyshock_initial.pdf}
-      \caption{\textcolor{red}{(CHANGE THE FIGURE TO PARTICLES?)}Dusty shock numerical test
-         initial conditions showing the velocity (top) and the density
-         (bottom).\label{fig:dustyshock_initial}}
+      \caption{Dusty shock gas initial particle positions. The particles are
+         placed on a hexagonal close packed lattice. The density is lower in the
+         pre-shock region, on the left, than on the right. The particle
+         positions in the shock region are adjusted to smooth the shock over a
+         few particle spacings.%
+         \label{fig:dustyshock_initial}}
    \end{center}
 \end{figure}
 
@@ -995,12 +998,11 @@ to the large (in principle, infinite) gradient in density at the shock boundary
 leading to errors in evolving the dust.
 
 Figure~\ref{fig:dustyshock_initial} shows a sample of the initial particle
-positions. \textcolor{red}{((CHANGE THE FIGURE TO PARTICLES?))} For the gas and
-each dust species, we set up the particles on two close-packed lattices; one on
-each side of the shock, with the density and velocity set by their asymptotic
-values. We use the same resolution for the gas and each dust species. Due to the
-resolution-follows-the-mass nature of SPH, the numerical resolution is higher in
-the high density region.
+positions. For the gas and each dust species, we set up the particles on two
+close-packed lattices; one on each side of the shock, with the density and
+velocity set by their asymptotic values. We use the same resolution for the gas
+and each dust species. Due to the resolution-follows-the-mass nature of SPH, the
+numerical resolution is higher in the high density region.
 
 Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
 at \(t = 300\) which is long enough so that any transient behaviour has died

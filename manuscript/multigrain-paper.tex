@@ -40,6 +40,7 @@
 %%%%% AUTHORS - PLACE YOUR OWN PACKAGES HERE %%%%%
 
 % Only include extra packages if you really need them. Common packages are:
+\usepackage{bm}
 \usepackage{graphicx} % Including figure files
 \usepackage{amsmath} % Advanced maths commands
 \usepackage{xcolor} % Colour text for draft
@@ -54,7 +55,7 @@
 \newcommand{\dd}{\mathrm{d}}
 
 % Use bold font for vectors
-\let\vec\mathbf
+\let\vec\bm
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -128,12 +129,11 @@ grains.
 Grains of multiple sizes emit at the same wavelength. In order to interpret dust
 continuum emission, for example in ALMA observations showing gaps and rings
 \citep{ALMAPartnership2015ApJ...808L...3A, Andrews2016ApJ...820L..40A}, we must
-model planet-disc interactions including multiple species. In particular,
-interpretation of spectral index maps of discs with gaps requires models with
-multiple dust species. Spectral index maps can put constraints on the size
-distribution of dust grains within gaps \citep{Huang2018ApJ...852..122H}.
-Multi-species dust models allow us to test the underlying disc models by
-producing synthetic spectral index maps to compare with observations.
+model planet-disc interactions including multiple species. Spectral index maps
+can put constraints on the size distribution of dust grains within gaps
+\citep{Huang2018ApJ...852..122H}. Multi-species dust models allow us to test the
+underlying disc models by producing synthetic spectral index maps to compare
+with observations.
 
 Discs containing dust asymmetries and spiral arms around central cavities can
 show greater concentration at different wavelengths. Previous work has suggested
@@ -187,8 +187,9 @@ Then, the equations of conservation of mass for the mixture is given by
    \frac{\partial \rho_{d_i}}{\partial t} + \nabla \cdot (\rho_{d_i} \vec{v}_{d_i}) &= 0,
 \end{align}
 %
-for each \(i\) in 1 to \(N\), where \(\rho_j\) and \(\vec{v}_j\) are the density
-and velocity of the fluids.
+for each \(i\) in 1 to \(N\), where \(\rho_g\) and \(\vec{v}_g\) are the gas
+density and velocity, and \(\rho_{d_i}\) and \(\vec{v}_{d_i}\) are the dust
+density and velocity.
 
 We assume the fluids are inviscid, that the dust is pressureless, and that each
 dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
@@ -386,7 +387,7 @@ coupled to the gas
 \citet{Dipierro2018MNRAS.479.4187D} extend the analysis to consider the full
 backreaction of all species onto the gas. They show that the cumulative
 backreaction from multiple dust species can strongly affect the gas flow, even
-for low dust-to-gas ratio, and that, for large dust-to-gas ratio, the large
+for low dust-to-gas ratio, and that, for large dust-to-gas ratio, the small
 grains can drift outwards, as opposed to the typical inwards drift. This gives
 motivation to the current work.
 
@@ -506,8 +507,7 @@ particles.
 
 The typical bell-shaped kernel used in SPH to estimate density (denoted by
 \(W_{ab}\)) is not appropriate for the drag force summation. Rather, a
-`double-hump' kernel is appropriate \citep{Laibe2012MNRAS.420.2345L}. I.e.\ a
-kernel that is an even function with two maxima and a zero in the middle.
+`double-hump' kernel is appropriate \citep{Laibe2012MNRAS.420.2345L}.
 
 \subsection{Time stepping}
 
@@ -762,8 +762,9 @@ For each test problem, we set up each of the gas and dust fluids on a
 close-packed lattice, such that there were 44928 gas particles (32 particles in
 the direction of motion), and 5472 dust particles per species (16 particles in
 the direction of motion). We set the gas density to
-\(10^{-13}\)~g~cm\({}^{-3}\), with dust density varying per test problem. We set
-the dust grain density to \(0.5 \times 10^{-14}\)~g~cm\({}^{-3}\).
+\(10^{-13}\)~g~cm\({}^{-3}\), with the dust-to-gas ratio varying per test
+problem. We set the dust grain material density for all species to \(0.5 \times
+10^{-14}\)~g~cm\({}^{-3}\).
 
 Figure~\ref{fig:dustybox} shows the time evolution of the mean velocity
 differential between the gas and each dust species, compared with analytical
@@ -1066,13 +1067,15 @@ which makes the terminal velocity approximation, appropriate for small,
 well-coupled grains \citep{Youdin2005ApJ...620..459Y}.
 
 However, we use an explicit timestepping scheme
-\citep{Price2018PASA...35...31P}. In addition to the usual CFL time step
-constraint, \(\Delta t_{\rm CFL} < C_{\rm Cour} h/c_s\), there is an
-extra constraint given in Equation~\ref{eqn:timestep-dust}. This restricts the
-minimum stopping time of grains that can be simulated. To get an estimate on
-this restriction we compare this constraint with the CFL constraint. If we
-require that the stopping time constrained time step is less restrictive then we
-get that
+\citep{Price2018PASA...35...31P}. In addition to the usual
+Courant–Friedrichs–Lewy (CFL) time step constraint
+\citep{Courant1928MatAn.100...32C}, which is SPH form is \(\Delta t_{\rm CFL} <
+C_{\rm Cour} h/c_s\) \citep{Price2018PASA...35...31P}, there is an extra
+constraint given in Equation~\ref{eqn:timestep-dust}. This restricts the minimum
+stopping time of grains that can be simulated. To get an estimate on this
+restriction we compare this constraint with the CFL constraint. If we require
+that the stopping time constrained time step is less restrictive then we get
+that
 %
 \begin{align}
    t_{s_i} > \frac{C_{\rm Cour} h (1 - \varepsilon)}{2 c_s}.
@@ -1114,7 +1117,11 @@ requiring seven 64-bit floating point numbers per particle. This is in contrast
 to the mixture method. In that method there is only a single set of particles
 (representing he mixture) and for each dust species an additional four 64-bit
 floating point numbers are required: one for the dust fraction, and three for
-the velocity differential \citep{Hutchison2018MNRAS.476.2186H}.
+the velocity differential \citep{Hutchison2018MNRAS.476.2186H}. In practice, we
+use fewer dust SPH particles than gas; see, for example,
+\citet{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M,
+Calcino2019MNRAS.490.2579C}. This is to prevent the dust from becoming trapped
+under the gas resolution scale \citep{Laibe2012MNRAS.420.2345L}.
 
 
 \subsection{Dust particles as a pressureless fluid}

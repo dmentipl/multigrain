@@ -1065,9 +1065,6 @@ this in Section~\ref{sec:discussion} below.
    \end{center}
 \end{figure*}
 
-
-\subsection{Time step constraint}
-
 In deriving our method we made no assumptions on the size of the dust grains.
 This is unlike the method described in \citet{Hutchison2018MNRAS.476.2186H}
 which makes the terminal velocity approximation, appropriate for small,
@@ -1115,9 +1112,6 @@ is approximately 0.2~mm. Note that this is \emph{not} a minimum grain size that
 can be represented, however, using smaller grains is inefficient given the
 explicit time stepping scheme.
 
-
-\subsection{Memory constraint}
-
 The method requires storing an extra set of particles per dust species. For each
 particle we store the position, smoothing length, and velocity, in total
 requiring seven 64-bit floating point numbers per particle. This is in contrast
@@ -1129,9 +1123,6 @@ use fewer dust SPH particles than gas; see, for example,
 \citet{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M,
 Calcino2019MNRAS.490.2579C}. This is to prevent the dust from becoming trapped
 under the gas resolution scale \citep{Laibe2012MNRAS.420.2345L}.
-
-
-\subsection{Dust particles as a pressureless fluid}
 
 We represent each dust species as a pressureless fluid that interacts with gas
 via the drag force and with massive objects such as stars and planets

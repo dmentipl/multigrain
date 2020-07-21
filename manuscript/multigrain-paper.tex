@@ -52,6 +52,7 @@
 % Please keep new commands to a minimum, and use \newcommand not \def to avoid
 % overwriting existing commands. Example:
 %\newcommand{\pcm}{\,cm$^{-2}$} % per cm-squared
+\newcommand{\g}{\mathrm{g}}
 \newcommand{\dd}{\mathrm{d}}
 
 % Use bold font for vectors
@@ -174,21 +175,21 @@ Section~\ref{sec:discussion}.
 \subsection{Continuum equations for multiple dust species}%
 \label{subsec:continuum}
 
-We consider a mixture of gas, indexed by \(g\), and \(N\) dust species, indexed
-by \(d_i\). We neglect the finite size of the dust particles, and thus set the
+We consider a mixture of gas, indexed by \(\g\), and \(N\) dust species, indexed
+by \(\dd_i\). We neglect the finite size of the dust particles, and thus set the
 gas volume fraction to unity. We represent each dust species as a continuous
-fluid with a fixed size, \(s_i\), and intrinsic density, \(\varrho_{m_i}\).
-Then, the equations of conservation of mass for the mixture is given by
+fluid with a fixed size, \(s_i\), and intrinsic density, \(\varrho_{{\rm
+m}_i}\). Then, the equations of conservation of mass for the mixture is given by
 %
 \begin{align}
    \label{eqn:conserve-gas-mass}
-   \frac{\partial \rho_g}{\partial t} + \nabla \cdot (\rho_g \vec{v}_g) &= 0, \\
+   \frac{\partial \rho_{\g}}{\partial t} + \nabla \cdot (\rho_{\g} \vec{v}_{\g}) &= 0, \\
    \label{eqn:conserve-dust-mass}
-   \frac{\partial \rho_{d_i}}{\partial t} + \nabla \cdot (\rho_{d_i} \vec{v}_{d_i}) &= 0,
+   \frac{\partial \rho_{\dd_i}}{\partial t} + \nabla \cdot (\rho_{\dd_i} \vec{v}_{\dd_i}) &= 0,
 \end{align}
 %
-for each \(i\) in 1 to \(N\), where \(\rho_g\) and \(\vec{v}_g\) are the gas
-density and velocity, and \(\rho_{d_i}\) and \(\vec{v}_{d_i}\) are the dust
+for each \(i\) in 1 to \(N\), where \(\rho_{\g}\) and \(\vec{v}_{\g}\) are the gas
+density and velocity, and \(\rho_{\dd_i}\) and \(\vec{v}_{\dd_i}\) are the dust
 density and velocity.
 
 We assume the fluids are inviscid, that the dust is pressureless, and that each
@@ -196,11 +197,11 @@ dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
 density. The equations of conservation of momentum for the mixture are given by
 %
 \begin{align}
-   \rho_g \frac{\dd \vec{v}_g}{\dd t}
-      &= - \nabla P + \rho_g \vec{f} + \sum_i K_i \left(\vec{v}_{d_i}
-         - \vec{v}_{g}\right), \\
-   \rho_{d_i} \frac{\dd \vec{v}_{d_i}}{\dd t}
-      &= \rho_{d_i} \vec{f} - K_i \left(\vec{v}_{d_i} - \vec{v}_{g}\right),
+   \rho_{\g} \frac{\dd \vec{v}_{\g}}{\dd t}
+      &= - \nabla P + \rho_{\g} \vec{f} + \sum_i K_i \left(\vec{v}_{\dd_i}
+         - \vec{v}_{\g}\right), \\
+   \rho_{\dd_i} \frac{\dd \vec{v}_{\dd_i}}{\dd t}
+      &= \rho_{\dd_i} \vec{f} - K_i \left(\vec{v}_{\dd_i} - \vec{v}_{\g}\right),
 \end{align}
 %
 where \(P\) is the gas pressure, \(\vec{f}\) is any body forces acting on the
@@ -211,7 +212,7 @@ term, whereas the gas momentum equation has a sum of interactions over each dust
 species. Also note that the dust has no pressure gradient force term. In
 general, the drag coefficient could be a complicated expression. We assume that
 the drag coefficient is linear with respect to the differential velocity,
-\(\Delta \vec{v}_i = \vec{v}_{d_i} - \vec{v}_g \).
+\(\Delta \vec{v}_i = \vec{v}_{\dd_i} - \vec{v}_{\g} \).
 
 The gas and dust exchange momentum via drag which leads to frictional heating.
 Under the assumption that the gas and dust grains are at the same temperature,
@@ -219,8 +220,8 @@ the evolution of gas internal energy is given by
 %
 \begin{align}
    \label{eqn:conserve-energy}
-   \rho_g \frac{\dd u_g}{\dd t} =
-      - P \nabla \cdot \vec{v}_g + \rho_g \sum_i K_i {(\vec{v}_g - \vec{v}_{d_i})}^2.
+   \rho_{\g} \frac{\dd u_{\g}}{\dd t} =
+      - P \nabla \cdot \vec{v}_{\g} + \rho_{\g} \sum_i K_i {(\vec{v}_{\g} - \vec{v}_{\dd_i})}^2.
 \end{align}
 %
 We neglect the dust fluid internal energy under the assumption that the dust and
@@ -243,23 +244,23 @@ dust species, the stopping time, \(t_s\), is given by
 %
 \begin{align}
    \label{eqn:single-stopping-time}
-   t_s = \frac{\rho_g \rho_d}{K (\rho_g + \rho_d)},
+   t_s = \frac{\rho_{\g} \rho_{\dd}}{K (\rho_{\g} + \rho_{\dd})},
 \end{align}
 %
 where \(K\) is the drag coefficient for the single species. We assume spherical
-grains of size \(s\) with a uniform material density, \(\varrho_m\). In the
-linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag coefficient
-\(K\) is
+grains of size \(s\) with a uniform material density, \(\varrho_{\rm m}\). In
+the linear Epstein regime \citep{Epstein1924PhRv...23..710E} the drag
+coefficient \(K\) is
 %
 \begin{align}
    \label{eqn:single-drag-coefficient}
-   K = \frac{\rho_g \rho_d}{\varrho_m s} \sqrt{\frac{8}{\pi\gamma}} c_s f,
+   K = \frac{\rho_{\g} \rho_{\dd}}{\varrho_{\rm m} s} \sqrt{\frac{8}{\pi\gamma}} c_s f,
 \end{align}
 %
 where \(\gamma\) is the adiabatic index of the gas. For convenience, we define
 an effective material density, \(\varrho_{\mathrm{eff}}\), given by
-\(\varrho_{\mathrm{eff}} = \varrho_m \sqrt{\pi\gamma/8}\). In addition, \(f\) is
-a correction for supersonic relative velocities given by
+\(\varrho_{\mathrm{eff}} = \varrho_{\rm m} \sqrt{\pi\gamma/8}\). In addition,
+\(f\) is a correction for supersonic relative velocities given by
 \citep{Kwok1975ApJ...198..583K}
 %
 \begin{align}
@@ -278,7 +279,7 @@ now
 %
 \begin{align}
    \label{eqn:drag-coefficient}
-   K_i = \frac{\rho_g \rho_{d_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
+   K_i = \frac{\rho_{\g} \rho_{\dd_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
 \end{align}
 %
 In analogy with Equation~\ref{eqn:single-stopping-time} we can define a
@@ -286,22 +287,22 @@ In analogy with Equation~\ref{eqn:single-stopping-time} we can define a
 %
 \begin{align}
    \label{eqn:alternative-stopping-time}
-   t'_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i (\rho_g + \rho_{d_i})}.
+   t'_{s_i} = \frac{\rho_{\g} \rho_{\dd_i}}{K_i (\rho_{\g} + \rho_{\dd_i})}.
 \end{align}
 %
 However, there are other ``stopping times'' we can define. First, we define
-\(\rho = \rho_g + \sum_i \rho_{d_i}\) as the total density of the gas and all
-dust species. Then we can define another ``stopping time'', \(t_{s_i}\), as
+\(\rho = \rho_{\g} + \sum_i \rho_{\dd_i}\) as the total density of the gas and
+all dust species. Then we can define another ``stopping time'', \(t_{s_i}\), as
 %
 \begin{align}
    \label{eqn:stopping-time}
-   t_{s_i} = \frac{\rho_g \rho_{d_i}}{K_i \rho}.
+   t_{s_i} = \frac{\rho_{\g} \rho_{\dd_i}}{K_i \rho}.
 \end{align}
 %
 Considering the mixture of dust and gas as a whole, we define the weighted sum
-\(s_{\mathrm{eff}} = \sum_i \rho_{d_i} s_i / \sum_i \rho_{d_i}\) as an effective
-grain size for the mixture. Then we can define an effective stopping time for
-the dust mixture as
+\(s_{\mathrm{eff}} = \sum_i \rho_{\dd_i} s_i / \sum_i \rho_{\dd_i}\) as an
+effective grain size for the mixture. Then we can define an effective stopping
+time for the dust mixture as
 %
 \begin{align}
    \label{eqn:effective-stopping-time}
@@ -345,10 +346,10 @@ a per species midplane Stokes number in analogy with the single grain size case:
 \begin{align}
    \label{eqn:stokes}
    \mathrm{St}_i = \frac{\varrho_{\mathrm{eff}} s_i}
-      {\Sigma_g \left(1 + \sum_i \varepsilon_i \right)},
+      {\Sigma_{\g} \left(1 + \sum_i \varepsilon_i \right)},
 \end{align}
 %
-where \(\Sigma_g\) is the gas surface density and \(\varepsilon_i\) is the
+where \(\Sigma_{\g}\) is the gas surface density and \(\varepsilon_i\) is the
 dust-to-gas ratio for each dust species. Again we see the combination of grain
 properties, size and material density, and the disc surface density fixing the
 Stokes number. Given that we assume the material density is the same for all
@@ -382,8 +383,8 @@ grains have different meaning. For example, in the ISM large grains might be any
 grains \(> 10 \mu\mathrm{m}\).
 
 Several works describe the behaviour of these dust species as independently
-coupled to the gas
-\citep{Nakagawa1986Icar...67..375N,Dipierro2017MNRAS.469.1932D,Kanagawa2017ApJ...844..142K}.
+coupled to the gas \citep{Nakagawa1986Icar...67..375N,
+Dipierro2017MNRAS.469.1932D, Kanagawa2017ApJ...844..142K}.
 \citet{Dipierro2018MNRAS.479.4187D} extend the analysis to consider the full
 backreaction of all species onto the gas. They show that the cumulative
 backreaction from multiple dust species can strongly affect the gas flow, even
@@ -416,7 +417,7 @@ by
    \label{eqn:sph-smoothing}
 \end{align}
 %
-where the superscript \(k \in \{g, d_1, \dots, d_N\}\) is an index
+where the superscript \(k \in \{\g, d_1, \dots, d_N\}\) is an index
 distinguishing between the gas and all dust species; \(\nu\) is the number of
 spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
@@ -448,30 +449,30 @@ the equation of motion for the gas is given by
 \begin{align}
    \label{eqn:sph-gas-velocity}
    \begin{split}
-      \frac{\dd \vec{v}^g_a}{\dd t} = &- \sum_{b \in g} m^g_b \left[
-         \frac{P_a}{\Omega^g_a {\left(\rho^g_a\right)}^2} \nabla_a W_{ab}(h^g_a) +
-         \frac{P_b}{\Omega^g_b {\left(\rho^g_b\right)}^2} \nabla_a W_{ab}(h^g_b)
+      \frac{\dd \vec{v}^{\g}_a}{\dd t} = &- \sum_{b \in g} m^{\g}_b \left[
+         \frac{P_a}{\Omega^{\g}_a {\left(\rho^{\g}_a\right)}^2} \nabla_a W_{ab}(h^{\g}_a) +
+         \frac{P_b}{\Omega^{\g}_b {\left(\rho^{\g}_b\right)}^2} \nabla_a W_{ab}(h^{\g}_b)
       \right] \\
-      &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^g_b \frac{K_{ab}}{\rho^g_a \rho^{d_i}_b}
-         (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^g_a),
+      &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^{\g}_b \frac{K_{ab}}{\rho^{\g}_a \rho^{\dd_i}_b}
+         (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_a),
    \end{split}
 \end{align}
 %
-where \(P_a\) refers to the pressure on particle \(a\), and \(\Omega^g_a\) is a
+where \(P_a\) refers to the pressure on particle \(a\), and \(\Omega^{\g}_a\) is a
 term related to the variable smoothing length given by
 %
 \begin{align}
-   \Omega^g_a = 1 - \frac{\partial h_a}{\partial \rho_a}
+   \Omega^{\g}_a = 1 - \frac{\partial h_a}{\partial \rho_a}
       \sum_b m_b \frac{\partial W_{ab}(h_a)}{\partial h_a}.
 \end{align}
 %
-The equation of motion for each dust species, \(d_i\), is given by
+The equation of motion for each dust species, \(\dd_i\), is given by
 %
 \begin{align}
    \label{eqn:sph-dust-velocity}
-   \frac{\dd \vec{v}^{d_i}_a}{\dd t} =
-      - \nu \sum_{b \in g} m^{d_i}_b \frac{K_{ab}}{\rho^g_b \rho^{d_i}_a}
-      (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^g_b),
+   \frac{\dd \vec{v}^{\dd_i}_a}{\dd t} =
+      - \nu \sum_{b \in g} m^{\dd_i}_b \frac{K_{ab}}{\rho^{\g}_b \rho^{\dd_i}_a}
+      (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_b),
 \end{align}
 %
 The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH
@@ -498,7 +499,7 @@ straightforward generalisation of \citet{Laibe2012MNRAS.420.2345L} to multiple
 dust species. For Epstein drag, the drag coefficient \(K_{ab}\) is given by
 %
 \begin{align}
-   K_{ab} = \frac{\rho^g_a \rho^{d_i}_b}{\varrho_{\mathrm{eff}} s_i} c_{s,a} f_{ab},
+   K_{ab} = \frac{\rho^{\g}_a \rho^{\dd_i}_b}{\varrho_{\mathrm{eff}} s_i} c_{s,a} f_{ab},
 \end{align}
 %
 where \(c_{s,a}\) is the sound speed on the gas particle and \(f_{ab}\)
@@ -522,8 +523,8 @@ Starting with the discretisation of the drag-only velocity equations for dust
 and gas with the forward Euler method, we have
 %
 \begin{align}
-   \frac{v_g^{n+1} - v_g^n}{\Delta t} &= - \sum_i \frac{K_i}{\rho_g} \left(v_g^n - v_{d_i}^n\right), \\
-   \frac{v_{d_i}^{n+1} - v_{d_i}^n}{\Delta t} &= \frac{K_i}{\rho_{d_i}} \left(v_g^n - v_{d_i}^n\right).
+   \frac{v_{\g}^{n+1} - v_{\g}^n}{\Delta t} &= - \sum_i \frac{K_i}{\rho_{\g}} \left(v_{\g}^n - v_{\dd_i}^n\right), \\
+   \frac{v_{\dd_i}^{n+1} - v_{\dd_i}^n}{\Delta t} &= \frac{K_i}{\rho_{\dd_i}} \left(v_{\g}^n - v_{\dd_i}^n\right).
 \end{align}
 %
 Then we perform a von Neumann stability analysis, where we expand the solution
@@ -533,16 +534,16 @@ to the following matrix equation:
 %
 \begin{align}
    \begin{pmatrix}
-      V_g \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
+      V_{\g} \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
    \end{pmatrix}^{n+1} =
    \begin{pmatrix}
-      1 - \frac{\Delta t \sum K_i}{\rho_g} & \frac{\Delta t K_1}{\rho_g} & \cdots & \frac{\Delta t K_N}{\rho_g} \\
+      1 - \frac{\Delta t \sum K_i}{\rho_{\g}} & \frac{\Delta t K_1}{\rho_{\g}} & \cdots & \frac{\Delta t K_N}{\rho_{\g}} \\
       \frac{\Delta t K_1}{\rho_{d_1}} & 1 - \frac{\Delta t K_1}{\rho_{d_1}} & \cdots & 0 \\
       \vdots & \vdots & \vdots & \vdots \\
       \frac{\Delta t K_N}{\rho_{d_N}} & 0 & \cdots & 1 - \frac{\Delta t K_N}{\rho_{d_N}} \\
    \end{pmatrix}
    \begin{pmatrix}
-      V_g \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
+      V_{\g} \\ V_{d_1} \\ \vdots \\ V_{d_N} \\
    \end{pmatrix}^{n}.
 \end{align}
 %
@@ -550,18 +551,18 @@ We find the characteristic polynomial of the matrix, \(M\), above using the
 expression \(\det(M - \lambda I) = \det(A - B D^{-1} C) \det(D)\) to give
 %
 \begin{align}
-   \left(1 - \frac{\Delta t \sum K_i}{\rho_g} - f - \lambda\right)
-   \times \prod_i \left(1 - \frac{\Delta t K_i}{\rho_{d_i}} - \lambda\right),
+   \left(1 - \frac{\Delta t \sum K_i}{\rho_{\g}} - f - \lambda\right)
+   \times \prod_i \left(1 - \frac{\Delta t K_i}{\rho_{\dd_i}} - \lambda\right),
 \end{align}
 %
-where \(f = \sum_i \Delta t^2 K_i^2 \left[\rho_g \rho_{d_i} \left( 1 -
-\frac{\Delta t K_i}{\rho_{d_i}} - \lambda \right) \right]^{-1}\). We neglect
+where \(f = \sum_i \Delta t^2 K_i^2 \left[\rho_{\g} \rho_{\dd_i} \left( 1 -
+\frac{\Delta t K_i}{\rho_{\dd_i}} - \lambda \right) \right]^{-1}\). We neglect
 \(f\) as it is second order in \(\Delta t\). To find the eigenvalues we equate
 the characteristic polynomial with zero and solve to find
 %
 \begin{align}
-   \lambda_g = 1 - \frac{\Delta t \sum_i K_i}{\rho_g} \quad \mathrm{and} \quad
-   \lambda_{d_i} = 1 - \frac{\Delta t K_i}{\rho_{d_i}}.
+   \lambda_{\g} = 1 - \frac{\Delta t \sum_i K_i}{\rho_{\g}} \quad \mathrm{and} \quad
+   \lambda_{\dd_i} = 1 - \frac{\Delta t K_i}{\rho_{\dd_i}}.
 \end{align}
 %
 For stability, we require \(|\lambda_k| < 1\). Using this condition with
@@ -573,7 +574,7 @@ following timestep criteria:
    \Delta t < \frac{2 t_{s_i}}{1 - \epsilon} \quad \forall \, i,
 \end{align}
 %
-where \(\epsilon = \sum_i \epsilon_i\) and \(\epsilon_i = \rho_{d_i} / \rho\).
+where \(\epsilon = \sum_i \epsilon_i\) and \(\epsilon_i = \rho_{\dd_i} / \rho\).
 We have \(N + 1\) inequalities. We take the minimum over dust stopping times in
 the inequality on the right to find the most restrictive timestep criterion
 involving only dust quantities:
@@ -617,12 +618,12 @@ using the alternative stopping time
    \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\},
 \end{align}
 %
-where \(\varepsilon_i = \rho_{d_i} / \rho_g\) is the dust-to-gas ratio for each
-dust species. This is useful because in evolving the momentum equations we use
-the drag coefficient on a dust (or gas) particle over its gas (or dust)
+where \(\varepsilon_i = \rho_{\dd_i} / \rho_{\g}\) is the dust-to-gas ratio for
+each dust species. This is useful because in evolving the momentum equations we
+use the drag coefficient on a dust (or gas) particle over its gas (or dust)
 neighbours, without reference to the other dust species. Given that
-\(\varepsilon_i > 0\), for simplicity, we take the more restrictive constraint of
-setting \(\varepsilon_i = 0\), i.e.
+\(\varepsilon_i > 0\), for simplicity, we take the more restrictive constraint
+of setting \(\varepsilon_i = 0\), i.e.
 %
 \begin{align}
    \label{eqn:sph-timestep-constraint}
@@ -634,7 +635,7 @@ species constraint (\(\Delta t < 2 t_{s_i}\)):
 %
 \begin{align}
    \Delta t < 2 \min_{a}
-   \left\{ \frac{\rho^g_a \rho^{d_i}_b}{K_{ab} (\rho^g_a + \rho^{d_i}_b)} \right\}.
+   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
 %
 Whereas, for a gas particle, we take the minimum of
@@ -644,7 +645,7 @@ time step constraint for a particle:
 %
 \begin{align}
    \Delta t < 2 \min_i \min_{b}
-   \left\{ \frac{\rho^g_a \rho^{d_i}_b}{K_{ab} (\rho^g_a + \rho^{d_i}_b)} \right\}.
+   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
 %
 
@@ -704,8 +705,8 @@ species. In this test, the equation of motion simplifies to
 \end{align}
 %
 where \(\Delta \vec{V}\) is the differential velocity vector in the direction of
-motion, i.e. \(\vec{v}_{d_i} - \vec{v}_g\) for each \(i\) projected along the
-direction of motion, and \(\Omega\) is the drag matrix (Equation~65 of
+motion, i.e. \(\vec{v}_{\dd_i} - \vec{v}_{\g}\) for each \(i\) projected along
+the direction of motion, and \(\Omega\) is the drag matrix (Equation~65 of
 \citet{Laibe2014MNRAS.444.1940L}) given by,
 %
 \begin{align}
@@ -813,20 +814,20 @@ the dust. This leads to damping of the wave. This tests the numerical
 method in a problem including spatial gradients in a linear regime.
 
 Considering small perturbations around an equilibrium state, \(\rho_j = \rho_j^0
-+ \delta \rho_j\), and \(v_j = \delta v_j\), where the index \(j\) is \(g\) for
-the gas species, and \(d_i\) for each of the dust species, the linearised
++ \delta \rho_j\), and \(v_j = \delta v_j\), where the index \(j\) is \(\g\) for
+the gas species, and \(\dd_i\) for each of the dust species, the linearised
 equations of motion for this system are
 %
 \begin{align}
-   \frac{\partial \delta \rho_g}{\partial t}
-      + \rho_g^0 \frac{\partial \delta v_g}{\partial x} &= 0, \\
-   \frac{\partial \delta \rho_{d_i}}{\partial t}
-      + \rho_{d_i}^0 \frac{\partial \delta v_{d_i}}{\partial x} &= 0, \\
-   \rho_g^0 \frac{\partial \delta v_g}{\partial t}
-      &= \sum_i K_i \left(\delta v_{d_i} - \delta v_g \right)
-         + c_s^2 \frac{\partial \delta \rho_g}{\partial x}, \\
-   \rho_{d_i}^0 \frac{\partial \delta v_{d_i}}{\partial t}
-      &= - K_i \left(\delta v_{d_i} - \delta v_{g}\right).
+   \frac{\partial \delta \rho_{\g}}{\partial t}
+      + \rho_{\g}^0 \frac{\partial \delta v_{\g}}{\partial x} &= 0, \\
+   \frac{\partial \delta \rho_{\dd_i}}{\partial t}
+      + \rho_{\dd_i}^0 \frac{\partial \delta v_{\dd_i}}{\partial x} &= 0, \\
+   \rho_{\g}^0 \frac{\partial \delta v_{\g}}{\partial t}
+      &= \sum_i K_i \left(\delta v_{\dd_i} - \delta v_{\g} \right)
+         + c_s^2 \frac{\partial \delta \rho_{\g}}{\partial x}, \\
+   \rho_{\dd_i}^0 \frac{\partial \delta v_{\dd_i}}{\partial t}
+      &= - K_i \left(\delta v_{\dd_i} - \delta v_{\g}\right).
 \end{align}
 %
 For the particular setup we followed \citet{Benitez-Llambay2019ApJS..241...25B}.
@@ -842,7 +843,7 @@ condition to constant density and zero velocity, with perturbations of the form
 %
 where each perturbation can be written \(\delta f = \delta \hat{f} e^{ikx -
 i\omega t}\). We set the sound speed \(c_s = 1\), and the wave amplitude \(A\)
-to \(10^{-4} c_s\) and \(10^{-4} \rho_g^0\) for the velocity and density
+to \(10^{-4} c_s\) and \(10^{-4} \rho_{\g}^0\) for the velocity and density
 perturbations, respectively.
 
 \begin{table}
@@ -876,7 +877,7 @@ initial perturbations from Table~2 in
 \citet{Benitez-Llambay2019ApJS..241...25B}. We set up a periodic box of unit
 length, with 8192 particles for each species (128 particles in the wave
 direction). We use constant drag, \(K_i\), for each dust species, where \(K_i =
-\rho_{d_i} / t_{s_i}\), and \(\rho_{d_i}\) and \(t_{s_i}\) from
+\rho_{\dd_i} / t_{s_i}\), and \(\rho_{\dd_i}\) and \(t_{s_i}\) from
 Table~\ref{tab:wave} (following \citet{Benitez-Llambay2019ApJS..241...25B}). We
 turned off the SPH viscosity, i.e. set \texttt{alpha} to zero in
 \textsc{Phantom}.
@@ -933,28 +934,28 @@ dust species. The solution, in steady state, for this shock is described by the
 following set of equations:
 %
 \begin{align}
-   \frac{\partial}{\partial x} \left( \rho_g v_g \right)
+   \frac{\partial}{\partial x} \left( \rho_{\g} v_{\g} \right)
       &= 0, \label{eqn:shock-gas-continuity} \\
    \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i} \right)
       &= 0, \label{eqn:shock-dust-continuity} \\
-   \frac{\partial}{\partial x} \left[ \rho_g (v_g^2 + c_s^2)\right]
-      &= - \sum_{i=1}^N K_i (v_g - v_{\dd_i}), \\
+   \frac{\partial}{\partial x} \left[ \rho_{\g} (v_{\g}^2 + c_s^2)\right]
+      &= - \sum_{i=1}^N K_i (v_{\g} - v_{\dd_i}), \\
    \frac{\partial}{\partial x} \left( \rho_{\dd_i} v_{\dd_i}^2 \right)
-      &= K_i (v_g - v_{\dd_i}).
+      &= K_i (v_{\g} - v_{\dd_i}).
 \end{align}
 %
 We assume a constant drag coefficient \(K_i\) per species. The constant
 isothermal sound speed is \(c_s\). In steady state, due to the drag force, the
 gas and all dust species have the same pre-shock velocity \(v_s\) and the same
-asymptotic post-shock velocity. We define normalised velocities \(\omega_g = v_g
-/ v_s\) and \(\omega_{d_i} = v_{d_i} / v_s\), then these equations can be
-integrated to give
+asymptotic post-shock velocity. We define normalised velocities \(\omega_{\g} =
+v_{\g} / v_s\) and \(\omega_{\dd_i} = v_{\dd_i} / v_s\), then these equations
+can be integrated to give
 %
 \begin{align}
-   0 &= \omega_g^2 + \omega_g \left[ \sum_i \varepsilon_i (\omega_{d_i} - 1)
+   0 &= \omega_{\g}^2 + \omega_{\g} \left[ \sum_i \varepsilon_i (\omega_{\dd_i} - 1)
       - \mathcal{M}^{-2} -1 \right] + \mathcal{M}^{-2}, \\
-   \frac{\dd \omega_{d_i}}{\dd x} &= \frac{K_i}{\rho_{d_i}}
-      \left( \omega_g - \omega_{d_i} \right),
+   \frac{\dd \omega_{\dd_i}}{\dd x} &= \frac{K_i}{\rho_{\dd_i}}
+      \left( \omega_{\g} - \omega_{\dd_i} \right),
 \end{align}
 %
 where \(x_0\) is the shock position and \(\mathcal{M} = v_s / c_s\) is the Mach
@@ -967,7 +968,7 @@ the densities:
    \rho_j &= \frac{\rho_j(x_0) v_j(x_0)}{v_j},
 \end{align}
 %
-where the index \(j\) refers to either \(g\) or \(d_i\).
+where the index \(j\) refers to either \(\g\) or \(\dd_i\).
 
 We set up two tests. One test with a single dust species to validate against
 previous single dust species tests. And another test with three dust species to
@@ -976,7 +977,7 @@ in Table~3 in \citet{Benitez-Llambay2019ApJS..241...25B}. For both tests we
 chose \(\mathcal{M} = 2\), \(c_s = 1\), and \(\varepsilon_i = 1\) for all dust
 species. The left (pre-shock) velocities are set be the Mach number, i.e. \(v_j=
 2\), where \(j\) represents both gas and all dust species. We set the left
-(pre-shock) gas density \(\rho_g\) to 1. We set the drag coefficients \(K_i\)
+(pre-shock) gas density \(\rho_{\g}\) to 1. We set the drag coefficients \(K_i\)
 to: 1.0 for the single dust species test, and 1.0, 3.0, and 5.0 for the three
 dust species test. The right (post-shock) asymptotic values are given by
 %

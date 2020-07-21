@@ -68,7 +68,7 @@ def final_velocity_density():
         ax.grid()
     name = 'dustyshock_velocity_density.pdf'
     print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0)
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
 def initial_conditions():
@@ -101,7 +101,121 @@ def initial_conditions():
     dustyshock.plot_velocity_density_as_profile(snaps=[snap], xrange=xrange, axs=axs)
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0)
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
+
+
+def initial_conditions_2():
+
+    X_SHOCK = 0
+    X_L = -10
+    X_R = 10
+    VEL_L = 2
+    VEL_R = 0.25
+    RHO_L = 1
+    RHO_R = 8
+    SMOOTH_FAC = 2
+    PSEP = 0.1953125  # nx=128
+    NPOINTS = 200
+
+    FIGSIZE = (6, 6)
+    LINEWIDTH = 0.75
+
+    def logistic(x, k=1, x0=0, left=0, right=1):
+        dx = x - x0
+        _left = left / (1 + np.exp(dx / k))
+        _right = right / (1 + np.exp(-dx / k))
+        return _left + _right
+
+    def density(
+        x, x0=X_SHOCK, left=RHO_L, right=RHO_R, smooth_fac=SMOOTH_FAC, psep=PSEP
+    ):
+        return logistic(x, x0=x0, k=smooth_fac * psep, left=left, right=right)
+
+    @np.vectorize
+    def velocity(x, x0=X_SHOCK, left=VEL_L, right=VEL_R):
+        if x < x0:
+            return left
+        return right
+
+    x = np.linspace(X_L, X_R, NPOINTS)
+
+    fig, axs = plt.subplots(nrows=2, sharex=True, figsize=FIGSIZE)
+    fig.subplots_adjust(hspace=0.2)
+
+    axs[0].plot(x, velocity(x), 'k', linewidth=LINEWIDTH)
+    axs[0].set(ylabel='Velocity')
+
+    axs[1].plot(x, density(x), 'k', linewidth=LINEWIDTH)
+    axs[1].set(xlabel='x', ylabel='Density')
+
+    name = 'dustyshock_initial.pdf'
+    print(f'Saving figure to {name}')
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
+
+
+def initial_conditions_3():
+
+    NX = 32
+
+    X_SHOCK = 0
+    X_L = -15
+    X_R = 15
+    VEL_L = 2
+    VEL_R = 0.25
+    RHO_L = 1
+    RHO_R = 8
+    SMOOTH_FAC = 2.0
+
+    PSEP = {32: 0.78125, 64: 0.390625, 128: 0.1953125, 256: 0.09765625}
+
+    DIR = Path('~/runs/multigrain/dustyshock').expanduser()
+    RUN = f'N_1-nx_{NX}-smooth_fac_{SMOOTH_FAC}-hfact_1.0'
+    FILE = 'dustyshock_00000.h5'
+    PATH = DIR / RUN / FILE
+
+    NPOINTS = 200
+    FIGSIZE = (6, 6)
+    LINEWIDTH = 0.75
+
+    def logistic(x, k=1, x0=0, left=0, right=1):
+        dx = x - x0
+        _left = left / (1 + np.exp(dx / k))
+        _right = right / (1 + np.exp(-dx / k))
+        return _left + _right
+
+    def density(
+        x, x0=X_SHOCK, left=RHO_L, right=RHO_R, smooth_fac=SMOOTH_FAC, psep=PSEP[NX]
+    ):
+        return logistic(x, x0=x0, k=smooth_fac * psep, left=left, right=right)
+
+    @np.vectorize
+    def velocity(x, x0=X_SHOCK, left=VEL_L, right=VEL_R):
+        if x < x0:
+            return left
+        return right
+
+    x = np.linspace(X_L, X_R, NPOINTS)
+
+    snap = plonk.load_snap(PATH)
+    subsnap = snap[(np.abs(snap['z']) < 2) & (snap['x'] > X_L) & (snap['x'] < X_R)][
+        'gas'
+    ]
+
+    fig, axs = plt.subplots(
+        nrows=2, sharex=True, figsize=FIGSIZE, gridspec_kw={'height_ratios': [1, 1.5]}
+    )
+    fig.subplots_adjust(hspace=0.1)
+
+    axs[0].plot(x, density(x), 'k', linewidth=LINEWIDTH)
+    axs[0].set(ylabel='Density')
+
+    plonk.visualize.particle_plot(snap=subsnap, color='k', ms=2.0, ax=axs[1])
+    axs[1].set_aspect('equal')
+    axs[1].set(xlabel='x', ylabel='y')
+
+    name = 'dustyshock_initial.pdf'
+    print(f'Saving figure to {name}')
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
 def initial_conditions_particles():
@@ -124,7 +238,7 @@ def initial_conditions_particles():
     ax.set(xlabel='x', ylabel='y')
 
     fig = ax.figure
-    fig.savefig('dustyshock_initial_particles.pdf', bbox_inches='tight', pad_inches=0)
+    fig.savefig('dustyshock_initial.pdf', bbox_inches='tight', pad_inches=0.05)
 
 
 def variation_hfact():
@@ -170,7 +284,7 @@ def variation_hfact():
 
     name = 'dustyshock_hfact.pdf'
     print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0)
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
 def _variation_hfact(N, axs, paths, hfacts, nx, smooth_fac, drag_coefficients, xrange):

@@ -455,14 +455,16 @@ conservation of linear and angular momentum, and energy
          \frac{P_b}{\Omega^{\g}_b {\left(\rho^{\g}_b\right)}^2} \nabla_a W_{ab}(h^{\g}_b)
       \right] \\
       &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^{\g}_b \frac{K_{ab}}{\rho^{\g}_a \rho^{\dd_i}_b}
-         (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_a),
+         (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h_{\max}),
    \end{split}
 \end{align}
 %
 where \(K_{ab}\) is the drag coefficient between particles \(a\) and \(b\),
 \(P_a\) refers to the pressure on particle \(a\), \(\hat{\vec{r}}_{ab} =
-(\vec{r}_a - \vec{r}_b)/|\vec{r}_a - \vec{r}_b|\), and \(\Omega^{\g}_a\) is a
-term related to the variable smoothing length given by
+(\vec{r}_a - \vec{r}_b)/|\vec{r}_a - \vec{r}_b|\) is the normalised separation
+vector, \(h_{\max} = \max(h_a, h_b)\) is the maximum smoothing length between
+any pair of particles, and \(\Omega^{\g}_a\) is a term related to the variable
+smoothing length given by
 %
 \begin{align}
    \Omega^{\g}_a = 1 - \frac{\partial h_a}{\partial \rho_a}
@@ -475,7 +477,7 @@ The equation of motion for each dust species, \(\dd_i\), is given by
    \label{eqn:sph-dust-velocity}
    \frac{\dd \vec{v}^{\dd_i}_a}{\dd t} =
       - \nu \sum_{b \in g} m^{\dd_i}_b \frac{K_{ab}}{\rho^{\g}_b \rho^{\dd_i}_a}
-      (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_b),
+      (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h_{\max}),
 \end{align}
 %
 The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH

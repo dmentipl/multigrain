@@ -422,29 +422,30 @@ distinguishing between the gas and all dust species; \(\nu\) is the number of
 spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
 smoothing kernel; and \(\eta\) is a factor of order unity which determines the
-number of neighbours per particle. For an overview on the SPH method, see:
-\citet{Monaghan1992ARA&A..30..543M,Price2012JCoPh.231..759P}  So there are \(N +
-1\) sets of equations, Equations \ref{eqn:sph-density}--\ref{eqn:sph-smoothing},
-one set per phase. This is a straightforward generalisation of previous single
-dust species methods.
+number of neighbours per particle. For an overview on the SPH method, see
+\citet{Monaghan1992ARA&A..30..543M, Price2012JCoPh.231..759P}. So there are \(N
++ 1\) sets of equations, Equations
+\ref{eqn:sph-density}--\ref{eqn:sph-smoothing}, one set per phase. This is a
+straightforward generalisation of previous single dust species methods.
 
 One important feature of the above equations is that the gas and dust densities
 (for each dust species) are calculated without reference to any other phase.
 Given that the dust is pressureless this can lead to dust becoming trapped under
-the gas resolution. This is in contrast to the gas in which, due to the pressure
-force, particles are kept apart to prevent this over-concentration. Dust and gas
-interact only via drag which requires relative motion. If dust particles become
-concentrated and remain motionless with respect to the local gas distribution
-there is no pressure force to stop further collapse. This can lead to unphysical
-clumping of dust which can mimic physical clumping of dust that might be
-expected, in, for example, protoplanetary discs.
+the gas resolution \citep{Laibe2012MNRAS.420.2345L}. This is in contrast to the
+gas in which, due to the pressure force, particles are kept apart to prevent
+this over-concentration. Dust and gas interact only via drag which requires
+relative motion. If dust particles become concentrated and remain motionless
+with respect to the local gas distribution there is no pressure force to stop
+further collapse. This can lead to unphysical clumping of dust which can mimic
+physical clumping of dust that might be expected, in, for example,
+protoplanetary discs.
 
 \subsubsection{SPH equation of motion with multiple dust species}
 
 The equations of motion in SPH can be derived from a Lagrangian giving exact
 conservation of linear and angular momentum, and energy
-\citep{Price2012JCoPh.231..759P}. Following \citet{Laibe2012MNRAS.420.2345L},
-the equation of motion for the gas is given by
+\citep{Price2012JCoPh.231..759P}. Following \citet{Laibe2012MNRAS.420.2345L} and
+\citet{Price2020MNRAS.495.3929P}, the equation of motion for the gas is given by
 %
 \begin{align}
    \label{eqn:sph-gas-velocity}
@@ -454,11 +455,13 @@ the equation of motion for the gas is given by
          \frac{P_b}{\Omega^{\g}_b {\left(\rho^{\g}_b\right)}^2} \nabla_a W_{ab}(h^{\g}_b)
       \right] \\
       &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^{\g}_b \frac{K_{ab}}{\rho^{\g}_a \rho^{\dd_i}_b}
-         (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_a),
+         (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_a),
    \end{split}
 \end{align}
 %
-where \(P_a\) refers to the pressure on particle \(a\), and \(\Omega^{\g}_a\) is a
+where \(K_{ab}\) is the drag coefficient between particles \(a\) and \(b\),
+\(P_a\) refers to the pressure on particle \(a\), \(\hat{\vec{r}}_{ab} =
+(\vec{r}_a - \vec{r}_b)/|\vec{r}_a - \vec{r}_b|\), and \(\Omega^{\g}_a\) is a
 term related to the variable smoothing length given by
 %
 \begin{align}
@@ -472,13 +475,16 @@ The equation of motion for each dust species, \(\dd_i\), is given by
    \label{eqn:sph-dust-velocity}
    \frac{\dd \vec{v}^{\dd_i}_a}{\dd t} =
       - \nu \sum_{b \in g} m^{\dd_i}_b \frac{K_{ab}}{\rho^{\g}_b \rho^{\dd_i}_a}
-      (\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_b),
+      (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h^{\g}_b),
 \end{align}
 %
 The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH
 discretisation of the pressure gradient force on a particle, labelled by \(a\).
 The sum, denoted by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled
-by \(b\).
+by \(b\). The \(*\)-superscript on \(\vec{v}_{ab} = \vec{v}_a - \vec{v}_b\)
+refers to a higher-order reconstructed velocity for the particle pair \(a\) and
+\(b\) \citep{Price2020MNRAS.495.3929P}.
+
 
 \subsubsection{Drag kernel and drag coefficient}
 

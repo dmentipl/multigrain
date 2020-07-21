@@ -413,7 +413,7 @@ by
 \begin{align}
    \label{eqn:sph-density}
    \rho^k_a &= \sum_b m^k_b W_{ab}(h^k_b), \\
-   h^k_a &= \eta \left(\frac{m^k_a}{\rho^k_a}\right)^{1/\nu},
+   h^k_a &= h_{\rm fact} \left(\frac{m^k_a}{\rho^k_a}\right)^{1/\nu},
    \label{eqn:sph-smoothing}
 \end{align}
 %
@@ -421,10 +421,10 @@ where the superscript \(k \in \{\g, \dd_1, \dots, \dd_N\}\) is an index
 distinguishing between the gas and all dust species; \(\nu\) is the number of
 spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
-smoothing kernel; and \(\eta\) is a factor of order unity which determines the
-number of neighbours per particle. For an overview on the SPH method, see
-\citet{Monaghan1992ARA&A..30..543M, Price2012JCoPh.231..759P}. So there are \(N
-+ 1\) sets of equations, Equations
+smoothing kernel; and \(h_{\rm fact}\) is a factor of order unity which
+determines the number of neighbours per particle. For an overview on the SPH
+method, see \citet{Monaghan1992ARA&A..30..543M, Price2012JCoPh.231..759P}. So
+there are \(N + 1\) sets of equations, Equations
 \ref{eqn:sph-density}--\ref{eqn:sph-smoothing}, one set per phase. This is a
 straightforward generalisation of previous single dust species methods.
 

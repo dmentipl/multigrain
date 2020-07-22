@@ -925,8 +925,8 @@ initial perturbations from Table~2 in
 length, with 8192 particles for each species (128 particles in the wave
 direction). We use constant drag, \(K_i\), for each dust species, where \(K_i =
 \rho_{\dd_i} / t_{s_i}\), and \(\rho_{\dd_i}\) and \(t_{s_i}\) from
-Table~\ref{tab:wave} (following \citet{Benitez-Llambay2019ApJS..241...25B}). We
-turned off the SPH viscosity, i.e. set \texttt{alpha} to zero in
+Table~\ref{tab:wave} (following \citealt{Benitez-Llambay2019ApJS..241...25B}).
+We turned off the SPH viscosity, i.e. set \(\alpha_{AV}\) to zero in
 \textsc{Phantom}.
 
 Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
@@ -1037,23 +1037,32 @@ dust species test. The right (post-shock) asymptotic values are given by
 %
 where \(j\) represents both gas and all dust species, \(N\) is the number of
 dust species, and the superscripts L and R represent left and right asymptotic
-states, respectively. We set the SPH numerical viscosity parameter to 1
-(\texttt{alpha} = 1.0 in \textsc{Phantom}).
+states, respectively. We set \(\alpha_{AV}\) to 1.
 
 We set up initial conditions such that the velocities are constant with their
 asymptotic values on either side of the shock at \(x_{\rm shock} = 0\). We set
 up the densities similarly except that we smoothed the shock at shock boundary,
-using a logistic function, \(f(x) \propto {(1 + \exp(-kx))}^{-1}\). This is due
-to the large (in principle, infinite) gradient in density at the shock boundary
-leading to errors in evolving the dust.
+using a logistic function, i.e.
+%
+\begin{align}
+   \rho(x) = \frac{\rho_{\rm L} e^{-kx} + \rho_{\rm R}}{1 + e^{-kx}},
+\end{align}
+%
+where \(\rho_{\rm L}\) and \(\rho_{\rm R}\) are the density on the left and
+right of the shock, respectively, and \(k\) is a factor determining the width of
+the smoothing. We set \(k\) to \(2 x_{\rm sep}\), where \(x_{\rm sep} =
+0.1953125\) is the (resolution-dependent) separation between particles in the
+x-direction in the low density region. This is due to the large (in principle,
+infinite) gradient in density at the shock boundary leading to an
+over-concentration of dust in the post-shock region.
 
 Figure~\ref{fig:dustyshock_initial} shows a sample of the initial particle
 positions (bottom) with the analytical density profile (top). For the gas and
 each dust species, we set up the particles on two close-packed lattices; one on
 each side of the shock, with the density and velocity set by their asymptotic
 values. We use the same resolution for the gas and each dust species. Due to the
-resolution-follows-the-mass nature of SPH, the numerical resolution is higher in
-the high density region.
+resolution following the mass in SPH, the numerical resolution is higher in the
+high density region.
 
 Figure~\ref{fig:dustyshock_final} shows the velocity and density of both tests
 at \(t = 300\) which is long enough so that any transient behaviour has died

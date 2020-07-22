@@ -45,20 +45,20 @@ There are Python scripts to setup and run the tests located in [`code/scripts`](
 
 The dusty-box tests are few and quick and can be run on a local machine. The data generated is about 1.1 GB in size.
 
-- `dustybox_setup_and_run_time_evolution.py` showing the time evolution to compare with the analytical solution;
+- `dustybox_setup_and_run_time_evolution.py` runs 6 tests: 3 with total dust-to-gas ratio of 0.01, and 3 with total dust-to-gas ratio of 0.5. In each triple there is 1 dust species, 2 dust species, and 5 dust species.
 - `dustybox_setup_and_run_stability.py` to check the stability criterion.
 
 #### Dusty-wave
 
 The dusty-wave tests are few and quick and can be run on a local machine. The data generated is about 250 MB in size.
 
-- `dustywave_setup_and_run.py` showing the time evolution to compare with the analytical solution.
+- `dustywave_setup_and_run.py` runs 2 tests: one with 1 dust species and one with 4 dust species.
 
 #### Dusty-shock
 
 The dusty-shock tests are many and slow and should be run on a cluster.
 
-- `dustyshock_setup_and_schedule.py` showing the time evolution to compare with the analytical solution. This relies on `dustyshock.toml.j2` which is a [phantom-build](https://github.com/dmentipl/phantom-build) config file.
+- `dustyshock_setup_and_schedule.py` runs a slew of tests. This relies on `dustyshock.toml.j2` which is a [phantom-build](https://github.com/dmentipl/phantom-build) config file.
 
 ### Performing analysis on the tests
 

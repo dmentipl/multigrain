@@ -103,7 +103,7 @@ PARAMETERS = dict()
 for f in total_dust_to_gas_ratio:
     for size in grain_size:
         N = len(size)
-        label = f'f={f:.2f}_N={N}'
+        label = f'f_{f:.2f}-N_{N}'
         PARAMETERS[label] = copy.copy(_parameters)
         dust_to_gas_ratio = tuple(f / N * np.ones(N))
         PARAMETERS[label]['dust_to_gas_ratio'] = dust_to_gas_ratio

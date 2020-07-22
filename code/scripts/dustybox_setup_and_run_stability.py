@@ -104,7 +104,7 @@ _parameters = {
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-C_forces = [0.5, 0.9, 1.0, 1.5]
+C_forces = [0.9, 1.0, 1.5, 1.9, 2.0]
 
 # Iterate over C_forces
 PARAMETERS = dict()

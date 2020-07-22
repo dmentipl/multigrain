@@ -162,14 +162,10 @@ def run_script(
     run_directory = pathlib.Path(run_directory).expanduser()
     hdf5_directory = pathlib.Path(HDF5ROOT).expanduser()
     phantom_dir = run_directory.parent / '.phantom'
-    phantombuild.get_phantom(phantom_dir=phantom_dir)
-    phantombuild.checkout_phantom_version(
-        phantom_dir=phantom_dir, required_phantom_git_commit_hash=PHANTOM_VERSION
-    )
+    phantombuild.get_phantom(path=phantom_dir)
+    phantombuild.checkout_phantom_version(path=phantom_dir, version=PHANTOM_VERSION)
     if phantom_patch_file is not None:
-        phantombuild.patch_phantom(
-            phantom_dir=phantom_dir, phantom_patch=phantom_patch_file
-        )
+        phantombuild.patch_phantom(path=phantom_dir, patch=phantom_patch_file)
     setup_multiple_calculations(
         simulation_to_setup=simulation_to_setup,
         run_root_directory=run_directory,

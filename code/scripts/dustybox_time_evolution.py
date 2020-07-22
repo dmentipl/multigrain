@@ -74,7 +74,6 @@ PATCH_FILE = None
 
 SIMULATION = 'dustybox'
 RUN_DIRECTORY = '~/runs/multigrain/dustybox/time_evolution'
-PATCH_FILE = pathlib.Path(__file__).parent / 'dustybox_time_evolution-phantom.patch'
 
 # Dictionary of parameters common to all runs.
 _parameters = {

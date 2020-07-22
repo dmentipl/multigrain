@@ -76,7 +76,23 @@ PATCH_FILE = None
 
 SIMULATION = 'dustybox'
 RUN_DIRECTORY = '~/runs/multigrain/dustybox/accuracy'
-PATCH_FILE = pathlib.Path(__file__).parent / 'dustybox_accuracy-phantom.patch'
+PATCH_FILE = (
+    pathlib.Path(__file__).resolve().parent.parent
+    / 'patches'
+    / 'phantom-d9a5507f-dtdrag_C_force.patch'
+)
+print('')
+print('')
+print('')
+print('')
+print('')
+print('')
+print(PATCH_FILE)
+print('')
+print('')
+print('')
+print('')
+print('')
 
 # Dictionary of parameters common to all runs.
 _parameters = {
@@ -100,7 +116,7 @@ _parameters = {
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-C_forces = [0.0125, 0.025, 0.05]
+C_forces = [0.5, 0.9, 1.0, 1.5]
 
 # Iterate over C_forces
 PARAMETERS = dict()

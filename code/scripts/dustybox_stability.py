@@ -1,6 +1,6 @@
 """Set up and run dustybox calculations.
 
-Check accuracy by changing C_force.
+Check stability by changing C_force.
 
 Need to set the following variables:
     SIMULATION
@@ -75,24 +75,12 @@ PATCH_FILE = None
 # MAKE CHANGES BELOW AS REQUIRED
 
 SIMULATION = 'dustybox'
-RUN_DIRECTORY = '~/runs/multigrain/dustybox/accuracy'
+RUN_DIRECTORY = '~/runs/multigrain/dustybox/stability'
 PATCH_FILE = (
     pathlib.Path(__file__).resolve().parent.parent
     / 'patches'
-    / 'phantom-d9a5507f-dtdrag_C_force.patch'
+    / 'phantom-phantom-666da9e8-dustybox_stability.patch'
 )
-print('')
-print('')
-print('')
-print('')
-print('')
-print('')
-print(PATCH_FILE)
-print('')
-print('')
-print('')
-print('')
-print('')
 
 # Dictionary of parameters common to all runs.
 _parameters = {

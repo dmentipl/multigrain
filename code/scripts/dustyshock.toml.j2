@@ -1,30 +1,64 @@
-# Dusty-shock tests
+# Dusty-shock tests with smoothing
 
 {% set prefix = "dustyshock" %}
-{% set setup_path = "~/repos/multigrain/code/initial-conditions/dustyshock/other" %}
+{% set setup_path = "~/runs/multigrain/dustyshock/_initial_conditions" %}
 {% set runs_path = "~/runs/multigrain/dustyshock" %}
 {% set job_script = "~/repos/multigrain/code/misc/dustyshock-slurm.sh" %}
+{% set patches_path = "~/repos/multigrain/code/patches" %}
 
 {% set system = "ifort" %}
-{% set patches_path = "~/repos/multigrain/code/patches" %}
 {% set hdf5_path = env['HDF5_DIR'] %}
 
 {% set names =
     [
-        "N_1-nx_64",
-        "N_1-nx_128",
-        "N_1-nx_256",
-        "N_3-nx_64",
-        "N_3-nx_128",
-        "N_3-nx_256",
-        "N_1-nx_128-alpha_0",
-        "N_3-nx_128-alpha_0",
-        "N_1-nx_128-recon_off",
-        "N_3-nx_128-recon_off",
-        "N_1-nx_128-hfact_1.5",
-        "N_1-nx_128-K_10",
-        "N_1-nx_128-k_smooth_2",
-        "N_1-nx_128-k_smooth_5",
+        "N_1-nx_32-smooth_fac_2.0-hfact_1.0",
+        "N_1-nx_32-smooth_fac_2.0-hfact_1.2",
+        "N_1-nx_32-smooth_fac_2.0-hfact_1.5",
+        "N_1-nx_32-smooth_fac_5.0-hfact_1.0",
+        "N_1-nx_32-smooth_fac_5.0-hfact_1.2",
+        "N_1-nx_32-smooth_fac_5.0-hfact_1.5",
+        "N_1-nx_64-smooth_fac_2.0-hfact_1.0",
+        "N_1-nx_64-smooth_fac_2.0-hfact_1.2",
+        "N_1-nx_64-smooth_fac_2.0-hfact_1.5",
+        "N_1-nx_64-smooth_fac_5.0-hfact_1.0",
+        "N_1-nx_64-smooth_fac_5.0-hfact_1.2",
+        "N_1-nx_64-smooth_fac_5.0-hfact_1.5",
+        "N_1-nx_128-smooth_fac_2.0-hfact_1.0",
+        "N_1-nx_128-smooth_fac_2.0-hfact_1.2",
+        "N_1-nx_128-smooth_fac_2.0-hfact_1.5",
+        "N_1-nx_128-smooth_fac_5.0-hfact_1.0",
+        "N_1-nx_128-smooth_fac_5.0-hfact_1.2",
+        "N_1-nx_128-smooth_fac_5.0-hfact_1.5",
+        "N_1-nx_256-smooth_fac_2.0-hfact_1.0",
+        "N_1-nx_256-smooth_fac_2.0-hfact_1.2",
+        "N_1-nx_256-smooth_fac_2.0-hfact_1.5",
+        "N_1-nx_256-smooth_fac_5.0-hfact_1.0",
+        "N_1-nx_256-smooth_fac_5.0-hfact_1.2",
+        "N_1-nx_256-smooth_fac_5.0-hfact_1.5",
+        "N_3-nx_32-smooth_fac_2.0-hfact_1.0",
+        "N_3-nx_32-smooth_fac_2.0-hfact_1.2",
+        "N_3-nx_32-smooth_fac_2.0-hfact_1.5",
+        "N_3-nx_32-smooth_fac_5.0-hfact_1.0",
+        "N_3-nx_32-smooth_fac_5.0-hfact_1.2",
+        "N_3-nx_32-smooth_fac_5.0-hfact_1.5",
+        "N_3-nx_64-smooth_fac_2.0-hfact_1.0",
+        "N_3-nx_64-smooth_fac_2.0-hfact_1.2",
+        "N_3-nx_64-smooth_fac_2.0-hfact_1.5",
+        "N_3-nx_64-smooth_fac_5.0-hfact_1.0",
+        "N_3-nx_64-smooth_fac_5.0-hfact_1.2",
+        "N_3-nx_64-smooth_fac_5.0-hfact_1.5",
+        "N_3-nx_128-smooth_fac_2.0-hfact_1.0",
+        "N_3-nx_128-smooth_fac_2.0-hfact_1.2",
+        "N_3-nx_128-smooth_fac_2.0-hfact_1.5",
+        "N_3-nx_128-smooth_fac_5.0-hfact_1.0",
+        "N_3-nx_128-smooth_fac_5.0-hfact_1.2",
+        "N_3-nx_128-smooth_fac_5.0-hfact_1.5",
+        "N_3-nx_256-smooth_fac_2.0-hfact_1.0",
+        "N_3-nx_256-smooth_fac_2.0-hfact_1.2",
+        "N_3-nx_256-smooth_fac_2.0-hfact_1.5",
+        "N_3-nx_256-smooth_fac_5.0-hfact_1.0",
+        "N_3-nx_256-smooth_fac_5.0-hfact_1.2",
+        "N_3-nx_256-smooth_fac_5.0-hfact_1.5",
     ]
 %}
 
@@ -33,14 +67,12 @@
 path = "~/repos/phantom"
 setup = "dustyshock"
 system = "{{ system }}"
-version = "d9a5507f3fd97b5ed5acf4547f82449476b29091"
-patches = [
-    "{{ patches_path }}/phantom-d9a5507f-multigrain_setup_shock.patch",
-    "{{ patches_path }}/phantom-d9a5507f-idustbound.patch",
-    "{{ patches_path }}/phantom-d9a5507f-printing.patch"
-]
+version = "666da9e892cb3f2d9f89e132504e185fe2f22f31"
 extra_options = ["MAXP=10000000", "ISOTHERMAL=yes"]
 hdf5_path = "{{ hdf5_path }}"
+patches = [
+    "{{ patches_path }}/phantom-666da9e8-dustyshock.patch",
+]
 
 
 {% for name in names %}

@@ -94,13 +94,15 @@ multigrain dust with separate sets of particles}
 
 % Abstract of the paper
 \begin{abstract}
-   We present a new method for simulating the dynamics of a mixture of gas and
+   We present a method for simulating the dynamics of a mixture of gas and
    multiple species of large Stokes number dust grains, typical of evolved
    protoplanetary discs and debris discs. The method improves upon earlier
    methods, in which only a single grain size could be represented, by capturing
-   the differential backreaction of multiple dust species on the gas. This
-   effect is greater for large dust-to-gas ratios that may be expected in the
-   later stages of the protoplanetary disc life.
+   the differential backreaction of multiple dust species on the gas. We
+   benchmark the method against analytic solutions for linear waves, drag and
+   shocks in dust-gas mixtures. This effect is greater for large dust-to-gas
+   ratios that may be expected in the later stages of the protoplanetary disc
+   life.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -117,15 +119,17 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 
 Multi-wavelength observations of protoplanetary discs show that the radial
 extent of the dust disc scales inversely with wavelength
-\citep{Andrews2015PASP..127..961A}. This suggests that larger grains drift
-inwards faster than smaller grains \citep{Weidenschilling1977MNRAS.180...57W}.
+\citep{Andrews2015PASP..127..961A}. \textcolor{red}{This suggests that larger
+grains drift inwards faster than smaller grains
+\citep{Weidenschilling1977MNRAS.180...57W}.}
 
 Modelling this requires dust and gas hydrodynamics with multiple dust
 species---one of the grand challenges in protoplanetary disc modelling
 \citep{Haworth2016PASA...33...53H}. In particular, it is important to capture
-the collective backreaction of multiple dust species on the gas. For example,
-the inward drift of small grains can be reversed by the inward drift of large
-grains.
+the collective backreaction of multiple dust species on the gas
+\citep{Dipierro2018MNRAS.479.4187D}. For example, the inward drift of small
+grains can be reversed by the inward drift of large grains
+\citep{Laibe2014MNRAS.444.1940L}.
 
 Grains of multiple sizes emit at the same wavelength. In order to interpret dust
 continuum emission, for example in ALMA observations showing gaps and rings
@@ -134,33 +138,42 @@ model planet-disc interactions including multiple species. Spectral index maps
 can put constraints on the size distribution of dust grains within gaps
 \citep{Huang2018ApJ...852..122H}. Multi-species dust models allow us to test the
 underlying disc models by producing synthetic spectral index maps to compare
-with observations.
+with observations \textcolor{red}{(Add citation.)}.
 
 Discs containing dust asymmetries and spiral arms around central cavities can
-show greater concentration at different wavelengths. Previous work has suggested
-that the cause of these features is a (possibly unseen) companion in the cavity
-\citep{Price2018MNRAS.477.1270P, Poblete2019MNRAS.489.2204P}. The ability to
-perform multi-wavelength synthetic observations in single species dust-gas
+show greater concentration at different wavelengths
+\textcolor{red}{(Casassus2015ApJ...812..126C, van-der-Marel2015ApJ...810L...7V)}
+Previous work has suggested that the cause of these features is a (possibly
+unseen) companion in the cavity \citep{Price2018MNRAS.477.1270P,
+Poblete2019MNRAS.489.2204P,Calcino2019MNRAS.490.2579C}. The ability to perform
+multi-wavelength synthetic observations in single species dust-gas
 hydrodynamical models is compromised. One option is to stack, in
-post-processing, multiple single dust species simulations. However, due to back
-reaction, there may be a phase difference in the location of the concentration
-making this procedure unreliable.
+post-processing, multiple single dust species simulations
+\citep{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M}. However, due
+to back reaction, there may be a phase difference in the location of the
+concentration making this procedure unreliable.
 
-There are two approaches to modelling of dust-gas mixtures in SPH: (i) the dust
-and gas are represented by separate sets of SPH particles
-\citep{Monaghan1995CoPhC..87..225M, Laibe2012MNRAS.420.2345L,
-Laibe2012MNRAS.420.2365L}. In this approach the dust and gas SPH particles
-interact via a drag coupling term. In the other approach, (ii) the dust and gas
-are modelled by a single set of SPH particles representing the mixture
-\citep{Price2015MNRAS.451..813P}. In this approach the dust fraction is stored
-on the particles and evolved in time.
+Smoothed particle hydrodynamics (SPH) is a particle method for solving the
+equations of hydrodynamics \citep{Monaghan1992ARA&A..30..543M,
+Monaghan2005RPPh...68.1703M, Price2012JCoPh.231..759P}. There are two approaches
+to modelling of dust-gas mixtures in SPH: (i) the dust and gas are represented
+by separate sets of SPH particles \citep{Monaghan1995CoPhC..87..225M,
+Laibe2012MNRAS.420.2345L, Laibe2012MNRAS.420.2365L}. In this approach the dust
+and gas SPH particles interact via a drag coupling term. In the other approach,
+(ii) the dust and gas are modelled by a single set of SPH particles representing
+the mixture \citep{Laibe2014MNRAS.444.1940L, Price2015MNRAS.451..813P}
+\textcolor{red}{(Add citations: Laibe2014MNRAS.440.2147L and
+Laibe2014MNRAS.440.2136L)}. In this approach the dust fraction is stored on the
+particles and evolved in time.
 
 In the description for both of these approaches the methods are applicable to a
 single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L}
 described a multiple species approach for the single SPH fluid method.
 \citet{Hutchison2018MNRAS.476.2186H} provided an algorithmic implementation of
 this method and tested this in the \textsc{Phantom} SPH code
-\citep{Price2018PASA...35...31P}.
+\citep{Price2018PASA...35...31P}. The single fluid approach is limited in that
+particles are not allowed to stream past each other as expected for large,
+weakly-coupled grains \textcolor{red}{(2014MNRAS.440.2147L)}.
 
 In this paper we extend method (i), in which dust is represented by separate
 sets of particles, from a single species to multiple species. We present the
@@ -221,7 +234,8 @@ the evolution of gas internal energy is given by
 \begin{align}
    \label{eqn:conserve-energy}
    \rho_{\g} \frac{\dd u_{\g}}{\dd t} =
-      - P \nabla \cdot \vec{v}_{\g} + \rho_{\g} \sum_i K_i {(\vec{v}_{\g} - \vec{v}_{\dd_i})}^2.
+      - P \left(\nabla \cdot \vec{v}_{\g}\right)
+      + \rho_{\g} \sum_i K_i {(\vec{v}_{\g} - \vec{v}_{\dd_i})}^2.
 \end{align}
 %
 We neglect the dust fluid internal energy under the assumption that the dust and
@@ -311,22 +325,22 @@ time for the dust mixture as
 %
 By combining
 Equations~\ref{eqn:single-stopping-time}~\&~\ref{eqn:single-drag-coefficient} we
-can see the expression for the multigrain effective stopping time is analogous
-to the single dust species case.
+can see the expression for the multigrain effective stopping time, \(T_{s_i}\),
+is analogous to the single dust species case, \(t_s\).
 
 \subsubsection{Stokes number}
 
 The Stokes number, \(\mathrm{St}\), is a dimensionless stopping time defined as
 the stopping time in units of a typical flow time. For protoplanetary discs, the
 typical flow time is the Keplerian orbital time, \(1/\Omega_K\), so that the
-Stokes number is \(\mathrm{St} = t_s \Omega_K\). Note that the Stokes number
-depends on the gas disc properties, via the density and temperature, the dust
-disc density, the dust grain properties, i.e. size and material density, and the
-stellar mass and orbital distance. The disc surface density, \(\Sigma\), and
-disc scale height, \(H\), are related to the density, sound speed, and Keplerian
-orbital time by \(\rho = \Sigma / H\) and \(\Omega_K = c_s / H\). Using these
-relations we can show that the Stokes number in the midplane of a protoplanetary
-disc is given by
+Stokes number is \(\mathrm{St} \equiv t_s \Omega_K\). Note that the Stokes
+number depends on the gas disc properties, via the density and temperature, the
+dust disc density, the dust grain properties, i.e. size and material density,
+and the stellar mass and orbital distance. The disc surface density, \(\Sigma\),
+and disc scale height, \(H\), are related to the density, sound speed, and
+Keplerian orbital time by \(\rho = \Sigma / H\) and \(\Omega_K = c_s / H\).
+Using these relations we can show that the Stokes number in the midplane of a
+protoplanetary disc is given by
 %
 \begin{align}
    \mathrm{St} = \frac{\varrho_{\mathrm{eff}} s}{\Sigma}.
@@ -368,15 +382,14 @@ of each dust species. We can distinguish between three regimes of dust dynamics:
    \item intermediate-sized grains, i.e.\ those with \(\mathrm{St} \sim 1\).
 \end{enumerate}
 %
-Small grains have short stopping time, i.e.\ differential velocity decays on
-less than the orbital time, and are thus strongly coupled to the gas. These
-grains stick to the gas, e.g.\ following the gas accretion flow. Large grains
-have long stopping time, i.e.\ differential velocity decays on timescales much
-longer than the orbital time, and are thus weakly coupled to the gas.
-Intermediate-sized grains are marginally coupled to the gas. These grains
-experience the fastest radial drift velocities
-\citep{Takeuchi2002ApJ...581.1344T,Ayliffe2012MNRAS.423.1450A}. For a typical
-protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\),
+Small grains have short stopping time, i.e.\ differential velocity decays faster
+than the orbital time, and are thus strongly coupled to the gas. These grains
+stick to the gas, e.g.\ following the gas accretion flow. Large grains have long
+stopping time, i.e.\ differential velocity decays more slowely than the orbital
+time, and are thus weakly coupled to the gas. Intermediate-sized grains are
+marginally coupled to the gas. These grains experience the fastest radial drift
+velocities \citep{Takeuchi2002ApJ...581.1344T,Ayliffe2012MNRAS.423.1450A}. For a
+typical protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\),
 small grains are \(\lesssim 10 \mu\mathrm{m}\), and large grains are \(\gtrsim 1
 \mathrm{mm}\). Note that for other physical systems the terms small and large
 grains have different meaning. For example, in the ISM large grains might be any
@@ -423,8 +436,8 @@ spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
 smoothing kernel; and \(h_{\rm fact}\) is a factor of order unity which
 determines the number of neighbours per particle. For an overview on the SPH
-method, see \citet{Monaghan1992ARA&A..30..543M, Price2012JCoPh.231..759P}. So
-there are \(N + 1\) sets of equations, Equations
+method, see \citet{Monaghan1992ARA&A..30..543M, Monaghan2005RPPh...68.1703M,
+Price2012JCoPh.231..759P}. So there are \(N + 1\) sets of equations, Equations
 \ref{eqn:sph-density}--\ref{eqn:sph-smoothing}, one set per phase. This is a
 straightforward generalisation of previous single dust species methods.
 

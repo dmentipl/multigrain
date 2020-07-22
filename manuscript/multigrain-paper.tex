@@ -426,7 +426,7 @@ by
 \begin{align}
    \label{eqn:sph-density}
    \rho^k_a &= \sum_b m^k_b W_{ab}(h^k_b), \\
-   h^k_a &= h_{\rm fact} \left(\frac{m^k_a}{\rho^k_a}\right)^{1/\nu},
+   h^k_a &= \eta \left(\frac{m^k_a}{\rho^k_a}\right)^{1/\nu},
    \label{eqn:sph-smoothing}
 \end{align}
 %
@@ -434,9 +434,9 @@ where the superscript \(k \in \{\g, \dd_1, \dots, \dd_N\}\) is an index
 distinguishing between the gas and all dust species; \(\nu\) is the number of
 spatial dimensions; \(m^k_a\), \(\rho^k_a\) and \(h^k_a\) are the SPH particle
 mass, density, and smoothing length, respectively; \(W_{ab}\) is the SPH
-smoothing kernel; and \(h_{\rm fact}\) is a factor of order unity which
-determines the number of neighbours per particle. For an overview on the SPH
-method, see \citet{Monaghan1992ARA&A..30..543M, Monaghan2005RPPh...68.1703M,
+smoothing kernel; and \(\eta\) is a factor of order unity which determines the
+number of neighbours per particle. For an overview on the SPH method, see
+\citet{Monaghan1992ARA&A..30..543M, Monaghan2005RPPh...68.1703M,
 Price2012JCoPh.231..759P}. So there are \(N + 1\) sets of equations, Equations
 \ref{eqn:sph-density}--\ref{eqn:sph-smoothing}, one set per phase. This is a
 straightforward generalisation of previous single dust species methods.
@@ -451,7 +451,8 @@ relative motion. If dust particles become concentrated and remain motionless
 with respect to the local gas distribution there is no pressure force to stop
 further collapse. This can lead to unphysical clumping of dust which can mimic
 physical clumping of dust that might be expected, in, for example,
-protoplanetary discs.
+protoplanetary discs or molecular clouds
+\textcolor{red}{(Tricco2017MNRAS.471L..52T)}.
 
 \subsubsection{SPH equation of motion with multiple dust species}
 
@@ -464,8 +465,8 @@ conservation of linear and angular momentum, and energy
    \label{eqn:sph-gas-velocity}
    \begin{split}
       \frac{\dd \vec{v}^{\g}_a}{\dd t} = &- \sum_{b \in g} m^{\g}_b \left[
-         \frac{P_a}{\Omega^{\g}_a {\left(\rho^{\g}_a\right)}^2} \nabla_a W_{ab}(h^{\g}_a) +
-         \frac{P_b}{\Omega^{\g}_b {\left(\rho^{\g}_b\right)}^2} \nabla_a W_{ab}(h^{\g}_b)
+         \frac{P_a + q_{ab}^a}{\Omega^{\g}_a {\left(\rho^{\g}_a\right)}^2} \nabla_a W_{ab}(h^{\g}_a) +
+         \frac{P_b + q_{ab}^b}{\Omega^{\g}_b {\left(\rho^{\g}_b\right)}^2} \nabla_a W_{ab}(h^{\g}_b)
       \right] \\
       &+ \nu \sum_{i=1}^N \sum_{b \in d_i} m^{\g}_b \frac{K_{ab}}{\rho^{\g}_a \rho^{\dd_i}_b}
          (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h_{\max}),
@@ -473,17 +474,38 @@ conservation of linear and angular momentum, and energy
 \end{align}
 %
 where \(K_{ab}\) is the drag coefficient between particles \(a\) and \(b\),
-\(P_a\) refers to the pressure on particle \(a\), \(\hat{\vec{r}}_{ab} =
-(\vec{r}_a - \vec{r}_b)/|\vec{r}_a - \vec{r}_b|\) is the normalised separation
-vector, \(h_{\max} = \max(h_a, h_b)\) is the maximum smoothing length between
-any pair of particles, and \(\Omega^{\g}_a\) is a term related to the variable
-smoothing length given by
+\(P_a\) refers to the pressure on particle \(a\), and \(h_{\max} = \max(h_a,
+h_b)\) is the maximum smoothing length between any pair of particles.
+\(\Omega^{\g}_a\) is a term related to the variable smoothing length given by
 %
 \begin{align}
    \Omega^{\g}_a = 1 - \frac{\partial h_a}{\partial \rho_a}
       \sum_b m_b \frac{\partial W_{ab}(h_a)}{\partial h_a}.
 \end{align}
 %
+\(q_{ab}^a\) and \(q_{ab}^b\) are terms relating to artificial viscosity given
+by
+%
+\begin{align}
+   q_{ab}^a =
+   \begin{cases}
+      -\frac{1}{2} \rho_a v_{{\rm sig}, a} \vec{v}_{ab} \cdot \hat{\vec{r}}_{ab},
+         &\vec{v}_{ab} \cdot \hat{\vec{r}}_{ab} < 0,\\
+      0, &\mathrm{otherwise},
+   \end{cases}
+\end{align}
+where \(\hat{\vec{r}}_{ab} = (\vec{r}_a - \vec{r}_b)/|\vec{r}_a - \vec{r}_b|\)
+is the normalised separation vector, \(\vec{v}_{ab} = \vec{v}_a -
+\vec{v}_b\), and \(v_{{\rm sig}, a}\) is the maximum signal speed given by
+%
+\begin{align}
+   v_{{\rm sig}, a} = \alpha_a^{\rm AV} c_{s,a}
+      + \beta^{\rm AV} | \vec{v}_{ab} \cdot \hat{\vec{r}}_{ab} |,
+\end{align}
+%
+where \(\alpha_a^{\rm AV}\) and \(\beta^{\rm AV}\) are parameters controlling
+the artificial viscosity strength.
+
 The equation of motion for each dust species, \(\dd_i\), is given by
 %
 \begin{align}
@@ -496,9 +518,10 @@ The equation of motion for each dust species, \(\dd_i\), is given by
 The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH
 discretisation of the pressure gradient force on a particle, labelled by \(a\).
 The sum, denoted by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled
-by \(b\). The \(*\)-superscript on \(\vec{v}_{ab} = \vec{v}_a - \vec{v}_b\)
-refers to a higher-order reconstructed velocity for the particle pair \(a\) and
-\(b\) \citep{Price2020MNRAS.495.3929P}.
+by \(b\). The \(*\)-superscript on \(\vec{v}_{ab}\) refers to a higher-order
+reconstructed velocity for the particle pair \(a\) and \(b\)
+\citep{Price2020MNRAS.495.3929P}. This avoids the ``overdamping'' problem
+described by \citet{Laibe2012MNRAS.420.2345L}.
 
 
 \subsubsection{Drag kernel and drag coefficient}
@@ -529,7 +552,8 @@ particles.
 
 The typical bell-shaped kernel used in SPH to estimate density (denoted by
 \(W_{ab}\)) is not appropriate for the drag force summation. Rather, a
-`double-hump' kernel is appropriate \citep{Laibe2012MNRAS.420.2345L}.
+``double-hump'' kernel was found to be 10x more accurate
+\citep{Laibe2012MNRAS.420.2345L}.
 
 \subsection{Time stepping}
 
@@ -540,8 +564,9 @@ We use an explicit leapfrog time stepping scheme as discussed in
 drag term there is an additional stability constraint on the timestep \(\Delta
 t\). We derive this constraint for the forward Euler scheme. (Even though we do
 not use this scheme, it provides a guide to the nature of the constraint.)
-Starting with the discretisation of the drag-only velocity equations for dust
-and gas with the forward Euler method, we have
+Following \citet{Laibe2012MNRAS.420.2345L}, we start with the discretisation of
+the drag-only velocity equations for dust and gas with the forward Euler method,
+we have
 %
 \begin{align}
    \frac{v_{\g}^{n+1} - v_{\g}^n}{\Delta t} &= - \sum_i \frac{K_i}{\rho_{\g}} \left(v_{\g}^n - v_{\dd_i}^n\right), \\
@@ -627,7 +652,8 @@ time step constraint is the stopping time itself, and does not depend on the
 dust fraction. Note that we have shown that Equation~\ref{eqn:timestep-dust} is
 the stability constraint for the forward Euler discretisation of the drag terms
 to first order in \(\Delta t\). However, we have not derived the stability
-constraint for the leapfrog scheme we use in our numerical tests below.
+constraint for the leapfrog scheme we use in our numerical tests below, but we
+expect the stability constraint to remain the same.
 
 \subsubsection{Time step constraint for SPH}
 
@@ -675,25 +701,25 @@ time step constraint for a particle:
 
 We implemented the numerical method described in Section~\ref{subsec:sph} in the
 smoothed particle hydrodynamics code \textsc{Phantom}\footnote{See the git
-commit labelled by the hash \texttt{64dbd2b1} in the \textsc{Phantom} source
-code repository for the implemented changes.}. We then performed several tests
-to validate the method against known analytical solutions. The dusty box test
-(Section~\ref{subsec:box}) validates the drag force coupling in the absence of
-spatial gradients. The dusty wave test (Section~\ref{subsec:wave}) validates the
-method with spatial gradients in a linear regime. The dusty shock test
-(Section~\ref{subsec:shock}) validates the method in a challenging non-linear
-regime.
+commit labelled by the hash
+\href{https://github.com/danieljprice/phantom/commit/64dbd2b124ca74051eed920d6cad0a2e83157478}{\texttt{64dbd2b1}}
+in the \textsc{Phantom} source code repository for the implemented changes.}. We
+then performed several tests to validate the method against known analytical
+solutions. The dusty box test (Section~\ref{subsec:box}) validates the drag
+force coupling in the absence of spatial gradients. The dusty wave test
+(Section~\ref{subsec:wave}) validates the method with spatial gradients in a
+linear regime. The dusty shock test (Section~\ref{subsec:shock}) validates the
+method in a challenging non-linear regime.
 
 The tests all have analytical solutions in one spatial dimension. We performed
 each of the tests in three dimensions, and then reduced the data to one
 dimension for comparison with the analytical solutions. In each of the tests we
-used, unless stated otherwise: a globally isothermal equation of state
-(\texttt{ieos} = 1 in \textsc{Phantom}); the quintic kernel with 113 mean
-particle neighbours (\texttt{hfact} = 1.0 in \textsc{Phantom}); global
-timestepping, i.e., all particles have the same time step; a Courant factor of
-0.3 (\texttt{C\_cour} in \textsc{Phantom}); a time step constraint on the
+used, unless stated otherwise: a globally isothermal equation of state; the
+quintic kernel with 113 mean particle neighbours (\(\eta = 1.0\) in
+Equation~\ref{eqn:sph-density}); global timestepping, i.e., all particles have
+the same time step; a Courant factor of 0.3; a time step constraint on the
 acceleration \( C_{\rm force} \) of 0.25, where \(\Delta t_a < C_{\rm force}
-\sqrt{h_a / |\vec{a}_a|} \) (\texttt{C\_force} in \textsc{Phantom}).
+\sqrt{h_a / |\vec{a}_a|} \).
 
 
 \subsection{Dusty box}%
@@ -728,7 +754,7 @@ species. In this test, the equation of motion simplifies to
 where \(\Delta \vec{V}\) is the differential velocity vector in the direction of
 motion, i.e. \(\vec{v}_{\dd_i} - \vec{v}_{\g}\) for each \(i\) projected along
 the direction of motion, and \(\Omega\) is the drag matrix (Equation~65 of
-\citet{Laibe2014MNRAS.444.1940L}) given by,
+\citealt{Laibe2014MNRAS.444.1940L}) given by,
 %
 \begin{align}
    \Omega_{ij} =
@@ -777,13 +803,13 @@ first set had a total dust-to-gas ratio of 0.01, and the second set 0.5. The
 tests within each set had 1, 2, and 5 dust species, respectively, with grain
 sizes given in Table~\ref{tab:box}. Each test had equal mass in each grain size
 bin. The gas is initially motionless, and each dust species has uniform velocity
-in the positive x-direction. We turned off the SPH viscosity, i.e. set
-\texttt{alpha} to zero in \textsc{Phantom}.
+in the positive x-direction. We turned off the SPH viscosity, i.e.\@ set
+\(\alpha_{\rm AV}\) to zero in \textsc{Phantom}.
 
 For each test problem, we set up each of the gas and dust fluids on a
-close-packed lattice, such that there were 44928 gas particles (32 particles in
-the direction of motion), and 5472 dust particles per species (16 particles in
-the direction of motion). We set the gas density to
+close-packed lattice, using dense-sphere packing, such that there were 44928 gas
+particles (32 particles in the direction of motion), and 5472 dust particles per
+species (16 particles in the direction of motion). We set the gas density to
 \(10^{-13}\)~g~cm\({}^{-3}\), with the dust-to-gas ratio varying per test
 problem. We set the dust grain material density for all species to \(0.5 \times
 10^{-14}\)~g~cm\({}^{-3}\).
@@ -797,17 +823,17 @@ represent the analytical solution including backreaction.
 
 For low dust-to-gas ratio (0.01) both analytical solutions give the same decay
 of differential velocity, with which the \textsc{Phantom} simulation agrees. For
-a larger dust-to-gas ratio (0.5) the analytical solutions diverge, and the
-\textsc{Phantom} simulation data follows the backreaction-inclusive solution. In
-all cases, the numerical solution matches the analytical solution with relative
-error less than 0.01.
+a larger dust-to-gas ratio (0.5) the analytical solutions for multiple species
+differs from the single-species solution, and the \textsc{Phantom} simulation
+data follows the backreaction-inclusive solution. In all cases, the numerical
+solution matches the analytical solution with relative error less than 0.01.
 
 For large dust-to-gas ratio we see that the smaller grains (0.1 cm and 0.316 cm)
-rapidly slow and the differential velocity reverses sign. I.e. the small grains
-slow to the gas velocity; then, as the larger grains speed up the gas via drag,
-the gas drags the small grains along with it. This shows that the behaviour of
-multiple dust species for large dust-to-gas ratios requires taking back reaction
-into consideration to capture the physics of dust drag accurately
+rapidly slow and the differential velocity reverses sign. That is the small
+grains slow to the gas velocity; then, as the larger grains speed up the gas via
+drag, the gas drags the small grains along with it. This shows that the
+behaviour of multiple dust species for large dust-to-gas ratios requires taking
+back reaction into consideration to capture the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
 
 \subsection{Dusty wave}%

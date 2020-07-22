@@ -142,7 +142,7 @@ with observations \textcolor{red}{(Add citation.)}.
 
 Discs containing dust asymmetries and spiral arms around central cavities can
 show greater concentration at different wavelengths
-\textcolor{red}{(Casassus2015ApJ...812..126C, van-der-Marel2015ApJ...810L...7V)}
+\citep{Casassus2015ApJ...812..126C, van-der-Marel2015ApJ...810L...7V}.
 Previous work has suggested that the cause of these features is a (possibly
 unseen) companion in the cavity \citep{Price2018MNRAS.477.1270P,
 Poblete2019MNRAS.489.2204P,Calcino2019MNRAS.490.2579C}. The ability to perform
@@ -161,10 +161,9 @@ by separate sets of SPH particles \citep{Monaghan1995CoPhC..87..225M,
 Laibe2012MNRAS.420.2345L, Laibe2012MNRAS.420.2365L}. In this approach the dust
 and gas SPH particles interact via a drag coupling term. In the other approach,
 (ii) the dust and gas are modelled by a single set of SPH particles representing
-the mixture \citep{Laibe2014MNRAS.444.1940L, Price2015MNRAS.451..813P}
-\textcolor{red}{(Add citations: Laibe2014MNRAS.440.2147L and
-Laibe2014MNRAS.440.2136L)}. In this approach the dust fraction is stored on the
-particles and evolved in time.
+the mixture \citep{Laibe2014MNRAS.444.1940L, Laibe2014MNRAS.440.2147L,
+Laibe2014MNRAS.440.2136L, Price2015MNRAS.451..813P}. In this approach the dust
+fraction is stored on the particles and evolved in time.
 
 In the description for both of these approaches the methods are applicable to a
 single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L}
@@ -173,7 +172,7 @@ described a multiple species approach for the single SPH fluid method.
 this method and tested this in the \textsc{Phantom} SPH code
 \citep{Price2018PASA...35...31P}. The single fluid approach is limited in that
 particles are not allowed to stream past each other as expected for large,
-weakly-coupled grains \textcolor{red}{(2014MNRAS.440.2147L)}.
+weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}.
 
 In this paper we extend method (i), in which dust is represented by separate
 sets of particles, from a single species to multiple species. We present the
@@ -451,8 +450,7 @@ relative motion. If dust particles become concentrated and remain motionless
 with respect to the local gas distribution there is no pressure force to stop
 further collapse. This can lead to unphysical clumping of dust which can mimic
 physical clumping of dust that might be expected, in, for example,
-protoplanetary discs or molecular clouds
-\textcolor{red}{(Tricco2017MNRAS.471L..52T)}.
+protoplanetary discs or molecular clouds \citep{Tricco2017MNRAS.471L..52T}.
 
 \subsubsection{SPH equation of motion with multiple dust species}
 
@@ -1163,7 +1161,8 @@ is approximately 0.2~mm. Note that this is \emph{not} a minimum grain size that
 can be represented, however, using smaller grains is inefficient given the
 explicit time stepping scheme. The single fluid method is more efficient for
 these smaller grains, which satisfy the terminal velocity approximation.
-\textcolor{red}{Cuello2019MNRAS.483.4114C show that the two methods overlap and give the same results.}
+\citet{Cuello2019MNRAS.483.4114C} show that the two methods overlap and give the
+same results.
 
 The method requires storing an extra set of particles per dust species. For each
 particle we store the position, smoothing length, and velocity, in total

@@ -79,7 +79,7 @@ RUN_DIRECTORY = '~/runs/multigrain/dustybox/stability'
 PATCH_FILE = (
     pathlib.Path(__file__).resolve().parent.parent
     / 'patches'
-    / 'phantom-phantom-666da9e8-dustybox_stability.patch'
+    / 'phantom-666da9e8-dustybox_stability.patch'
 )
 
 # Dictionary of parameters common to all runs.
@@ -104,7 +104,8 @@ _parameters = {
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-C_forces = [0.9, 1.0, 1.5, 1.9, 2.0]
+_C_forces = [0.9, 1.0, 1.5, 1.9, 2.0]
+C_forces = [f / 20 for f in _C_forces]
 
 # Iterate over C_forces
 PARAMETERS = dict()

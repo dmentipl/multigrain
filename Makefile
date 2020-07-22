@@ -10,7 +10,3 @@ help:
 .PHONY: manuscript
 manuscript: ## Build the PDF of the manuscript.
 	make -C manuscript manuscript
-
-.PHONY: run
-run: ## Set up and run the tests with Phantom
-	make -C code run

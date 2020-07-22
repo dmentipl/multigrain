@@ -32,13 +32,43 @@ jupyter nbextension enable --py widgetsnbextension
 
 ## Results
 
+We use Phantom version `666da9e892cb3f2d9f89e132504e185fe2f22f31` with some patches in the `code/patches` directory.
+
 ### Running the Phantom multigrain tests
 
-...
+There are Python scripts to setup and run the tests located in `code/scripts`.
+
+#### Dusty box
+
+The dusty-box tests are few and quick and can be run on a local machine.
+
+- `dustybox_setup_and_run_time_evolution.py` showing the time evolution to compare with the analytical solution;
+- `dustybox_setup_and_run_stability.py` to check the stability criterion.
+
+#### Dusty wave
+
+The dusty-wave tests are few and quick and can be run on a local machine.
+
+- `dustywave_setup_and_run.py` showing the time evolution to compare with the analytical solution.
+
+#### Dusty shock
+
+The dusty-shock tests are many and slow and should be run on a cluster.
+
+- `dustyshock_setup_and_schedule.py` showing the time evolution to compare with the analytical solution.
 
 ### Performing analysis on the tests
 
-To perform analysis on the Phantom output see the notebooks.
+There are notebooks in `code/notebooks` to perform analysis on the Phantom output.
+
+### Manuscript figures
+
+Python scripts for generating the manuscript figures (after running the tests
+above) are available in `code/scripts`.
+
+- `dustybox_figures.py`
+- `dustywave_figures.py`
+- `dustyshock_figures.py`
 
 ## Manuscript
 

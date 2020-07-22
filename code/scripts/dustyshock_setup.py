@@ -12,7 +12,7 @@ import phantomconfig as pc
 
 FILE_DIR = Path(__file__).resolve().parent.parent / 'initial-conditions' / 'dustyshock'
 OUTPUT_DIR = Path('~/runs/multigrain/dustyshock/_initial_conditions').expanduser()
-CONFIG_FILE = Path(__file__).resolve().parent / 'dustyshock.toml.js'
+CONFIG_FILE = Path(__file__).resolve().parent / 'dustyshock.toml.j2'
 
 PARAMETERS = {
     'nx': [32, 64, 128, 256],

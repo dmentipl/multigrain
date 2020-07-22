@@ -1078,27 +1078,26 @@ in the SPH density sum than is typical in dust-gas simulations with
 \textsc{Phantom}. The typical mean neighbour number when using the quintic
 kernel, used by default for dust-gas simulations, in calculating density sums is
 113 \citep{Price2018PASA...35...31P}. The mean neighbour number
-\(\overline{N}_{\rm neigh}\) is related to the proportionality constant \(h_{\rm
-fact}\) by
+\(\overline{N}_{\rm neigh}\) is related to the proportionality constant \(\eta\)
+by
 %
 \begin{align}
    \overline{N}_{\rm neigh} = \frac{4}{3} \pi
-      {\left( R_{\rm kern} h_{\rm fact} \right)}^3.
+      {\left( R_{\rm kern} \eta \right)}^3.
 \end{align}
 %
-For the quintic kernel, \( R_{\rm kern} = 3.0 \). So, by default, \( h_{\rm
-fact} = 1.0 \). We used a \(h_{\rm fact}\) value of 1.8 in
-Figure~\ref{fig:dustyshock_final}.
+For the quintic kernel, \( R_{\rm kern} = 3.0 \). So, by default, \(\eta =
+1.0\). We used a \(\eta\) value of 1.8 in Figure~\ref{fig:dustyshock_final}.
 
 Figure~\ref{fig:dustyshock_hfact} shows the comparison between the analytical
-and numerical solutions for the density varying the value of \( h_{\rm fact} =
-1.2, 1.5, 1.8 \), corresponding to \(\overline{N}_{\rm neigh} = 195, 381, 660\).
-We can see that the accuracy of the gas density (blue line and markers) is
-independent (or weakly dependent) on the neighbour number. In contrast, the dust
-density depends strongly on the neighbour number. To avoid large errors, we
-require \( h_{\rm fact} = 1.5\), for the single dust species case, and \(h_{\rm
-fact} = 1.8\), for the three dust species case. We discuss the implications of
-this in Section~\ref{sec:discussion} below.
+and numerical solutions for the density varying the value of \(\eta = 1.2, 1.5,
+1.8\), corresponding to \(\overline{N}_{\rm neigh} = 195, 381, 660\). We can see
+that the accuracy of the gas density (blue line and markers) is independent (or
+weakly dependent) on the neighbour number. In contrast, the dust density depends
+strongly on the neighbour number. To avoid large errors, we require \(\eta =
+1.5\), for the single dust species case, and \(\eta = 1.8\), for the three dust
+species case. We discuss the implications of this in
+Section~\ref{sec:discussion} below.
 
 
 \section{Discussion}%
@@ -1107,9 +1106,9 @@ this in Section~\ref{sec:discussion} below.
 \begin{figure*}
    \begin{center}
       \includegraphics[width=\textwidth]{figs/dustyshock_hfact.pdf}
-      \caption{The effect of \(h_{\rm fact}\) in the dusty shock test problem.
+      \caption{The effect of \(\eta\) in the dusty shock test problem.
          The lines and markers are the same as used in
-         Figure~\ref{fig:dustyshock_final}. From left to right: \(h_{\rm fact} =
+         Figure~\ref{fig:dustyshock_final}. From left to right: \(\eta =
          1.2, 1.5, 1.8\), corresponding to \(\overline{N}_{\rm neigh} = 195,
          381, 660\). For the single dust species case we require 381 neighbours.
          For the three dust species case we require 660 neighbours.%
@@ -1162,13 +1161,15 @@ disc with surface density \(\Sigma \approx 1\)~g/cm\({}^2\) and effective grain
 size \(\varrho_{\rm eff} = 3\)~g/cm\({}^3\) we find that the minimum grain size
 is approximately 0.2~mm. Note that this is \emph{not} a minimum grain size that
 can be represented, however, using smaller grains is inefficient given the
-explicit time stepping scheme.
+explicit time stepping scheme. The single fluid method is more efficient for
+these smaller grains, which satisfy the terminal velocity approximation.
+\textcolor{red}{Cuello2019MNRAS.483.4114C show that the two methods overlap and give the same results.}
 
 The method requires storing an extra set of particles per dust species. For each
 particle we store the position, smoothing length, and velocity, in total
 requiring seven 64-bit floating point numbers per particle. This is in contrast
 to the mixture method. In that method there is only a single set of particles
-(representing he mixture) and for each dust species an additional four 64-bit
+(representing the mixture) and for each dust species an additional four 64-bit
 floating point numbers are required: one for the dust fraction, and three for
 the velocity differential \citep{Hutchison2018MNRAS.476.2186H}. In practice, we
 use fewer dust SPH particles than gas; see, for example,
@@ -1181,9 +1182,9 @@ via the drag force and with massive objects such as stars and planets
 (represented by sink particles) by the gravitational force. The gas, in
 contrast, has a non-zero pressure. The pressure gradient force leads to a
 rearrangement of particles into a regular glass-like lattice
-\citep{Monaghan2005RPPh...68.1703M} that minimises the energy of the Hamiltonian
-system of particles \citep{Price2012JCoPh.231..759P}. So, if the gas particles
-are initialised in a ``pathological'' arrangement, e.g. such that particles are
+\citep{Monaghan2005RPPh...68.1703M} that minimises the Lagrangian of the system
+of particles \citep{Price2012JCoPh.231..759P}. So, if the gas particles are
+initialised in a ``pathological'' arrangement, e.g.\@ such that particles are
 almost on top of each other or randomised, they will rearrange into a
 quasi-regular lattice. This rearrangement leads to an improved density estimate
 \citep{Price2012JCoPh.231..759P}. The lack of rearranging due to the lack of a
@@ -1192,14 +1193,15 @@ pressure gradient force can lead to noisy density estimates.
 In calculating the density we sum over neighbours of the same type. So the gas
 and each dust species has a smoothing length per particle independent of each
 other species. In \textsc{Phantom}, the smoothing length proportionality factor
-\(h_{\rm fact}\) is constant. This means that the mean number of neighbours
+\(\eta\) is constant. This means that the mean number of neighbours
 \(\overline{N}_{\rm neigh}\) is the same for both the gas and dust. Given that
 the dust particle arrangement does not re-mesh, unlike the gas, using a larger
-number of neighbours may improve the density estimate for the dust. I.e.\
-\(h_{\rm fact}\) should be set independently for the gas and dust. The dusty
-shock test (Section~\ref{subsec:shock}) provides some evidence for this. In
-that test the gas density was accurate for \(h_{\rm fact} = 1.2\). However, the
-dust density required \(h_{\rm fact} = 1.8\) in the three dust species case.
+number of neighbours may improve the density estimate for the dust. One possible
+approach, not explored in this study, is to set \(\eta\) independently for the
+gas and dust. The dusty shock test (Section~\ref{subsec:shock}) provides some
+evidence for this. In that test the gas density was accurate for \(\eta = 1.2\).
+However, the dust density required \(\eta = 1.8\) in the three dust species
+case.
 
 An alternative approach would be to provide a pressure gradient force for the
 dust. This would provide for a rearrangement of particles to improve the density

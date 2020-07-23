@@ -157,8 +157,9 @@ def plot_differential_velocity_all(dataframes, figsize=(15, 8)):
     fig
         Matplotlib Figure.
     """
+    nrows = int(np.ceil(len(dataframes) / 3))
     fig, axs = plt.subplots(
-        ncols=3, nrows=len(dataframes) / 3, sharex=True, sharey=True, figsize=figsize
+        ncols=3, nrows=nrows, sharex=True, sharey=True, figsize=figsize
     )
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     for df, ax in zip(dataframes.values(), axs.flatten()):
@@ -195,8 +196,9 @@ def plot_error(df, ax):
 
 
 def plot_error_all(dataframes, figsize=(15, 8)):
+    nrows = int(np.ceil(len(dataframes) / 3))
     fig, axs = plt.subplots(
-        ncols=3, nrows=len(dataframes) / 3, sharex=True, sharey=True, figsize=figsize
+        ncols=3, nrows=nrows, sharex=True, sharey=True, figsize=figsize
     )
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     for df, ax in zip(dataframes.values(), axs.flatten()):

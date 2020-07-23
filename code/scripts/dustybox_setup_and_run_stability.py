@@ -96,25 +96,32 @@ _parameters = {
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
-    'grain_size': [0.001, 0.01, 0.1] * UNITS['cm'],
-    'velocity_delta': [1.0, 1.0, 1.0] * UNITS['cm / s'],
     'maximum_time': 0.010 * UNITS['s'],
     'number_of_dumps': 5,
 }
 
-dt_drag_prefactor = [0.5, 0.9, 1.0, 1.5, 1.9, 2.0, 2.1, 2.5]
-C_forces = [f / 3.6 for f in dt_drag_prefactor]
+# Parameter in Phantom patch: "comparing" dt_force and dt_drag
+DTFORCE_TO_DTDRAG = 3.6
 
+# Grain sizes
+grain_size = [0.001, 0.05]
+n_dust = len(grain_size)
+_parameters['grain_size'] = grain_size * UNITS['cm']
+_parameters['velocity_delta'] = [1.0 for _ in range(n_dust)] * UNITS['cm / s']
+
+# Generate one simulation per element of the Cartesian product of lists below
+dtdrag_fac = [0.5, 0.9, 1.0, 1.5, 1.9, 2.0, 2.1, 2.5]
 dust_to_gas = [0.01, 0.1, 1.0]
 
-# Iterate over C_forces
+# Iterate over dtdrag_fac and dust_to_gas to generate simulations
 PARAMETERS = dict()
 for eps in dust_to_gas:
-    for C_force in C_forces:
+    for dtdrag in dtdrag_fac:
+        C_force = dtdrag / DTFORCE_TO_DTDRAG
         label = f'eps_{eps:.2f}-C_force_{C_force:.4f}'
         PARAMETERS[label] = copy.copy(_parameters)
         PARAMETERS[label]['C_force'] = C_force
-        PARAMETERS[label]['dust_to_gas_ratio'] = [eps, eps, eps]
+        PARAMETERS[label]['dust_to_gas_ratio'] = [eps / n_dust for _ in range(n_dust)]
 
 # ------------------------------------------------------------------------------------ #
 # DO NOT CHANGE BELOW

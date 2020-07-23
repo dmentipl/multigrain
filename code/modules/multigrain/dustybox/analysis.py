@@ -144,25 +144,38 @@ def plot_differential_velocity(df, ax):
     return ax
 
 
-def plot_differential_velocity_all(dataframes, figsize=(15, 8)):
+def plot_differential_velocity_all(
+    dataframes, ncols=3, figsize=(15, 8), transpose=False
+):
     """Plot differential velocity for each simulation.
 
     Parameters
     ----------
     dataframes
         A dictionary of DataFrames, one per simulation.
+    ncols
+        The number of columns of axes in the figure. Default is 3.
+    figsize
+        The figsize like (x, y). Default is (15, 8).
+    transpose
+        Whether to run along columns or rows. Default (False) is to run
+        along rows.
 
     Returns
     -------
     fig
         Matplotlib Figure.
     """
-    nrows = int(np.ceil(len(dataframes) / 3))
+    nrows = int(np.ceil(len(dataframes) / ncols))
     fig, axs = plt.subplots(
-        ncols=3, nrows=nrows, sharex=True, sharey=True, figsize=figsize
+        ncols=ncols, nrows=nrows, sharex=True, sharey=True, figsize=figsize
     )
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
-    for df, ax in zip(dataframes.values(), axs.flatten()):
+    if transpose:
+        _axs = axs.T.flatten()
+    else:
+        _axs = axs.flatten()
+    for df, ax in zip(dataframes.values(), _axs):
         plot_differential_velocity(df, ax)
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')
@@ -195,13 +208,36 @@ def plot_error(df, ax):
     return ax
 
 
-def plot_error_all(dataframes, figsize=(15, 8)):
-    nrows = int(np.ceil(len(dataframes) / 3))
+def plot_error_all(dataframes, ncols=3, figsize=(15, 8), transpose=False):
+    """Plot differential velocity error for each simulation.
+
+    Parameters
+    ----------
+    dataframes
+        A dictionary of DataFrames, one per simulation.
+    ncols
+        The number of columns of axes in the figure. Default is 3.
+    figsize
+        The figsize like (x, y). Default is (15, 8).
+    transpose
+        Whether to run along columns or rows. Default (False) is to run
+        along rows.
+
+    Returns
+    -------
+    fig
+        Matplotlib Figure.
+    """
+    nrows = int(np.ceil(len(dataframes) / ncols))
     fig, axs = plt.subplots(
-        ncols=3, nrows=nrows, sharex=True, sharey=True, figsize=figsize
+        ncols=ncols, nrows=nrows, sharex=True, sharey=True, figsize=figsize
     )
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
-    for df, ax in zip(dataframes.values(), axs.flatten()):
+    if transpose:
+        _axs = axs.T.flatten()
+    else:
+        _axs = axs.flatten()
+    for df, ax in zip(dataframes.values(), _axs):
         plot_error(df, ax)
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')

@@ -96,23 +96,25 @@ _parameters = {
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
-    'grain_size': [0.001, 0.05] * UNITS['cm'],
-    'velocity_delta': [1.0, 1.0] * UNITS['cm / s'],
-    'dust_to_gas_ratio': [0.4, 0.4],
+    'grain_size': [0.001, 0.01, 0.1] * UNITS['cm'],
+    'velocity_delta': [1.0, 1.0, 1.0] * UNITS['cm / s'],
     'maximum_time': 0.010 * UNITS['s'],
     'number_of_dumps': 5,
 }
 
-# Each value in tuple multiplicatively generates a new simulation.
 dt_drag_prefactor = [0.5, 0.9, 1.0, 1.5, 1.9, 2.0, 2.1, 2.5]
 C_forces = [f / 3.6 for f in dt_drag_prefactor]
 
+dust_to_gas = [0.01, 0.1, 1.0]
+
 # Iterate over C_forces
 PARAMETERS = dict()
-for C_force in C_forces:
-    label = f'C_force_{C_force:.4f}'
-    PARAMETERS[label] = copy.copy(_parameters)
-    PARAMETERS[label]['C_force'] = C_force
+for eps in dust_to_gas:
+    for C_force in C_forces:
+        label = f'eps_{eps:.2f}-C_force_{C_force:.4f}'
+        PARAMETERS[label] = copy.copy(_parameters)
+        PARAMETERS[label]['C_force'] = C_force
+        PARAMETERS[label]['dust_to_gas_ratio'] = [eps, eps, eps]
 
 # ------------------------------------------------------------------------------------ #
 # DO NOT CHANGE BELOW

@@ -91,21 +91,21 @@ _parameters = {
     'sound_speed': 1.0 * UNITS['cm/s'],
     'box_width': 1.0 * UNITS['cm'],
     'lattice': 'close packed',
-    'number_of_particles_in_x_gas': 32,
-    'number_of_particles_in_x_dust': 16,
+    'number_of_particles_in_x_gas': 4,
+    'number_of_particles_in_x_dust': 4,
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
-    'grain_size': [0.1, 0.316, 1.0, 3.16, 10.0] * UNITS['cm'],
-    'velocity_delta': [1.0, 1.0, 1.0, 1.0, 1.0] * UNITS['cm / s'],
-    'dust_to_gas_ratio': [0.1, 0.1, 0.1, 0.1, 0.1],
-    'maximum_time': 0.5 * UNITS['s'],
+    'grain_size': [0.001, 0.05] * UNITS['cm'],
+    'velocity_delta': [1.0, 1.0] * UNITS['cm / s'],
+    'dust_to_gas_ratio': [0.4, 0.4],
+    'maximum_time': 0.010 * UNITS['s'],
     'number_of_dumps': 5,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-_C_forces = [0.9, 1.0, 1.5, 1.9, 2.0]
-C_forces = [f / 20 for f in _C_forces]
+dt_drag_prefactor = [0.5, 0.9, 1.0, 1.5, 1.9, 2.0, 2.1, 2.5]
+C_forces = [f / 3.6 for f in dt_drag_prefactor]
 
 # Iterate over C_forces
 PARAMETERS = dict()

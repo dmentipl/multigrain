@@ -1,13 +1,286 @@
+diff --git a/src/main/deriv.F90 b/src/main/deriv.F90
+index a9831d3c..5c755ea0 100644
+--- a/src/main/deriv.F90
++++ b/src/main/deriv.F90
+@@ -54,7 +54,7 @@ subroutine derivs(icall,npart,nactive,xyzh,vxyzu,fxyzu,fext,divcurlv,divcurlB,&
+ #ifdef IND_TIMESTEPS
+  use timestep_ind,   only:nbinmax
+ #else
+- use timestep,       only:dtcourant,dtforce,dtrad
++ use timestep,       only:dtcourant,dtforce,dtdrag,dtrad
+ #endif
+  use timestep,       only:dtmax
+ #ifdef DRIVING
+@@ -182,7 +182,7 @@ subroutine derivs(icall,npart,nactive,xyzh,vxyzu,fxyzu,fext,divcurlv,divcurlB,&
+ #ifdef IND_TIMESTEPS
+  dtnew = dtmax/2**nbinmax  ! minimum timestep over all particles
+ #else
+- dtnew = min(dtforce,dtcourant,dtrad,dtmax)
++ dtnew = min(dtforce,dtdrag,dtcourant,dtrad,dtmax)
+ #endif
+ 
+  call do_timing('total',t1,tcpu1,lunit=iprint)
+diff --git a/src/main/evolve.F90 b/src/main/evolve.F90
+index 84649886..1468beee 100644
+--- a/src/main/evolve.F90
++++ b/src/main/evolve.F90
+@@ -61,7 +61,7 @@ subroutine evol(infile,logfile,evfile,dumpfile)
+  use timestep_sts,     only:sts_get_dtau_next,sts_init_step
+  use step_lf_global,   only:init_step
+ #else
+- use timestep,         only:dtforce,dtcourant,dterr,print_dtlog
++ use timestep,         only:dtforce,dtdrag,dtcourant,dterr,print_dtlog
+ #endif
+  use timestep_sts,     only: use_sts
+  use supertimestep,    only: step_sts
+@@ -336,11 +336,11 @@ subroutine evol(infile,logfile,evfile,dumpfile)
+     ! Following redefinitions are to avoid crashing if dtprint = 0 & to reach next output while avoiding round-off errors
+     dtprint = min(tprint,tmax) - time + epsilon(dtmax)
+     if (dtprint <= epsilon(dtmax) .or. dtprint >= (1.0-1e-8)*dtmax ) dtprint = dtmax + epsilon(dtmax)
+-    dt = min(dtforce,dtcourant,dterr,dtmax+epsilon(dtmax),dtprint,dtinject,dtrad)
++    dt = min(dtforce,dtdrag,dtcourant,dterr,dtmax+epsilon(dtmax),dtprint,dtinject,dtrad)
+ !
+ !--write log every step (NB: must print after dt has been set in order to identify timestep constraint)
+ !
+-    if (id==master) call print_dtlog(iprint,time,dt,dtforce,dtcourant,dterr,dtmax,dtrad,dtprint,dtinject,npart)
++    if (id==master) call print_dtlog(iprint,time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax,dtrad,dtprint,dtinject,npart)
+ #endif
+ 
+ !   check that MPI threads are synchronised in time
 diff --git a/src/main/force.F90 b/src/main/force.F90
-index 8e434950..26f572d8 100644
+index 8e434950..5764d96b 100644
 --- a/src/main/force.F90
 +++ b/src/main/force.F90
-@@ -3006,7 +3006,7 @@ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dv
+@@ -172,7 +172,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+  use part,         only:rhoh,dhdrho,rhoanddhdrho,alphaind,nabundances,ll,iactive,gradh,&
+                         hrho,iphase,maxphase,igas,maxgradh,dvdx, &
+                         eta_nimhd,deltav,poten,iamtype,is_accretable
+- use timestep,     only:dtcourant,dtforce,dtrad,bignumber,dtdiff
++ use timestep,     only:dtcourant,dtforce,dtdrag,dtrad,bignumber,dtdiff
+  use io_summary,   only:summary_variable, &
+                         iosumdtf,iosumdtd,iosumdtv,iosumdtc,iosumdto,iosumdth,iosumdta, &
+                         iosumdgs,iosumdge,iosumdgr,iosumdtfng,iosumdtdd,iosumdte,iosumdtB
+@@ -329,6 +329,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+  dtmaxi          = 0.
+  dtcourant       = bignumber
+  dtforce         = bignumber
++ dtdrag          = bignumber
+  dtvisc          = bignumber
+  dtmini          = bignumber
+  dtohm           = bignumber
+@@ -429,7 +430,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+ !$omp reduction(+:ndustres,dustresfacmean) &
+ !$omp reduction(min:dtrad) &
+ !$omp reduction(min:dtohm,dthall,dtambi,dtdiff) &
+-!$omp reduction(min:dtcourant,dtforce,dtvisc) &
++!$omp reduction(min:dtcourant,dtforce,dtdrag,dtvisc) &
+ !$omp reduction(max:dtmaxi,dustresfacmax) &
+ !$omp reduction(min:dtmini) &
+ !$omp shared(dustfrac) &
+@@ -493,7 +494,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+ 
+        call finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dvdx,&
+                              divBsymm,divcurlv,dBevol,ddustevol,deltav,dustgasprop, &
+-                             dtcourant,dtforce,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
++                             dtcourant,dtforce,dtdrag,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
+ #ifdef IND_TIMESTEPS
+                              nbinmaxnew,nbinmaxstsnew,ncheckbin, &
+                              ndtforce,ndtforceng,ndtcool,ndtdrag,ndtdragd, &
+@@ -572,7 +573,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+ 
+        call finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dvdx, &
+                                           divBsymm,divcurlv,dBevol,ddustevol,deltav,dustgasprop, &
+-                                          dtcourant,dtforce,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
++                                          dtcourant,dtforce,dtdrag,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
+ #ifdef IND_TIMESTEPS
+ 
+                                           nbinmaxnew,nbinmaxstsnew,ncheckbin, &
+@@ -759,6 +760,7 @@ subroutine force(icall,npart,xyzh,vxyzu,fxyzu,divcurlv,divcurlB,Bevol,dBevol,&
+ 
+  dtcourant = reduceall_mpi('min',dtcourant)
+  dtforce   = reduceall_mpi('min',dtforce)
++ dtdrag    = reduceall_mpi('min',dtdrag)
+  dtvisc    = reduceall_mpi('min',dtvisc)
+  dtmini    = reduce_mpi('min',dtmini)
+  dtmaxi    = reduce_mpi('max',dtmaxi)
+@@ -2463,7 +2465,7 @@ end subroutine compute_cell
+ 
+ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dvdx,&
+                                          divBsymm,divcurlv,dBevol,ddustevol,deltav,dustgasprop, &
+-                                         dtcourant,dtforce,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
++                                         dtcourant,dtforce,dtdrag,dtvisc,dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi, &
+ #ifdef IND_TIMESTEPS
+                                          nbinmaxnew,nbinmaxstsnew,ncheckbin, &
+                                          ndtforce,ndtforceng,ndtcool,ndtdrag,ndtdragd, &
+@@ -2536,7 +2538,7 @@ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dv
+  real,               intent(out)   :: ddustevol(:,:)
+  real,               intent(out)   :: deltav(:,:,:)
+  real,               intent(out)   :: dustgasprop(:,:)
+- real,               intent(inout) :: dtcourant,dtforce,dtvisc
++ real,               intent(inout) :: dtcourant,dtforce,dtvisc,dtdrag
+  real,               intent(inout) :: dtohm,dthall,dtambi,dtdiff,dtmini,dtmaxi
+ #ifdef IND_TIMESTEPS
+  integer,            intent(inout) :: nbinmaxnew,nbinmaxstsnew,ncheckbin
+@@ -2573,8 +2575,8 @@ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dv
+ #ifdef GRAVITY
+  real    :: potensoft0,dum,dx,dy,dz,fxi,fyi,fzi,poti,epoti
+ #endif
+- real    :: vsigdtc,dtc,dtf,dti,dtcool,dtdiffi,ts_min
+- real    :: dtohmi,dtambii,dthalli,dtvisci,dtdrag,dtdusti,dtclean
++ real    :: vsigdtc,dtc,dtf,dtd,dti,dtcool,dtdiffi,ts_min
++ real    :: dtohmi,dtambii,dthalli,dtvisci,dtdusti,dtclean
+  integer :: idudtcool,ichem,iamtypei
+  logical :: iactivei,iamgasi,iamdusti,realviscosity
+ #ifdef IND_TIMESTEPS
+@@ -3006,7 +3008,7 @@ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dv
         tstop(:,i) = tstopi(:)
      elseif (use_dust .and. .not.use_dustfrac) then
         tstop(:,i) = ts_min
 -       dtdrag = 0.9*ts_min
-+       dtdrag = 20*C_force*ts_min
++       dtd = 3.6*C_force*ts_min
      endif
  
      if (do_radiation.and.iamgasi) then
+@@ -3079,7 +3081,8 @@ subroutine finish_cell_and_store_results(icall,cell,fxyzu,xyzh,vxyzu,poten,dt,dv
+     ! global timestep needs to be minimum over all particles
+ 
+     dtcourant = min(dtcourant,dtc)
+-    dtforce   = min(dtforce,dtf,dtcool,dtdrag,dtdusti,dtclean)
++    dtforce   = min(dtforce,dtf,dtcool,dtdusti,dtclean)
++    dtdrag    = min(dtdrag,dtd)
+     dtvisc    = min(dtvisc,dtvisci)
+     if (mhd_nonideal .and. iamgasi) then
+        dtohm  = min(dtohm,  dtohmi  )
+diff --git a/src/main/initial.F90 b/src/main/initial.F90
+index ddd5a55e..a963b8c8 100644
+--- a/src/main/initial.F90
++++ b/src/main/initial.F90
+@@ -164,7 +164,7 @@ subroutine startrun(infile,logfile,evfile,dumpfile)
+  use part,             only:ibin,ibin_old,ibin_wake,alphaind
+  use readwrite_dumps,  only:dt_read_in
+ #else
+- use timestep,         only:dtcourant,dtforce
++ use timestep,         only:dtcourant,dtforce,dtdrag
+ #endif
+ #ifdef STS_TIMESTEPS
+  use timestep,         only:dtdiff
+@@ -373,6 +373,7 @@ subroutine startrun(infile,logfile,evfile,dumpfile)
+ #else
+  dtcourant = huge(dtcourant)
+  dtforce   = huge(dtforce)
++ dtdrag    = huge(dtdrag)
+ #endif
+  dtinject  = huge(dtinject)
+ 
+@@ -584,6 +585,7 @@ subroutine startrun(infile,logfile,evfile,dumpfile)
+  dt = min(dtnew_first,dtinject)
+  if (id==master) then
+     write(iprint,*) 'dt(forces)    = ',dtforce
++    write(iprint,*) 'dt(drag)      = ',dtdrag
+     write(iprint,*) 'dt(courant)   = ',dtcourant
+     write(iprint,*) 'dt initial    = ',dt
+  endif
+diff --git a/src/main/step_leapfrog.F90 b/src/main/step_leapfrog.F90
+index c002bf5e..9e55c8bc 100644
+--- a/src/main/step_leapfrog.F90
++++ b/src/main/step_leapfrog.F90
+@@ -1412,7 +1412,7 @@ end subroutine step_extern
+ subroutine check_velocity_error(errmax,v2mean,np,its,tolv,dt,timei,idamp,dterr,errmaxmean,converged)
+  use io,         only:id,master,iprint,iverbose,warning
+ #ifndef IND_TIMESTEPS
+- use timestep,   only:dtcourant,dtforce,bignumber
++ use timestep,   only:dtcourant,dtforce,dtdrag,bignumber
+ #endif
+  use mpiutils,   only:reduceall_mpi
+  use io_summary, only:summary_variable,iosumtve,iosumtvv
+@@ -1454,7 +1454,7 @@ subroutine check_velocity_error(errmax,v2mean,np,its,tolv,dt,timei,idamp,dterr,e
+  dterr = huge(dterr)
+  if (tolv < 1.e2 .and. idamp == 0) then
+ #ifndef IND_TIMESTEPS
+-    dtf = min(dtcourant,dtforce)
++    dtf = min(dtcourant,dtforce,dtdrag)
+     !--if errors are controlling the timestep
+     if (dtf > dt .and. dtf < bignumber) then
+        errtol = errtol*(dt/dtf)**2
+diff --git a/src/main/timestep.F90 b/src/main/timestep.F90
+index 7620c33b..957158e5 100644
+--- a/src/main/timestep.F90
++++ b/src/main/timestep.F90
+@@ -29,7 +29,7 @@ module timestep
+  integer :: nsteps
+  real, parameter :: bignumber = 1.e29
+ 
+- real    :: dt,dtcourant,dtforce,dtrad,dtextforce,dterr,dtdiff,time
++ real    :: dt,dtcourant,dtforce,dtdrag,dtrad,dtextforce,dterr,dtdiff,time
+  real    :: dtmax_dratio, dtmax_max, dtmax_min, rhomaxnow
+  real(kind=4) :: dtwallmax
+  integer :: dtmax_ifactor
+@@ -70,10 +70,10 @@ end subroutine set_defaults_timestep
+ !  routine to print out the timestep information to the log file
+ !+
+ !-----------------------------------------------------------------
+-subroutine print_dtlog(iprint,time,dt,dtforce,dtcourant,dterr,dtmax,&
++subroutine print_dtlog(iprint,time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax,&
+                        dtrad,dtprint,dtinj,np)
+  integer, intent(in) :: iprint
+- real,    intent(in) :: time,dt,dtforce,dtcourant,dterr,dtmax,dtrad
++ real,    intent(in) :: time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax,dtrad
+  real,    intent(in), optional :: dtprint,dtinj
+  integer, intent(in) :: np
+  character(len=20) :: str
+@@ -86,7 +86,9 @@ subroutine print_dtlog(iprint,time,dt,dtforce,dtcourant,dterr,dtmax,&
+     str = ', np = '//trim(adjustl(str))
+  endif
+ 
+- if (abs(dt-dtforce) < tiny(dt)) then
++ if (abs(dt-dtdrag) < tiny(dt)) then
++    write(iprint,10) time,dt,'(drag)'//trim(str)
++ elseif (abs(dt-dtforce) < tiny(dt)) then
+     write(iprint,10) time,dt,'(force)'//trim(str)
+  elseif (abs(dt-dtcourant) < tiny(dt)) then
+     write(iprint,10) time,dt,'(courant)'//trim(str)
+diff --git a/src/utils/libphantom-evolve.F90 b/src/utils/libphantom-evolve.F90
+index a8504ba3..1d4ce962 100644
+--- a/src/utils/libphantom-evolve.F90
++++ b/src/utils/libphantom-evolve.F90
+@@ -180,7 +180,7 @@ subroutine finalize_step(infile, logfile, evfile, dumpfile)
+                             write_binsummary,change_nbinmax,nactivetot,maxbins
+  use io,               only:fatal,warning
+ #else
+- use timestep,         only:dtforce,dtcourant,dterr
++ use timestep,         only:dtforce,dtdrag,dtcourant,dterr
+ #endif
+ #ifdef DRIVING
+  use forcing,          only:write_forcingdump
+@@ -244,12 +244,12 @@ subroutine finalize_step(infile, logfile, evfile, dumpfile)
+ !
+ !--set new timestep from Courant/forces condition
+ !
+- dt = min(dtforce,dtcourant,dterr,dtmax+epsilon(dtmax)) ! use dtmax + eps to avoid round-off problems
++ dt = min(dtforce,dtdrag,dtcourant,dterr,dtmax+epsilon(dtmax)) ! use dtmax + eps to avoid round-off problems
+ 
+ !
+ !--write log every step (NB: must print after dt has been set in order to identify timestep constraint)
+ !
+- if (id==master) call print_dtlog(iprint,time,dt,dtforce,dtcourant,dterr,dtmax)
++ if (id==master) call print_dtlog(iprint,time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax)
+ 
+ #endif
+ 
+@@ -518,11 +518,13 @@ end subroutine print_timinginfo
+ !  routine to print out the timestep information to the log file
+ !+
+ !-----------------------------------------------------------------
+-subroutine print_dtlog(iprint,time,dt,dtforce,dtcourant,dterr,dtmax)
++subroutine print_dtlog(iprint,time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax)
+  integer, intent(in) :: iprint
+- real,    intent(in) :: time,dt,dtforce,dtcourant,dterr,dtmax
++ real,    intent(in) :: time,dt,dtforce,dtdrag,dtcourant,dterr,dtmax
+ 
+- if (abs(dt-dtforce) < tiny(dt)) then
++ if (abs(dt-dtdrag) < tiny(dt)) then
++    write(iprint,10) time,dt,'(drag)'
++ elseif (abs(dt-dtforce) < tiny(dt)) then
+     write(iprint,10) time,dt,'(force)'
+  elseif (abs(dt-dtcourant) < tiny(dt)) then
+     write(iprint,10) time,dt,'(courant)'

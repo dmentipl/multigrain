@@ -30,17 +30,27 @@ def _get_paths():
     return paths
 
 
-def _calculate_velocity_differential():
+def _calculate_velocity_differential(same_times=False):
     paths = _get_paths()
 
+    data, exact1, exact2 = dict(), dict(), dict()
+
     print('Calculate velocity differential time evolution...')
-    velocity_differential = dict()
     for name, path in paths.items():
         print(f'Running analysis for {name}...')
         sim = plonk.load_sim(prefix='dustybox', directory=path)
-        velocity_differential[name] = dustybox.calculate_differential_velocity(sim)
+        data[name] = dustybox.calculate_differential_velocity(sim)
+        times = None
+        if same_times:
+            times = data['time'].to_numpy()
+        exact1[name] = dustybox.calculate_differential_velocity_exact(
+            sim, times=times, backreaction=True
+        )
+        exact2[name] = dustybox.calculate_differential_velocity_exact(
+            sim, times=times, backreaction=False
+        )
 
-    return velocity_differential
+    return data, exact1, exact2
 
 
 def time_evolution():
@@ -49,12 +59,10 @@ def time_evolution():
     print('---------------------------------------')
     print('')
 
-    velocity_differential = _calculate_velocity_differential()
+    data, exact1, exact2 = _calculate_velocity_differential()
 
     print('Plotting figure...')
-    fig = dustybox.plot_differential_velocity_all(
-        velocity_differential, figsize=(15, 8)
-    )
+    fig = dustybox.plot_differential_velocity_all(data, exact1, exact2, figsize=(15, 8))
     for ax in fig.axes:
         ax.grid()
     name = 'dustybox_differential_velocity_comparison.pdf'
@@ -68,12 +76,13 @@ def time_evolution_error():
     print('---------------------------------------------')
     print('')
 
-    velocity_differential = _calculate_velocity_differential()
-
+    paths = _get_paths()
     error = dict()
-    for name, vd in velocity_differential.items():
+
+    for name, path in paths.items():
         print(f'Calculating error for {name}...')
-        error[name] = dustybox.calculate_error(vd)
+        sim = plonk.load_sim(prefix='dustybox', directory=path)
+        error[name] = dustybox.calculate_error(sim)
 
     print('Plotting figure...')
     fig = dustybox.plot_error_all(error, figsize=(15, 8))

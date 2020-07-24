@@ -64,14 +64,20 @@ def final_velocity_density():
         n_bins=40,
         fig_kwargs={'width': 10, 'height': 4},
     )
-    for ax in fig.axes:
+    fig.subplots_adjust(wspace=0.2)
+    axs = fig.axes
+    for ax in axs:
         ax.grid()
+    axs[0].set_title('1 dust species')
+    axs[1].set_title('3 dust species')
+    axs[0].legend()
+    axs[1].legend()
     name = 'dustyshock_velocity_density.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
-def initial_conditions():
+def __initial_conditions():
     print('')
     print('Initial conditions')
     print('------------------')
@@ -104,7 +110,7 @@ def initial_conditions():
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
-def initial_conditions_2():
+def __initial_conditions():
 
     X_SHOCK = 0
     X_L = -10
@@ -153,7 +159,11 @@ def initial_conditions_2():
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
-def initial_conditions_3():
+def initial_conditions():
+    print('')
+    print('Initial conditions')
+    print('------------------')
+    print('')
 
     NX = 32
 
@@ -218,7 +228,7 @@ def initial_conditions_3():
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
-def initial_conditions_particles():
+def __initial_conditions_particles():
     print('')
     print('Initial conditions particles')
     print('----------------------------')
@@ -281,6 +291,18 @@ def variation_hfact():
         _variation_hfact(
             N, axs[idx], paths, hfacts, nx, smooth_fac, drag_coefficients[idx], xrange
         )
+
+    axs = fig.axes
+    axs[0].set_title(r'$\eta = 1.2$')
+    axs[1].set_title(r'$\eta = 1.5$')
+    axs[2].set_title(r'$\eta = 1.8$')
+    axs[0].legend(loc='lower right')
+    axs[3].legend(loc='lower right')
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    for ax in axs[:3]:
+        ax.text(-4.5, 8.5, r'N=1', ha='left', bbox=props)
+    for ax in axs[3:]:
+        ax.text(-4.5, 16.3, r'N=3', ha='left', bbox=props)
 
     name = 'dustyshock_hfact.pdf'
     print(f'Saving figure to {name}')

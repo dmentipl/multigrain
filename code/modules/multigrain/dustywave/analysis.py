@@ -57,6 +57,7 @@ def plot_velocity_density(dataframes, figsize=(10, 8)):
 
     for idxi, (name, data) in enumerate(dataframes.items()):
         n_species = len([col for col in data.columns if col.startswith('density')])
+        labels = ['Gas'] + [f'Dust {idx}' for idx in range(1,n_species+1)]
         time = data['time'].to_numpy()
         for idxj in range(n_species):
             ax_v = axs[0, idxi]
@@ -65,7 +66,7 @@ def plot_velocity_density(dataframes, figsize=(10, 8)):
             v_exact = exact.velocity_x(time, idxj, n_species)
             rho_numerical = data[f'density.{idxj}'].to_numpy()
             rho_exact = exact.density(time, idxj, n_species)
-            [line] = ax_v.plot(time, v_numerical, 'o', ms=4, fillstyle='none')
+            [line] = ax_v.plot(time, v_numerical, 'o', ms=4, fillstyle='none', label=labels[idxj])
             ax_rho.plot(time, rho_numerical, 'o', ms=4, fillstyle='none')
             ax_v.plot(time, v_exact, color=line.get_color())
             ax_rho.plot(time, rho_exact, color=line.get_color())

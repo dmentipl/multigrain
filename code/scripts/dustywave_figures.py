@@ -53,11 +53,16 @@ def time_evolution():
     # Plot results
     print('Plotting figure...')
     fig = dustywave.plot_velocity_density(dataframes, figsize=(10, 8))
-    for ax in fig.axes:
+    axs = fig.axes
+    for ax in axs:
         ax.grid()
+    axs[0].set_title('1 dust species')
+    axs[1].set_title('4 dust species')
+    axs[0].legend(loc='lower right')
+    axs[1].legend(loc='lower right')
     name = 'dustywave_velocity_density.pdf'
     print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0)
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
 if __name__ == "__main__":

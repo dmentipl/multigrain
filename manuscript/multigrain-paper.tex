@@ -119,16 +119,12 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 
 Multi-wavelength observations of protoplanetary discs show that the radial
 extent of the dust disc scales inversely with wavelength
-\citep{Andrews2015PASP..127..961A}. \textcolor{red}{This suggests that larger
-grains drift inwards faster than smaller grains
-\citep{Weidenschilling1977MNRAS.180...57W}.}
-
-Modelling this requires dust and gas hydrodynamics with multiple dust
-species---one of the grand challenges in protoplanetary disc modelling
-\citep{Haworth2016PASA...33...53H}. In particular, it is important to capture
-the collective backreaction of multiple dust species on the gas
-\citep{Dipierro2018MNRAS.479.4187D}. For example, the inward drift of small
-grains can be reversed by the inward drift of large grains
+\citep{Andrews2015PASP..127..961A}. Modelling this requires dust and gas
+hydrodynamics with multiple dust species---one of the grand challenges in
+protoplanetary disc modelling \citep{Haworth2016PASA...33...53H}. In particular,
+it is important to capture the collective backreaction of multiple dust species
+on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, the inward drift of
+small grains can be reversed by the inward drift of large grains
 \citep{Laibe2014MNRAS.444.1940L}.
 
 Grains of multiple sizes emit at the same wavelength. In order to interpret dust
@@ -138,7 +134,7 @@ model planet-disc interactions including multiple species. Spectral index maps
 can put constraints on the size distribution of dust grains within gaps
 \citep{Huang2018ApJ...852..122H}. Multi-species dust models allow us to test the
 underlying disc models by producing synthetic spectral index maps to compare
-with observations \textcolor{red}{(Add citation.)}.
+with observations \citep{Casassus2015ApJ...812..126C, Pinte2016ApJ...816...25P}.
 
 Discs containing dust asymmetries and spiral arms around central cavities can
 show greater concentration at different wavelengths
@@ -370,7 +366,7 @@ species, we see that the grain size of the species, for any fixed location in
 the disc, gives the variation in Stokes number between species.
 
 The Stokes number controls the dynamics of dust grains in protoplanetary discs
-\citep{Weidenschilling1977MNRAS.180...57W,Takeuchi2002ApJ...581.1344T},
+\citep{Weidenschilling1977MNRAS.180...57W, Takeuchi2002ApJ...581.1344T},
 affecting radial drift, vertical settling, and gap and spiral formation. The
 individual Stokes number (Equation~\ref{eqn:stokes}) encapsulates the dynamics
 of each dust species. We can distinguish between three regimes of dust dynamics:
@@ -655,7 +651,7 @@ expect the stability constraint to remain the same.
 
 \subsubsection{Time step constraint for SPH}
 
-We can rewrite the time step constraint in Equation~\ref{eqn:stopping-time}
+We can rewrite the time step constraint in Equation~\ref{eqn:timestep-dust}
 using the alternative stopping time
 (defined in Equation~\ref{eqn:alternative-stopping-time}) as
 %

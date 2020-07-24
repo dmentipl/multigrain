@@ -42,13 +42,6 @@ def get_dust_properties(snap):
 def calculate_differential_velocity(sim):
     """Calculate differential velocity.
 
-    The results for each simulation is a DataFrame of differential
-    velocities for each dust species. The columns are for the
-    differential velocity at each time:
-        - from the simulation data
-        - from the analytic solution with back reaction
-        - from the analytic solution without back reaction
-
     Parameters
     ----------
     sim
@@ -70,37 +63,82 @@ def calculate_differential_velocity(sim):
         vx = np.array([subsnap['velocity_x'].mean() for subsnap in subsnaps])
         data[idx, :] = vx[1:] - vx[0]
 
-    # Velocity differential: analytical solutions
-    dust_fraction, stopping_time = get_dust_properties(sim.snaps[0])
-    delta_vx_init = data[0, :]
-    exact1 = np.zeros((len(time), n_dust))
-    exact2 = np.zeros((len(time), n_dust))
-    for idxi, t in enumerate(time):
-        exact1[idxi, :] = exact_solution.delta_vx(
-            t, stopping_time, dust_fraction, delta_vx_init
-        )
-        for idxj in range(n_dust):
-            exact2[idxi, idxj] = exact_solution.delta_vx(
-                t, stopping_time[idxj], dust_fraction[idxj], delta_vx_init[idxj]
-            )
-
     # Generate DataFrame
-    arrays = np.hstack([time[:, np.newaxis], data, exact1, exact2])
-    columns = (
-        ['time']
-        + [f'data.{idx}' for idx in range(1, n_dust + 1)]
-        + [f'exact1.{idx}' for idx in range(1, n_dust + 1)]
-        + [f'exact2.{idx}' for idx in range(1, n_dust + 1)]
-    )
+    arrays = np.hstack([time[:, np.newaxis], data])
+    columns = ['time'] + [
+        f'differential_velocity.{idx}' for idx in range(1, n_dust + 1)
+    ]
     dataframe = pd.DataFrame(arrays, columns=columns)
 
     return dataframe
 
 
-def calculate_error(df):
-    time = df['time'].to_numpy()
-    data = [df[col].to_numpy() for col in df.columns if col.startswith('data')]
-    exact = [df[col].to_numpy() for col in df.columns if col.startswith('exact1')]
+def calculate_differential_velocity_exact(
+    sim, times=None, n_points=1000, backreaction=True
+):
+    """Calculate differential velocity exact.
+
+    Parameters
+    ----------
+    sim
+        The simulation object.
+    times
+        Times to evaluate solution.
+    n_points
+        Default is 1000.
+    backreaction
+        True or False.
+
+    Returns
+    -------
+    The velocity differential DataFrame.
+    """
+    n_dust = sim.snaps[0].num_dust_species
+
+    # Velocity differential: initial data
+    snap = sim.snaps[0]
+    subsnaps = [snap['gas']] + snap['dust']
+    vx = np.array([subsnap['velocity_x'].mean() for subsnap in subsnaps])
+    delta_vx_init = vx[1:] - vx[0]
+
+    # Time
+    if times is None:
+        _time = sim.properties['time'].magnitude
+        time = np.linspace(_time[0], _time[-1], n_points)
+    else:
+        time = times
+
+    # Velocity differential: analytical solutions
+    dust_fraction, stopping_time = get_dust_properties(sim.snaps[0])
+    exact = np.zeros((len(time), n_dust))
+    if backreaction:
+        for idxi, t in enumerate(time):
+            exact[idxi, :] = exact_solution.delta_vx(
+                t, stopping_time, dust_fraction, delta_vx_init
+            )
+    else:
+        for idxi, t in enumerate(time):
+            for idxj in range(n_dust):
+                exact[idxi, idxj] = exact_solution.delta_vx(
+                    t, stopping_time[idxj], dust_fraction[idxj], delta_vx_init[idxj]
+                )
+
+    # Generate DataFrame
+    arrays = np.hstack([time[:, np.newaxis], exact])
+    columns = ['time'] + [
+        f'differential_velocity.{idx}' for idx in range(1, n_dust + 1)
+    ]
+    dataframe = pd.DataFrame(arrays, columns=columns)
+
+    return dataframe
+
+
+def calculate_error(sim):
+    _data = calculate_differential_velocity(sim)
+    time = _data['time'].to_numpy()
+    data = [_data[col].to_numpy() for col in _data.columns if col.startswith('d')]
+    _exact = calculate_differential_velocity_exact(sim, times=time)
+    exact = [_exact[col].to_numpy() for col in _exact.columns if col.startswith('d')]
     error = np.array([np.abs(yd - ye) for yd, ye in zip(data, exact)]).T
     n_dust = len(data)
 
@@ -112,7 +150,7 @@ def calculate_error(df):
     return dataframe
 
 
-def plot_differential_velocity(df, ax):
+def plot_differential_velocity(data, exact1, exact2, ax):
     """Plot differential velocity.
 
     Plot the data as circle markers, the analytical solution with back
@@ -121,8 +159,14 @@ def plot_differential_velocity(df, ax):
 
     Parameters
     ----------
-    df
+    data
         A DataFrame with the differential velocity.
+    exact1
+        A DataFrame with the differential velocity exact solution with
+        backreaction.
+    exact2
+        A DataFrame with the differential velocity exact solution
+        without backreaction.
     ax
         Matplotlib Axes.
 
@@ -131,28 +175,33 @@ def plot_differential_velocity(df, ax):
     ax
         Matplotlib Axes.
     """
-    x = df['time'].to_numpy()
-    y_data = [df[col].to_numpy() for col in df.columns if col.startswith('data')]
-    y_exact1 = [df[col].to_numpy() for col in df.columns if col.startswith('exact1')]
-    y_exact2 = [df[col].to_numpy() for col in df.columns if col.startswith('exact2')]
+    y_data = [data[col].to_numpy() for col in data.columns if col.startswith('d')]
+    y_exact1 = [exact1[col].to_numpy() for col in exact1.columns if col.startswith('d')]
+    y_exact2 = [exact2[col].to_numpy() for col in exact2.columns if col.startswith('d')]
 
     for yd, ye1, ye2 in zip(y_data, y_exact1, y_exact2):
-        [line] = ax.plot(x, ye1)
-        ax.plot(x, ye2, '--', color=line.get_color(), alpha=0.33)
-        ax.plot(x, yd, 'o', ms=4, fillstyle='none', color=line.get_color())
+        [line] = ax.plot(exact1['time'], ye1)
+        ax.plot(exact2['time'], ye2, '--', color=line.get_color(), alpha=0.33)
+        ax.plot(data['time'], yd, 'o', ms=4, fillstyle='none', color=line.get_color())
 
     return ax
 
 
 def plot_differential_velocity_all(
-    dataframes, ncols=3, figsize=(15, 8), transpose=False
+    data, exact1, exact2, ncols=3, figsize=(15, 8), transpose=False
 ):
     """Plot differential velocity for each simulation.
 
     Parameters
     ----------
-    dataframes
-        A dictionary of DataFrames, one per simulation.
+    data
+        A dictionary of DataFrames with the differential velocity.
+    exact1
+        A dictionary of DataFrames with the differential velocity exact
+        solution with backreaction.
+    exact2
+        A dictionary of DataFrames with the differential velocity exact
+        solution without backreaction.
     ncols
         The number of columns of axes in the figure. Default is 3.
     figsize
@@ -166,7 +215,7 @@ def plot_differential_velocity_all(
     fig
         Matplotlib Figure.
     """
-    nrows = int(np.ceil(len(dataframes) / ncols))
+    nrows = int(np.ceil(len(data) / ncols))
     fig, axs = plt.subplots(
         ncols=ncols, nrows=nrows, sharex=True, sharey=True, figsize=figsize
     )
@@ -175,8 +224,8 @@ def plot_differential_velocity_all(
         _axs = axs.T.flatten()
     else:
         _axs = axs.flatten()
-    for df, ax in zip(dataframes.values(), _axs):
-        plot_differential_velocity(df, ax)
+    for d, e1, e2, ax in zip(data.values(), exact1.values(), exact2.values(), _axs):
+        plot_differential_velocity(d, e1, e2, ax)
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')
     for ax in axs[:, 0]:

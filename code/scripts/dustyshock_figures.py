@@ -300,9 +300,9 @@ def variation_hfact():
     axs[3].legend(loc='lower right')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
     for ax in axs[:3]:
-        ax.text(-4.5, 8.5, r'N=1', ha='left', bbox=props)
+        ax.text(-4.0, 8.5, r'N=1', ha='left', bbox=props)
     for ax in axs[3:]:
-        ax.text(-4.5, 16.3, r'N=3', ha='left', bbox=props)
+        ax.text(-4.0, 16.3, r'N=3', ha='left', bbox=props)
 
     name = 'dustyshock_hfact.pdf'
     print(f'Saving figure to {name}')

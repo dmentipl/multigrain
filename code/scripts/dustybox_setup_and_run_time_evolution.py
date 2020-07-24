@@ -84,14 +84,14 @@ _parameters = {
     'sound_speed': 1.0 * UNITS['cm/s'],
     'box_width': 1.0 * UNITS['cm'],
     'lattice': 'close packed',
-    'number_of_particles_in_x_gas': 32,
-    'number_of_particles_in_x_dust': 16,
+    'number_of_particles_in_x_gas': 8,
+    'number_of_particles_in_x_dust': 8,
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
-    'grain_density': 1.0e-13 * UNITS['g / cm^3'],
-    'maximum_time': 2.0 * UNITS['s'],
-    'number_of_dumps': 50,
-    'C_force': 0.05,
+    'grain_density': 0.5e-14 * UNITS['g / cm^3'],
+    'maximum_time': 0.1 * UNITS['s'],
+    'number_of_dumps': 20,
+    'C_force': 0.25,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.

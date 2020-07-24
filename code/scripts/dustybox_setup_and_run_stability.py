@@ -91,8 +91,8 @@ _parameters = {
     'sound_speed': 1.0 * UNITS['cm/s'],
     'box_width': 1.0 * UNITS['cm'],
     'lattice': 'close packed',
-    'number_of_particles_in_x_gas': 4,
-    'number_of_particles_in_x_dust': 4,
+    'number_of_particles_in_x_gas': 16,
+    'number_of_particles_in_x_dust': 16,
     'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0e-13 * UNITS['g / cm^3'],
@@ -104,14 +104,14 @@ _parameters = {
 DTFORCE_TO_DTDRAG = 3.6
 
 # Grain sizes
-grain_size = [0.001, 0.05]
+grain_size = [0.002, 0.02]
 n_dust = len(grain_size)
 _parameters['grain_size'] = grain_size * UNITS['cm']
 _parameters['velocity_delta'] = [1.0 for _ in range(n_dust)] * UNITS['cm / s']
 
 # Generate one simulation per element of the Cartesian product of lists below
 dtdrag_fac = [0.5, 0.9, 1.0, 1.5, 1.9, 2.0, 2.1, 2.5]
-dust_to_gas = [0.01, 0.1, 1.0]
+dust_to_gas = [0.01, 0.1, 1.0, 5.0]
 
 # Iterate over dtdrag_fac and dust_to_gas to generate simulations
 PARAMETERS = dict()

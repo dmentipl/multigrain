@@ -1182,7 +1182,9 @@ can be represented, however, using smaller grains is inefficient given the
 explicit time stepping scheme. The single fluid method is more efficient for
 these smaller grains, which satisfy the terminal velocity approximation.
 \citet{Cuello2019MNRAS.483.4114C} show that the two methods overlap and give the
-same results.
+same results. Using the single fluid method for small grains negates the need to
+implement an implicit timestepping scheme as in, e.g.,
+\citet{Loren-Aguilar2014MNRAS.443..927L, Loren-Aguilar2015MNRAS.454.4114L}.
 
 The method requires storing an extra set of particles per dust species. For each
 particle we store the position, smoothing length, and velocity, in total

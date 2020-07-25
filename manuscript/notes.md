@@ -12,10 +12,10 @@ Ideas:
 - [ ] Dust makes planets.
 - [ ] Dust regulates temperature of disc.
 - [ ] Dust is observable.
-- [ ] Multi-wavelength observations show that the radial extent of emission scales inversely with wavelength. I.e. larger grains drift inwards more \citet{Andrews2012ApJ...744..162A}. Cite \citet{Testi2014prpl.conf..339T}?
-- [ ] Dust-gas modeling in astrophysical fluids.
-- [ ] \citet{Haworth2016PASA...33...53H}: grand challenges in protoplanetary disc modeling.
-- [ ] Applications: protoplanetary discs, debris discs.
+- [x] Multi-wavelength observations show that the radial extent of emission scales inversely with wavelength. I.e. larger grains drift inwards more \citet{Andrews2012ApJ...744..162A}. Cite \citet{Testi2014prpl.conf..339T}?
+- [x] Dust-gas modeling in astrophysical fluids.
+- [x] \citet{Haworth2016PASA...33...53H}: grand challenges in protoplanetary disc modeling.
+- [x] Applications: protoplanetary discs, debris discs.
 
 Motivations for multigrain:
 

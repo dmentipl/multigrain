@@ -690,11 +690,16 @@ of setting \(\varepsilon_i = 0\), i.e.
    \Delta t < 2 \min_i t'_{s_i}.
 \end{align}
 %
+Even though using a pre-factor in Equation~\ref{eqn:sph-timestep-constraint} of
+2 provides an numerically stable timestepping scheme (in the von Neumann sense),
+numerical experimentation showed that any value greater than 1.0 led to
+inaccurate results. We choose a value of 0.9.
+
 For a dust particle, we take the minimum over gas neighbours of the individual
-species constraint (\(\Delta t < 2 t_{s_i}\)):
+species constraint (\(\Delta t < 0.9 t_{s_i}\)):
 %
 \begin{align}
-   \Delta t < 2 \min_{a}
+   \Delta t < 0.9 \min_{a}
    \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
 %
@@ -704,10 +709,10 @@ coefficient and densities, over the neighbouring dust particles to find the SPH
 time step constraint for a particle:
 %
 \begin{align}
-   \Delta t < 2 \min_i \min_{b}
+   \Delta t < 0.9 \min_i \min_{b}
    \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
-%
+
 
 \section{Numerical tests}%
 \label{sec:tests}

@@ -149,6 +149,12 @@ post-processing, multiple single dust species simulations
 to back reaction, there may be a phase difference in the location of the
 concentration making this procedure unreliable.
 
+Several groups have developed methods for simulating the hydrodynamics of
+dust-gas mixtures with multiple dust species with both grid and particle methods
+\citep{Bai2010ApJS..190..297B, Porth2014ApJS..214....4P,
+Hutchison2018MNRAS.476.2186H, Benitez-Llambay2019ApJS..241...25B,
+Lebreuilly2019A&A...626A..96L, Li2019ApJ...878...39L}.
+
 Smoothed particle hydrodynamics (SPH) is a particle method for solving the
 equations of hydrodynamics \citep{Monaghan1992ARA&A..30..543M,
 Monaghan2005RPPh...68.1703M, Price2012JCoPh.231..759P}. There are two approaches
@@ -160,6 +166,16 @@ and gas SPH particles interact via a drag coupling term. In the other approach,
 the mixture \citep{Laibe2014MNRAS.444.1940L, Laibe2014MNRAS.440.2147L,
 Laibe2014MNRAS.440.2136L, Price2015MNRAS.451..813P}. In this approach the dust
 fraction is stored on the particles and evolved in time.
+
+Typically, in both of these methods, an explicit timestepping scheme is used.
+One problem with such schemes is that the drag timescale can be many orders of
+magnitude smaller than other physically interesting time scales, e.g., the
+orbital time in a protoplanetary disc. This requires taking small timesteps and
+is computationally inefficient. Various groups have developed semi-implicit
+timestepping methods which remove the restriction of small timesteps required by
+explicit schemes for drag \citet{Monaghan1997JCoPh.138..801M,
+Laibe2012MNRAS.420.2365L, Loren-Aguilar2014MNRAS.443..927L,
+Loren-Aguilar2015MNRAS.454.4114L, Stoyanovskaya2018A&C....25...25S}.
 
 In the description for both of these approaches the methods are applicable to a
 single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L}

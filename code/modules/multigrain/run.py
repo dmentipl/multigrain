@@ -130,7 +130,7 @@ def remove_units(parameters_dict):
                     * mass_unit ** d['[mass]']
                     * time_unit ** d['[time]']
                 )
-                params[key] = value.to(new_units).magnitude
+                params[key] = (value / new_units).to_reduced_units().magnitude
         if isinstance(length_unit, UNITS.Quantity):
             params['length_unit'] = length_unit.to('cm').magnitude
         if isinstance(mass_unit, UNITS.Quantity):

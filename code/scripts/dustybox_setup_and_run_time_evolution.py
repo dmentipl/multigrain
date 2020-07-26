@@ -78,30 +78,30 @@ RUN_DIRECTORY = '~/runs/multigrain/dustybox/time_evolution'
 # Dictionary of parameters common to all runs.
 _parameters = {
     'prefix': 'dustybox',
-    'length_unit': 1.0 * UNITS['cm'],
-    'mass_unit': 1.0 * UNITS['g'],
-    'time_unit': 1.0 * UNITS['s'],
-    'sound_speed': 1.0 * UNITS['cm/s'],
-    'box_width': 1.0 * UNITS['cm'],
+    'length_unit': 1.0 * UNITS['au'],
+    'mass_unit': 1.99e33 * UNITS['g'],
+    'time_unit': 1.0 * UNITS['year'],
+    'sound_speed': 0.2e5 * UNITS['cm/s'],
+    'box_width': 1.0 * UNITS['au'],
     'lattice': 'close packed',
     'number_of_particles_in_x_gas': 8,
     'number_of_particles_in_x_dust': 8,
-    'density_gas': 1.0e-13 * UNITS['g / cm^3'],
+    'density_gas': 1.0e-12 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
-    'grain_density': 0.5e-14 * UNITS['g / cm^3'],
-    'maximum_time': 0.1 * UNITS['s'],
+    'grain_density': 1.0 * UNITS['g / cm^3'],
+    'maximum_time': 1.0e7 * UNITS['s'],
     'number_of_dumps': 20,
     'C_force': 0.25,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.
-grain_size = ([1.0], [0.562, 1.78], [0.1, 0.316, 1.0, 3.16, 10.0])
+grain_size = ([0.01], [0.01, 0.1], [0.01, 0.0316, 0.1, 0.316, 1.0])
 total_dust_to_gas_ratio = (0.01, 0.5)
 
 # Iterate over dust-to-gas ratio and grain sizes.
 PARAMETERS = dict()
-for f in total_dust_to_gas_ratio:
-    for size in grain_size:
+for size in grain_size:
+    for f in total_dust_to_gas_ratio:
         N = len(size)
         label = f'f_{f:.2f}-N_{N}'
         PARAMETERS[label] = copy.copy(_parameters)

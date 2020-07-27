@@ -5,11 +5,11 @@ by Daniel Mentiplay, Daniel Price, and Christophe Pinte
 
 Manuscript to be submitted to *Monthly Notices of the Royal Astronomical Society*.
 
-> (FOR FUTURE REFERENCE) CITATION GOES HERE
+> CITATION GOES HERE
 
 **This repository contains the data and code used to produce all results and figures shown in the paper.** An archived version of this repository will be available at Figshare.
 
-> (FOR FUTURE REFERENCE) Figshare LINK GOES HERE
+> FIGSHARE LINK GOES HERE
 
 We aim to describe multigrain dust methods in smoothed particle hydrodynamics using separate sets of particles for each dust species. We test these methods against standard dust-gas hydrodynamics tests, including a dusty-box, a dusty-wave, and a dusty-shock.
 
@@ -34,10 +34,12 @@ jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-matplot
 jupyter nbextension enable --py widgetsnbextension
 ```
 
+Note: there is also a conda environment file `environment_exact.yml` with the exact packages used to produce the manuscript.
+
 Results
 -------
 
-We use Phantom version [`666da9e8`](https://github.com/danieljprice/phantom/commit/666da9e892cb3f2d9f89e132504e185fe2f22f31) with some patches in the [`code/patches`]((https://github.com/dmentipl/multigrain/tree/master/code/patches)) directory. As long as the conda environment (described above) is set up, the scripts to set up and run the tests and analyse the results should do everything. I.e. you don't need to manually clone Phantom and apply patches. Nor do you have to run `phantom` and `phantomsetup` manually. The scripts *should* do this.
+We use Phantom version [`666da9e8`](https://github.com/danieljprice/phantom/commit/666da9e892cb3f2d9f89e132504e185fe2f22f31) with some patches in the [`code/patches`](https://github.com/dmentipl/multigrain/tree/master/code/patches) directory applied in particular cases. As long as the conda environment (described above) is set up, the scripts to set up and run the tests and analyse the results should do everything. I.e. you don't need to manually clone Phantom and apply patches. Nor do you have to run `phantom` and `phantomsetup` manually. The scripts *should* do this.
 
 ### Running the Phantom multigrain tests
 
@@ -45,20 +47,20 @@ There are Python scripts to setup and run the tests located in [`code/scripts`](
 
 #### Dusty-box
 
-The dusty-box tests are few and quick and can be run on a local machine. The data generated is about 360 MB in size.
+The dusty-box tests are quick (minutes) and can be run on a local machine. The data generated is about 360 MB in size.
 
 - `dustybox_setup_and_run_time_evolution.py` runs 6 tests: 3 with total dust-to-gas ratio of 0.01, and 3 with total dust-to-gas ratio of 0.5. In each triple there is 1 dust species, 2 dust species, and 5 dust species.
 - `dustybox_setup_and_run_stability.py` to check the stability criterion.
 
 #### Dusty-wave
 
-The dusty-wave tests are few and quick and can be run on a local machine. The data generated is about 250 MB in size.
+The dusty-wave tests are quick (tens of minutes) and can be run on a local machine. The data generated is about 250 MB in size.
 
 - `dustywave_setup_and_run.py` runs 2 tests: one with 1 dust species and one with 4 dust species.
 
 #### Dusty-shock
 
-The dusty-shock tests are many and slow and should be run on a cluster. The total data produced is about 290 GB.
+The dusty-shock tests are slow (hours to days) and should be run on a cluster. The total data generated is about 290 GB in size.
 
 - `dustyshock_setup_and_schedule.py` runs a slew of tests. This relies on `dustyshock.toml.j2` which is a [phantom-build](https://github.com/dmentipl/phantom-build) config file.
 

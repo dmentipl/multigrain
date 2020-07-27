@@ -68,7 +68,7 @@ def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
             n_bins=n_bins,
         )
         x, y = prof['radius'], prof[quantity]
-        ax.plot(x, y, 'o', label=label, fillstyle='none')
+        ax.plot(x, y, 'o', ms=4, label=label, fillstyle='none')
     ax.set(xlim=xrange)
 
     return ax

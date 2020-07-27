@@ -699,7 +699,7 @@ For a dust particle, we take the minimum over gas neighbours of the individual
 species constraint (\(\Delta t < 0.9 t_{s_i}\)):
 %
 \begin{align}
-   \Delta t < 0.9 \min_{a}
+   \Delta t < C_{\rm drag} \min_{a}
    \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
 %
@@ -709,9 +709,11 @@ coefficient and densities, over the neighbouring dust particles to find the SPH
 time step constraint for a particle:
 %
 \begin{align}
-   \Delta t < 0.9 \min_i \min_{b}
-   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
+   \Delta t < C_{\rm drag} \min_i \min_{b}
+   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\},
 \end{align}
+%
+where \(C_{\rm drag} = 0.9\).
 
 
 \section{Numerical tests}%
@@ -737,7 +739,8 @@ quintic kernel with 113 mean particle neighbours (\(\eta = 1.0\) in
 Equation~\ref{eqn:sph-density}); global timestepping, i.e., all particles have
 the same time step; a Courant factor of 0.3; a time step constraint on the
 acceleration \( C_{\rm force} \) of 0.25, where \(\Delta t_a < C_{\rm force}
-\sqrt{h_a / |\vec{a}_a|} \).
+\sqrt{h_a / |\vec{a}_a|} \); and a time step constraint on the drag \(C_{\rm
+drag}\) of 0.9.
 
 
 \subsection{Dusty box}%
@@ -795,18 +798,18 @@ where \( \varepsilon = \sum_i \varepsilon_i \), and \( t''_{s_i} = \left( \sum_i
       \hline
       \hline
       One dust species \\
-      1 & 1.0 \\
+      1 & 0.01 \\
       \hline
       Two dust species \\
-      1 & 0.562 \\
-      2 & 1.78 \\
+      1 & 0.01 \\
+      2 & 0.1 \\
       \hline
       Five dust species \\
-      1 & 0.1 \\
-      2 & 0.316 \\
-      3 & 1.0 \\
-      4 & 3.16 \\
-      5 & 10.0 \\
+      1 & 0.01 \\
+      2 & 0.0316 \\
+      3 & 0.1 \\
+      4 & 0.316 \\
+      5 & 1.0 \\
       \hline
       \hline
    \end{tabular}
@@ -822,15 +825,15 @@ tests within each set had 1, 2, and 5 dust species, respectively, with grain
 sizes given in Table~\ref{tab:box}. Each test had equal mass in each grain size
 bin. The gas is initially motionless, and each dust species has uniform velocity
 in the positive x-direction. We turned off the SPH viscosity, i.e.\@ set
-\(\alpha_{\rm AV}\) to zero in \textsc{Phantom}.
+\(\alpha_{\rm AV}\) to zero in \textsc{Phantom}. We set \(C_{\rm drag} = 0.2\).
 
 For each test problem, we set up each of the gas and dust fluids on a
-close-packed lattice, using dense-sphere packing, such that there were 44928 gas
-particles (32 particles in the direction of motion), and 5472 dust particles per
-species (16 particles in the direction of motion). We set the gas density to
+close-packed lattice, using dense-sphere packing, such that there were 648 gas
+particles (8 particles in the direction of motion), and 648 dust particles per
+species (8 particles in the direction of motion). We set the gas density to
 \(10^{-13}\)~g~cm\({}^{-3}\), with the dust-to-gas ratio varying per test
-problem. We set the dust grain material density for all species to \(0.5 \times
-10^{-14}\)~g~cm\({}^{-3}\).
+problem. We set the dust grain material density for all species to
+1.0~g~cm\({}^{-3}\).
 
 Figure~\ref{fig:dustybox} shows the time evolution of the mean velocity
 differential between the gas and each dust species, compared with analytical
@@ -846,12 +849,12 @@ differs from the single-species solution, and the \textsc{Phantom} simulation
 data follows the backreaction-inclusive solution. In all cases, the numerical
 solution matches the analytical solution with relative error less than 0.01.
 
-For large dust-to-gas ratio we see that the smaller grains (0.1 cm and 0.316 cm)
-rapidly slow and the differential velocity reverses sign. That is the small
-grains slow to the gas velocity; then, as the larger grains speed up the gas via
-drag, the gas drags the small grains along with it. This shows that the
-behaviour of multiple dust species for large dust-to-gas ratios requires taking
-back reaction into consideration to capture the physics of dust drag accurately
+For large dust-to-gas ratio we see that the smallest grains (0.01 cm) rapidly
+slow and the differential velocity reverses sign. That is the small grains slow
+to the gas velocity; then, as the larger grains speed up the gas via drag, the
+gas drags the small grains along with it. This shows that the behaviour of
+multiple dust species for large dust-to-gas ratios requires taking back reaction
+into consideration to capture the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
 
 \subsection{Dusty wave}%

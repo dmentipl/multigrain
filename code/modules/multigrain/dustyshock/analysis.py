@@ -69,6 +69,7 @@ def plot_quantity_profile_subsnaps(snap, quantity, ax, xrange, n_bins):
         )
         x, y = prof['radius'], prof[quantity]
         ax.plot(x, y, 'o', ms=4, label=label, fillstyle='none')
+        ax.grid()
     ax.set(xlim=xrange)
 
     return ax
@@ -290,6 +291,7 @@ def plot_velocity_error_convergence(
         )
     fig, ax = plt.subplots()
     ax.plot(np.log10(nxs), np.log10(err))
+    ax.grid()
     ax.set_xlabel('log10(Resolution [nx])')
     ax.set_ylabel('log10(Error [L2 norm])')
 
@@ -351,8 +353,10 @@ def plot_velocity_exact(drag_coefficients, x_shock, ax, n_points=1000):
 
     colors = [line.get_color() for line in ax.lines]
     ax.plot(x, v_gas, color=colors[0])
+    ax.grid()
     for idx, v_dust in enumerate(v_dusts):
         ax.plot(x, v_dust, color=colors[idx + 1])
+        ax.grid()
 
 
 def plot_density_exact(drag_coefficients, x_shock, ax, n_points=1000):
@@ -376,8 +380,10 @@ def plot_density_exact(drag_coefficients, x_shock, ax, n_points=1000):
 
     colors = [line.get_color() for line in ax.lines]
     ax.plot(x, rho_gas, color=colors[0])
+    ax.grid()
     for idx, rho_dust in enumerate(rho_dusts):
         ax.plot(x, rho_dust, color=colors[idx + 1])
+        ax.grid()
 
 
 def plot_velocity_density_exact(drag_coefficients, x_shock, axs, n_points=1000):

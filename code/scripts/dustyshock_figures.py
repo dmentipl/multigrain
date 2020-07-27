@@ -66,8 +66,6 @@ def final_velocity_density():
     )
     fig.subplots_adjust(wspace=0.2)
     axs = fig.axes
-    for ax in axs:
-        ax.grid()
     axs[0].set_title('1 dust species')
     axs[1].set_title('3 dust species')
     axs[0].legend()
@@ -337,8 +335,6 @@ def _variation_hfact(N, axs, paths, hfacts, nx, smooth_fac, drag_coefficients, x
         plot_type='profile',
         n_bins=40,
     )
-    for ax in axs:
-        ax.grid()
 
 
 def _get_paths():

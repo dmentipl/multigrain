@@ -54,8 +54,6 @@ def time_evolution():
     print('Plotting figure...')
     fig = dustywave.plot_velocity_density(dataframes, figsize=(10, 8))
     axs = fig.axes
-    for ax in axs:
-        ax.grid()
     axs[0].set_title('1 dust species')
     axs[1].set_title('4 dust species')
     axs[0].legend(loc='lower right')

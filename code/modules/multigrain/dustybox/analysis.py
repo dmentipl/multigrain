@@ -29,8 +29,14 @@ def get_dust_properties(snap):
     except ValueError:
         pass
     subsnaps = [snap['gas']] + snap['dust']
-    density = np.array([subsnap['density'].to('g/cm^3').magnitude.mean() for subsnap in subsnaps])
-    c_s = (np.sqrt(snap.properties['polytropic_constant']) * snap.units['velocity']).to('cm/s').magnitude
+    density = np.array(
+        [subsnap['density'].to('g/cm^3').magnitude.mean() for subsnap in subsnaps]
+    )
+    c_s = (
+        (np.sqrt(snap.properties['polytropic_constant']) * snap.units['velocity'])
+        .to('cm/s')
+        .magnitude
+    )
     ɣ = snap.properties['adiabatic_index']
     s = snap.properties['grain_size'].to('cm').magnitude
     rho_m = snap.properties['grain_density'].to('g/cm^3').magnitude
@@ -68,7 +74,9 @@ def calculate_differential_velocity(sim):
         except ValueError:
             pass
         subsnaps = [snap['gas']] + snap['dust']
-        vx = np.array([subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps])
+        vx = np.array(
+            [subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps]
+        )
         data[idx, :] = vx[1:] - vx[0]
 
     # Generate DataFrame
@@ -110,7 +118,9 @@ def calculate_differential_velocity_exact(
     except ValueError:
         pass
     subsnaps = [snap['gas']] + snap['dust']
-    vx = np.array([subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps])
+    vx = np.array(
+        [subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps]
+    )
     delta_vx_init = vx[1:] - vx[0]
 
     # Time

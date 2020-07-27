@@ -52,11 +52,19 @@ The dusty-box tests are quick (minutes) and can be run on a local machine. The d
 - `dustybox_setup_and_run_time_evolution.py` runs 6 tests: 3 with total dust-to-gas ratio of 0.01, and 3 with total dust-to-gas ratio of 0.5. In each triple there is 1 dust species, 2 dust species, and 5 dust species.
 - `dustybox_setup_and_run_stability.py` to check the stability criterion.
 
+![Dusty box](dustybox.png)
+
+*Dusty-box with 2 and 5 dust species.*
+
 #### Dusty-wave
 
 The dusty-wave tests are quick (tens of minutes) and can be run on a local machine. The data generated is about 250 MB in size.
 
 - `dustywave_setup_and_run.py` runs 2 tests: one with 1 dust species and one with 4 dust species.
+
+![Dusty wave](dustywave.png)
+
+*Dusty-wave with 1 and 4 dust species.*
 
 #### Dusty-shock
 
@@ -73,6 +81,10 @@ Note: not all runs listed in `dustyshock.toml.j2` are required in order to repro
 - `N_3-nx_128-smooth_fac_2.0-hfact_1.2`
 - `N_3-nx_128-smooth_fac_2.0-hfact_1.5`
 - `N_3-nx_128-smooth_fac_2.0-hfact_1.8`
+
+![Dusty shock](dustyshock.png)
+
+*Dusty-shock with 1 and 3 dust species.*
 
 ### Performing analysis on the tests
 

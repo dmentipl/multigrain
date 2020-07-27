@@ -74,6 +74,11 @@ PATCH_FILE = None
 
 SIMULATION = 'dustybox'
 RUN_DIRECTORY = '~/runs/multigrain/dustybox/time_evolution'
+PATCH_FILE = (
+    pathlib.Path(__file__).resolve().parent.parent
+    / 'patches'
+    / 'phantom-666da9e8-dustybox.patch'
+)
 
 # Dictionary of parameters common to all runs.
 _parameters = {
@@ -86,12 +91,12 @@ _parameters = {
     'lattice': 'close packed',
     'number_of_particles_in_x_gas': 8,
     'number_of_particles_in_x_dust': 8,
-    'density_gas': 1.0e-12 * UNITS['g / cm^3'],
+    'density_gas': 1.0e-13 * UNITS['g / cm^3'],
     'drag_method': 'Epstein/Stokes',
     'grain_density': 1.0 * UNITS['g / cm^3'],
-    'maximum_time': 1.0e7 * UNITS['s'],
+    'maximum_time': 2.0e7 * UNITS['s'],
     'number_of_dumps': 20,
-    'C_force': 0.25,
+    'C_force': 0.05555,
 }
 
 # Each value in tuple multiplicatively generates a new simulation.

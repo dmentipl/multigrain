@@ -79,7 +79,7 @@ RUN_DIRECTORY = '~/runs/multigrain/dustybox/stability'
 PATCH_FILE = (
     pathlib.Path(__file__).resolve().parent.parent
     / 'patches'
-    / 'phantom-666da9e8-dustybox_stability.patch'
+    / 'phantom-666da9e8-dustybox.patch'
 )
 
 # Dictionary of parameters common to all runs.

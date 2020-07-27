@@ -690,13 +690,13 @@ of setting \(\varepsilon_i = 0\), i.e.
    \Delta t < 2 \min_i t'_{s_i}.
 \end{align}
 %
-Even though using a pre-factor in Equation~\ref{eqn:sph-timestep-constraint} of
-2 provides an numerically stable timestepping scheme (in the von Neumann sense),
+Even though using a factor in Equation~\ref{eqn:sph-timestep-constraint} of 2
+provides an numerically stable timestepping scheme (in the von Neumann sense),
 numerical experimentation showed that any value greater than 1.0 led to
-inaccurate results. We choose a value of 0.9.
+inaccurate results. We use \(C_{\rm drag}\) to refer to this factor.
 
-For a dust particle, we take the minimum over gas neighbours of the individual
-species constraint (\(\Delta t < 0.9 t_{s_i}\)):
+For a dust particle, we take the minimum over gas neighbours (labelled by a) of
+the individual species constraint (\(\Delta t < C_{\rm drag} t_{s_i}\)):
 %
 \begin{align}
    \Delta t < C_{\rm drag} \min_{a}
@@ -705,15 +705,13 @@ species constraint (\(\Delta t < 0.9 t_{s_i}\)):
 %
 Whereas, for a gas particle, we take the minimum of
 Equation~\ref{eqn:sph-timestep-constraint}, rewritten in terms of the drag
-coefficient and densities, over the neighbouring dust particles to find the SPH
-time step constraint for a particle:
+coefficient and densities, over the neighbouring dust particles (labelled by b)
+to find the SPH time step constraint for a particle:
 %
 \begin{align}
    \Delta t < C_{\rm drag} \min_i \min_{b}
-   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\},
+   \left\{ \frac{\rho^{\g}_a \rho^{\dd_i}_b}{K_{ab} (\rho^{\g}_a + \rho^{\dd_i}_b)} \right\}.
 \end{align}
-%
-where \(C_{\rm drag} = 0.9\).
 
 
 \section{Numerical tests}%

@@ -76,6 +76,6 @@ def plot_velocity_density(dataframes, figsize=(10, 8)):
     axs[0, 0].set(ylabel='Normalized velocity')
     axs[1, 0].set(ylabel='Normalized density')
     for ax in axs.flatten():
-        ax.grid()
+        ax.grid(b=True)
 
     return fig

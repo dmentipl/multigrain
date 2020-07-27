@@ -227,7 +227,7 @@ if __name__ == '__main__':
     ax[0].set_ylabel('Velocity')
     ax[1].set_ylabel('Density')
     ax[0].legend()
-    ax[0].grid()
-    ax[1].grid()
+    ax[0].grid(b=True)
+    ax[1].grid(b=True)
 
     plt.show()

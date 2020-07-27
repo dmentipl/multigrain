@@ -27,7 +27,7 @@ def plot_radial_drift(profs):
         prof.plot('radius', 'radial_velocity_cylindrical', ax=ax, label=label)
 
     ax.legend(loc='lower left', bbox_to_anchor=(1.01, 0.01), ncol=1)
-    ax.grid()
+    ax.grid(b=True)
     ax.set_ylim(-0.01, None)
     ax.text(
         0.9,

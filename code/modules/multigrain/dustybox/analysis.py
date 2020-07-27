@@ -206,7 +206,7 @@ def plot_differential_velocity(data, exact1, exact2, ax):
         ax.plot(exact2['time'], ye2, '--', color=line.get_color(), alpha=0.33)
         ax.plot(data['time'], yd, 'o', ms=4, fillstyle='none', color=line.get_color())
 
-    ax.grid()
+    ax.grid(b=True)
 
     return ax
 
@@ -278,7 +278,7 @@ def plot_error(df, ax):
     for y in y_error:
         ax.semilogy(x, y)
 
-    ax.grid()
+    ax.grid(b=True)
 
     return ax
 

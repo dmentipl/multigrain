@@ -64,16 +64,14 @@ def time_evolution():
     print('Plotting figure...')
     fig = dustybox.plot_differential_velocity_all(data, exact1, exact2, figsize=(15, 8))
     axs = fig.axes
-    for ax in axs:
-        ax.grid()
     axs[0].set_title('1 dust species')
     axs[1].set_title('2 dust species')
     axs[2].set_title('5 dust species')
     props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
     for ax in axs[:3]:
-        ax.text(0.10, 0.9, r'$\varepsilon = 0.01$', ha='right', bbox=props)
+        ax.text(0.9, 0.9, r'$\varepsilon = 0.01$', ha='right', transform=ax.transAxes, bbox=props)
     for ax in axs[3:]:
-        ax.text(0.10, 0.9, r'$\varepsilon = 0.5$', ha='right', bbox=props)
+        ax.text(0.9, 0.9, r'$\varepsilon = 0.5$', ha='right', transform=ax.transAxes, bbox=props)
     name = 'dustybox_differential_velocity_comparison.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
@@ -95,8 +93,6 @@ def time_evolution_error():
 
     print('Plotting figure...')
     fig = dustybox.plot_error_all(error, figsize=(15, 8))
-    for ax in fig.axes:
-        ax.grid()
     name = 'dustybox_differential_velocity_error.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
@@ -104,4 +100,4 @@ def time_evolution_error():
 
 if __name__ == "__main__":
     time_evolution()
-    # time_evolution_error()
+    time_evolution_error()

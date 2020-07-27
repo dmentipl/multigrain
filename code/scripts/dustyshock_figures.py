@@ -75,88 +75,6 @@ def final_velocity_density():
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
-def __initial_conditions():
-    print('')
-    print('Initial conditions')
-    print('------------------')
-    print('')
-
-    # Get data
-    paths = _get_paths()
-
-    # Set parameters for "final time" plot
-    N = 1
-    hfact = 1.8
-    nx = 128
-    smooth_fac = 2.0
-    xrange = (-5, 15)
-
-    # Get snap
-    print('Load data...')
-    sim_name = f'N_{N}-nx_{nx}-smooth_fac_{smooth_fac}-hfact_{hfact}'
-    snap = dustyshock.first_snap(paths[sim_name])
-
-    # Make plot
-    print('Plotting figure...')
-    fig, axs = plt.subplots(nrows=2, sharex=True, squeeze=False)
-    axs[0, 0].set_ylabel('Velocity')
-    axs[1, 0].set_ylabel('Density')
-    axs[1, 0].set_xlabel('x')
-    dustyshock.plot_velocity_density_as_profile(snaps=[snap], xrange=xrange, axs=axs)
-    name = 'dustyshock_initial.pdf'
-    print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
-
-
-def __initial_conditions():
-
-    X_SHOCK = 0
-    X_L = -10
-    X_R = 10
-    VEL_L = 2
-    VEL_R = 0.25
-    RHO_L = 1
-    RHO_R = 8
-    SMOOTH_FAC = 2
-    PSEP = 0.1953125  # nx=128
-    NPOINTS = 200
-
-    FIGSIZE = (6, 6)
-    LINEWIDTH = 0.75
-
-    def logistic(x, k=1, x0=0, left=0, right=1):
-        dx = x - x0
-        _left = left / (1 + np.exp(dx / k))
-        _right = right / (1 + np.exp(-dx / k))
-        return _left + _right
-
-    def density(
-        x, x0=X_SHOCK, left=RHO_L, right=RHO_R, smooth_fac=SMOOTH_FAC, psep=PSEP
-    ):
-        return logistic(x, x0=x0, k=smooth_fac * psep, left=left, right=right)
-
-    @np.vectorize
-    def velocity(x, x0=X_SHOCK, left=VEL_L, right=VEL_R):
-        if x < x0:
-            return left
-        return right
-
-    x = np.linspace(X_L, X_R, NPOINTS)
-
-    fig, axs = plt.subplots(nrows=2, sharex=True, figsize=FIGSIZE)
-    fig.subplots_adjust(hspace=0.2)
-
-    axs[0].plot(x, velocity(x), 'k', linewidth=LINEWIDTH)
-    axs[0].set(ylabel='Velocity')
-
-    axs[1].plot(x, density(x), 'k', linewidth=LINEWIDTH)
-    axs[1].set(xlabel='x', ylabel='Density')
-
-    name = 'dustyshock_initial.pdf'
-    print(f'Saving figure to {name}')
-    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
-
-
 def initial_conditions():
     print('')
     print('Initial conditions')
@@ -224,29 +142,6 @@ def initial_conditions():
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
-
-
-def __initial_conditions_particles():
-    print('')
-    print('Initial conditions particles')
-    print('----------------------------')
-    print('')
-
-    DIR = Path('~/runs/multigrain/dustyshock').expanduser()
-    RUN = 'N_1-nx_32-smooth_fac_2.0-hfact_1.0'
-    FILE = 'dustyshock_00000.h5'
-    PATH = DIR / RUN / FILE
-
-    snap = plonk.load_snap(PATH)
-    subsnap = snap[np.abs(snap['z']) < 2]['gas']
-
-    ax = plonk.visualize.particle_plot(snap=subsnap, color='k', ms=2.0)
-    ax.set_aspect('equal')
-    ax.set_xlim(-20, 20)
-    ax.set(xlabel='x', ylabel='y')
-
-    fig = ax.figure
-    fig.savefig('dustyshock_initial.pdf', bbox_inches='tight', pad_inches=0.05)
 
 
 def variation_hfact():

@@ -17,6 +17,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import plonk
+from matplotlib.ticker import FormatStrFormatter
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / '../modules'))
 from multigrain import dustyshock
@@ -128,16 +129,25 @@ def initial_conditions():
     ]
 
     fig, axs = plt.subplots(
-        nrows=2, sharex=True, figsize=FIGSIZE, gridspec_kw={'height_ratios': [1, 1.5]}
+        nrows=3,
+        sharex=True,
+        figsize=FIGSIZE,
+        gridspec_kw={'height_ratios': [0.5, 0.5, 1.5]},
     )
     fig.subplots_adjust(hspace=0.1)
 
-    axs[0].plot(x, density(x), 'k', linewidth=LINEWIDTH)
-    axs[0].set(ylabel='Density')
+    axs[0].plot(x, velocity(x), 'k', linewidth=LINEWIDTH)
+    axs[0].set(ylabel='Velocity')
+    axs[0].yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
-    plonk.visualize.particle_plot(snap=subsnap, color='k', ms=2.0, ax=axs[1])
-    axs[1].set_aspect('equal')
-    axs[1].set(xlabel='x', ylabel='y')
+    axs[1].plot(x, density(x), 'k', linewidth=LINEWIDTH)
+    axs[1].set(ylabel='Density')
+    axs[1].yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
+
+    plonk.visualize.particle_plot(snap=subsnap, color='k', ms=2.0, ax=axs[2])
+    axs[2].set_aspect('equal')
+    axs[2].set(xlabel='x', ylabel='y')
+    axs[2].yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
     name = 'dustyshock_initial.pdf'
     print(f'Saving figure to {name}')
@@ -245,5 +255,5 @@ def _get_paths():
 if __name__ == '__main__':
 
     initial_conditions()
-    final_velocity_density()
-    variation_hfact()
+    # final_velocity_density()
+    # variation_hfact()

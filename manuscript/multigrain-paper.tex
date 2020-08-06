@@ -102,11 +102,10 @@ multigrain dust with separate sets of particles}
    multiple species of large Stokes number dust grains, typical of evolved
    protoplanetary discs and debris discs. The method improves upon earlier
    methods, in which only a single grain size could be represented, by capturing
-   the differential backreaction of multiple dust species on the gas. We
-   benchmark the method against analytic solutions for linear waves, drag and
-   shocks in dust-gas mixtures. This effect is greater for large dust-to-gas
-   ratios that may be expected in the later stages of the protoplanetary disc
-   life.
+   the differential backreaction of multiple dust species on the gas. This
+   effect is greater for large dust-to-gas ratios that may be expected in the
+   later stages of the protoplanetary disc life. We benchmark the method against
+   analytic solutions for linear waves, drag and shocks in dust-gas mixtures.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -178,11 +177,12 @@ Typically, in both of these methods, an explicit timestepping scheme is used.
 One problem with such schemes is that the drag timescale can be many orders of
 magnitude smaller than other physically interesting time scales, e.g., the
 orbital time in a protoplanetary disc. This requires taking small timesteps and
-is computationally inefficient. Various groups have developed semi-implicit
-timestepping methods which remove the restriction of small timesteps required by
-explicit schemes for drag \citep{Monaghan1997JCoPh.138..801M,
-Laibe2012MNRAS.420.2365L, Loren-Aguilar2014MNRAS.443..927L,
-Loren-Aguilar2015MNRAS.454.4114L, Stoyanovskaya2018A&C....25...25S}.
+is computationally inefficient. Various groups have developed implicit or
+semi-implicit timestepping methods which remove the restriction of small
+timesteps required by explicit schemes for drag
+\citep{Monaghan1997JCoPh.138..801M, Laibe2012MNRAS.420.2365L,
+Loren-Aguilar2014MNRAS.443..927L, Loren-Aguilar2015MNRAS.454.4114L,
+Stoyanovskaya2018A&C....25...25S}.
 
 In the description for both of these approaches (the dust as separate particles
 method and the single SPH fluid mixture method) the methods are applicable to a
@@ -192,7 +192,10 @@ described a multiple species approach for the single SPH fluid method.
 this method and tested this in the \textsc{Phantom} SPH code
 \citep{Price2018PASA...35...31P}. The single fluid approach is limited in that
 particles are not allowed to stream past each other as expected for large,
-weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}.
+weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}. The methods of
+\citet{Benitez-Llambay2019ApJS..241...25B,
+Lebreuilly2019A&A...626A..96L,Li2019ApJ...878...39L} are based on the single
+fluid approach.
 
 In this paper we extend method (i), in which dust is represented by separate
 sets of particles, from a single species to multiple species. We present the

@@ -155,13 +155,16 @@ def calculate_differential_velocity_exact(
     return dataframe
 
 
-def calculate_error(sim):
+def calculate_error(sim, relative=False):
     _data = calculate_differential_velocity(sim)
     time = _data['time'].to_numpy()
     data = [_data[col].to_numpy() for col in _data.columns if col.startswith('d')]
     _exact = calculate_differential_velocity_exact(sim, times=time)
     exact = [_exact[col].to_numpy() for col in _exact.columns if col.startswith('d')]
-    error = np.array([np.abs(yd - ye) for yd, ye in zip(data, exact)]).T
+    if relative:
+        error = np.array([np.abs((yd - ye)/ye) for yd, ye in zip(data, exact)]).T
+    else:
+        error = np.array([np.abs(yd - ye) for yd, ye in zip(data, exact)]).T
     n_dust = len(data)
 
     # Generate DataFrame
@@ -257,13 +260,15 @@ def plot_differential_velocity_all(
     return fig
 
 
-def plot_error(df, ax):
+def plot_error(df, plot_type, ax):
     """Plot differential velocity error.
 
     Parameters
     ----------
     df
         A DataFrame with the differential velocity.
+    plot_type
+        Plot type: 'linear' or 'log'.
     ax
         Matplotlib Axes.
 
@@ -276,20 +281,27 @@ def plot_error(df, ax):
     y_error = [df[col].to_numpy() for col in df.columns if col.startswith('error')]
 
     for y in y_error:
-        ax.semilogy(x, y)
+        if plot_type == 'log':
+            ax.semilogy(x, y)
+        elif plot_type == 'linear':
+            ax.plot(x, y)
+        else:
+            raise ValueError
 
     ax.grid(b=True)
 
     return ax
 
 
-def plot_error_all(dataframes, ncols=3, figsize=(15, 8), transpose=False):
+def plot_error_all(dataframes, plot_type='log', ncols=3, figsize=(15, 8), transpose=False):
     """Plot differential velocity error for each simulation.
 
     Parameters
     ----------
     dataframes
         A dictionary of DataFrames, one per simulation.
+    plot_type
+        Plot type: 'linear' or 'log'.
     ncols
         The number of columns of axes in the figure. Default is 3.
     figsize
@@ -313,7 +325,7 @@ def plot_error_all(dataframes, ncols=3, figsize=(15, 8), transpose=False):
     else:
         _axs = axs.flatten()
     for df, ax in zip(dataframes.values(), _axs):
-        plot_error(df, ax)
+        plot_error(df=df, plot_type=plot_type, ax=ax)
     for ax in axs[-1, :]:
         ax.set(xlabel='Time')
     for ax in axs[:, 0]:

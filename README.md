@@ -51,6 +51,7 @@ The dusty-box tests are quick (minutes) and can be run on a local machine. The d
 
 - `dustybox_setup_and_run_time_evolution.py` runs 6 tests: 3 with total dust-to-gas ratio of 0.01, and 3 with total dust-to-gas ratio of 0.5. In each triple there is 1 dust species, 2 dust species, and 5 dust species.
 - `dustybox_setup_and_run_stability.py` to check the stability criterion.
+- `dustybox_setup_and_run_accuracy.py` to check the accuracy of the method.
 
 ![Dusty box](dustybox.png)
 

@@ -25,7 +25,7 @@ PATH = '~/runs/multigrain/dustybox'
 
 def _get_paths(name, glob):
     print('Get path to data...')
-    root_directory = Path(PATH / name).expanduser()
+    root_directory = (Path(PATH) / name).expanduser()
     _paths = sorted(list(root_directory.glob(glob)))
     paths = {p.name: p for p in _paths}
 
@@ -128,6 +128,8 @@ def accuracy():
         sim = plonk.load_sim(prefix='dustybox', directory=path)
         error[name] = dustybox.calculate_error(sim)
 
+    print('Plotting figure...')
+
     C_drag = {}
     error_norm = {}
     for key, val in error.items():
@@ -169,8 +171,12 @@ def accuracy():
     plot_error_norm(eta=1.0, marker='d', label=True, ax=ax)
     x = plot_error_norm(eta=2.5, marker='s', label=True, ax=ax)
     ax.plot(x, line(x, m=m, c=c), '--', color='gray')
-    ax.set(xlabel='log10(dt)', ylabel='log10(error)')
+    ax.set(xlabel=r'$\log_{10}$(dt)', ylabel=r'$\log_{10}$(error)')
     ax.legend()
+
+    name = 'dustybox_accuracy.pdf'
+    print(f'Saving figure to {name}')
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
 
 def _get_val(path, q):

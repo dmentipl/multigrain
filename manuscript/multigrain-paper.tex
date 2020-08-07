@@ -771,6 +771,21 @@ drag}\) of 0.9.
    \end{center}
 \end{figure*}
 
+\begin{figure}
+   \begin{center}
+      \includegraphics[width=\columnwidth]{figs/dustybox_accuracy.pdf}
+      \caption{The L2-norm error with varying timestep showing the second order
+         convergence of the method. Each marker represents a single simulation
+         with two dust species with a dust-to-gas ratio of either 0.01 or 0.5.
+         The gray dashed line represents a slope of 2. For large timesteps the
+         error matches the line of slope 2 (indicating second-order
+         convergence). For smaller timesteps the error is dominated by kernel
+         bias. The diamond and square markers represent numerical solutions with
+         $\eta=1.0$ and $\eta=2.5$, respectively.%
+         \label{fig:dustybox-accuracy}}
+   \end{center}
+\end{figure}
+
 We performed the multigrain version of the dusty box test described in
 \citet{Laibe2011MNRAS.418.1491L}. We set up a periodic box of uniform density
 gas and dust with an initial differential velocity between the gas and each dust
@@ -864,6 +879,27 @@ gas drags the small grains along with it. This shows that the behaviour of
 multiple dust species for large dust-to-gas ratios requires taking back reaction
 into consideration to capture the physics of dust drag accurately
 \citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
+
+Figure~\ref{fig:dustybox-accuracy} shows that the method is second-order
+accurate with respect to the timestep. Each marker represents the L2-norm error,
+of a numerical solution for the two dust species case with a dust-to-gas ratio
+of either 0.01 or 0.5, with varying timestep controlled by \(C_{\rm drag}\). The
+error is given by
+%
+\begin{align}
+   \mathrm{error}(\Delta t) = \sqrt{ \sum_{i,j}
+      \left(V_{i,j}^{\Delta t} - v_{j}(t_i) \right)^2 },
+\end{align}
+%
+where the indicies i and j represent time and dust species, respectively,
+\(V_{i,j}^{\Delta t}\) is the numerical solution for a particular \(\Delta t\)
+(or equivalently \(C_{\rm drag}\)), and \(v_{j}(t_i)\) represents the exact
+solution. For large timesteps the error matches the gray, dashed line of slope 2
+(indicating second-order convergence in the log-log plot). For smaller timesteps
+the error is dominated by kernel bias. This is demonstrated by the fact that in
+the case with fewer neighbours (\(\eta = 1.0\)), indicated by diamond markers,
+the error plateaus at a larger magnitude than for the case with a greater number
+of neighbours (\(\eta = 2.5\)), indicated by square markers.
 
 \subsection{Dusty wave}%
 \label{subsec:wave}

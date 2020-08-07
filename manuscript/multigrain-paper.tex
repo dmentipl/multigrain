@@ -654,8 +654,23 @@ involving only dust quantities:
    \Delta t < \frac{2}{1 - \epsilon} \min_i t_{s_i}.
 \end{align}
 %
-We can find an upper bound on the inequality involving the gas density by taking
-the minimum over the dust fractions and maximum over the stopping times to give
+\citet{Laibe2014MNRAS.444.1940L} derived more general bounds on the eigenvalues
+of the drag matrix which imply a timestep criterion
+%
+\begin{align}
+   \Delta t < \left( \max_i \left(\frac{1}{\epsilon_i t'_{s_i}}\right)
+      + \frac{1}{1 - \epsilon} \sum_i t'_{s_i} \right)^{-1}.
+\end{align}
+%
+Assuming strong drag, this can be approximated by
+%
+\begin{align}
+   \Delta t < \left( \frac{1}{\min_i t_{s_i}}
+      + \frac{1}{(1 - \epsilon) t'_{s_i}} \right)^{-1}.
+\end{align}
+%
+We take the minimum over dust stopping times in the first term of the inequality
+to find the most restrictive timestep criterion given by
 %
 \begin{align}
    \label{eqn:timestep-gas}

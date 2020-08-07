@@ -367,11 +367,6 @@ of a protoplanetary disc is given by
 \begin{align}
    \mathrm{St} = \frac{\sqrt{2\pi} \varrho_{\mathrm{eff}} s}{\Sigma}.
 \end{align}
-%
-In using \(\rho = \sqrt{2\pi} \Sigma / H\) and \(\Omega_K = c_s / H\) to derived
-the above expression we are assuming that the gas mass dominates over the dust
-mass, i.e. that the dust fraction is low. Otherwise we must consider that the
-scale height varies between the gas disc and the dust sub-discs.
 
 Considering the multiple dust species case, we can define an effective midplane
 Stokes number for the mixture using the effective stopping time
@@ -616,8 +611,14 @@ to the following matrix equation:
    \end{pmatrix}^{n}.
 \end{align}
 %
-We find the characteristic polynomial of the matrix, \(M\), above using the
-expression \(\det(M - \lambda I) = \det(A - B D^{-1} C) \det(D)\) to give
+To find the eigenvalues of the matrix \(M\) above we need to find the
+characteristic polynomial, \(\det(M - \lambda I)\). We can find the determinant
+of \(M\) using Schur's determinant identity \(\det(M) = \det(A - B D^{-1} C)
+\det(D)\), where \(A\) is the 1x1 matrix consisting of the upper left value,
+\(B\) is the \(N\)x1 matrix of the top row except the first value, \(C\) is the
+1x\(N\) matrix of the left column except the first value, and \(D\) is the
+remaining \(N\)x\(N\) diagonal matrix. Applying this identity to the matrix \(M
+- \lambda I\) gives
 %
 \begin{align}
    \left(1 - \frac{\Delta t \sum K_i}{\rho_{\g}} - f - \lambda\right)
@@ -1200,7 +1201,7 @@ that the stopping time constrained time step is less restrictive then we get
 that
 %
 \begin{align}
-   t_{s_i} > \frac{C_{\rm Cour} h (1 - \varepsilon)}{2 c_s}.
+   t_{s_i} > \frac{C_{\rm Cour} h (1 - \varepsilon)}{C_{\rm drag} c_s}.
 \end{align}
 %
 The parameters \(c_s\) and \(\varepsilon\) are physical parameters set by the
@@ -1211,13 +1212,13 @@ Considering protoplanetary discs, converting this into an inequality for the
 midplane Stokes number \(\mathrm{St}_i\) we get
 %
 \begin{align}
-   \mathrm{St}_i > \frac{1}{2} C_{\rm Cour} (1 - \varepsilon) \frac{h}{H},
+   \mathrm{St}_i > \frac{C_{\rm Cour}}{C_{\rm drag}} (1 - \varepsilon) \frac{h}{H},
 \end{align}
 %
 where \(H\) is the gas disc scale height. Using values of \(h/H \approx 0.5\)
 and \(\varepsilon \approx 0.1\) we find a minimum Stokes number, such that the
 time step is unconstrained compared with the CFL condition, of \(\mathrm{St}_i
-\gtrsim 0.08\). Note that the numerical resolution is inversely proportional to
+\gtrsim 0.1\). Note that the numerical resolution is inversely proportional to
 \(h\). So, as the resolution increases this restriction is loosened. However, as
 the resolution increases the CFL timestep decreases.
 
@@ -1278,6 +1279,12 @@ dust. This would provide for a rearrangement of particles to improve the density
 estimates and reduce artificial clumping of dust. Such a force would necessarily
 be a short range one. It is not clear at what distance it should activate. Any
 such prescription would be a sub-grid model and resolution dependent.
+
+In the limit of small drag coefficient, or large stopping time, our scheme
+degenerates to an N-body integrator, which preserves the orbital parameters
+exactly. As the method is Lagrangian, we can track particles throughout time.
+This allows for coupling with, for example, chemistry codes that require
+knowledge of the thermal history of the dust.
 
 
 \section{Conclusions}

@@ -172,6 +172,7 @@ def plot_profiles(snap, profs, legend=None):
     p = profs['gas'][0]
 
     if DEBUG:
+        num_dust = snap.num_dust_species
         ax = p.plot(x='radius', y=['velocity_pressure', 'velocity_visc'], units=UNITS)
         y = ['velocity_radial_gas']
         y += [f'velocity_radial_dust_{idx+1:03}' for idx in range(num_dust)]

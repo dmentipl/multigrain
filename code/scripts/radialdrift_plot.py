@@ -264,10 +264,10 @@ if __name__ == '__main__':
     UNITS = plonk.units_defaults()
     UNITS['position'] = 'au'
 
-    DUST_SPECIES_TO_PLOT = [0, 1, 2, 3, 4]
+    DUST_SPECIES_TO_PLOT = [1, 2, 3, 4]
 
-    RADIUS_MIN = 20 * plonk.units['au']
-    RADIUS_MAX = 150 * plonk.units['au']
+    RADIUS_MIN = 25 * plonk.units['au']
+    RADIUS_MAX = 125 * plonk.units['au']
 
     SCALE_HEIGHT_FAC = 0.05
 

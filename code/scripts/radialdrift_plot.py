@@ -2,7 +2,7 @@
 
 See the following reference for more details.
 
-- Dipierro et al. (2018) MNRAS Volume 479, Issue 3, p.4187-4206
+- Dipierro et al., 2018, MNRAS, 479, 3, p.4187-4206
 """
 
 from pathlib import Path
@@ -65,15 +65,15 @@ def calculate_profiles(
 
     p = profs['gas'][0]
 
-    # velocity_pressure is (15) in Dipierro2018
+    # velocity_pressure is (15) in Dipierro+2018
     p['velocity_pressure'] = np.gradient(p['pressure'], p['radius']) / (
         p['density'] * p['keplerian_frequency']
     )
 
-    # shear_viscosity is between (16) an (17) in Dipierro2018
+    # shear_viscosity is between (16) an (17) in Dipierro+2018
     p['shear_viscosity'] = ALPHA * p['sound_speed'] * p['scale_height'] * p['density']
 
-    # velocity_visc is (16) in Dipierro2018
+    # velocity_visc is (16) in Dipierro+2018
     p['velocity_visc'] = np.gradient(
         p['shear_viscosity']
         * p['radius'] ** 3
@@ -95,7 +95,7 @@ def calculate_profiles(
             / (p['density'] * p['sound_speed'])
         )
 
-    # lambda_0 and lambda_1 are (17) in Dipierro2018
+    # lambda_0 and lambda_1 are (17) in Dipierro+2018
     l0 = np.zeros(len(p)) * plonk.units['dimensionless']
     l1 = np.zeros(len(p)) * plonk.units['dimensionless']
     for idx in range(num_dust):
@@ -111,18 +111,18 @@ def calculate_profiles(
     l0 = p['lambda_0']
     l1 = p['lambda_1']
 
-    # velocity_radial_gas is (11) in Dipierro2018
+    # velocity_radial_gas is (11) in Dipierro+2018
     p['velocity_radial_gas'] = (-l1 * v_P + (1 + l0) * v_visc) / (
         (1 + l0) ** 2 + l1 ** 2
     )
 
-    # velocity_azimuthal_gas is (12) in Dipierro2018
+    # velocity_azimuthal_gas is (12) in Dipierro+2018
     p['velocity_azimuthal_gas'] = (
         1 / 2 * (v_P * (1 + l0) + v_visc * l1) / ((1 + l0) ** 2 + l1 ** 2)
     )
 
-    # velocity_radial_dust_i is (13) in Dipierro2018
-    # velocity_azimuthal_dust_i is (14) in Dipierro2018
+    # velocity_radial_dust_i is (13) in Dipierro+2018
+    # velocity_azimuthal_dust_i is (14) in Dipierro+2018
     for idx in range(num_dust):
         St = p[f'midplane_stokes_number_{idx+1:03}']
         eps = p[f'midplane_dust_to_gas_{idx+1:03}']
@@ -132,7 +132,7 @@ def calculate_profiles(
         p[f'velocity_radial_dust_{idx+1:03}'] = numerator_R / denominator
         p[f'velocity_azimuthal_dust_{idx+1:03}'] = numerator_phi / denominator
 
-    # Divide by |v_P| for comparison with Figure B1 in Dipierro2018
+    # Divide by |v_P| for comparison with Figure B1 in Dipierro+2018
     # "Analytical" solution
     v_R = p['velocity_radial_gas']
     p['velocity_radial_gas_analytical'] = v_R / np.abs(v_P)
@@ -142,10 +142,14 @@ def calculate_profiles(
 
     # "Numerical" solution
     v_R = p['velocity_radial_cylindrical']
+    v_R_std = p['velocity_radial_cylindrical_std']
     p['velocity_radial_numerical'] = v_R / np.abs(v_P)
+    p['velocity_radial_numerical_std'] = v_R_std / np.abs(v_P)
     for prof in profs['dust']:
         v_R = prof['velocity_radial_cylindrical']
+        v_R_std = prof['velocity_radial_cylindrical_std']
         prof['velocity_radial_numerical'] = v_R / np.abs(v_P)
+        prof['velocity_radial_numerical_std'] = v_R_std / np.abs(v_P)
 
     return profs
 
@@ -199,10 +203,10 @@ def plot_profiles(snap, profs):
         units=UNITS,
         color='black',
         linestyle='',
-        marker='d',
-        markersize=5.0,
-        fillstyle='none',
+        marker='o',
+        markersize=4,
         label='gas',
+        std='errorbar',
         ax=ax,
     )
     profs_to_plot = [
@@ -216,10 +220,10 @@ def plot_profiles(snap, profs):
             units=UNITS,
             color=color,
             linestyle='',
-            marker='d',
-            markersize=5.0,
-            fillstyle='none',
+            marker='o',
+            markersize=4,
             label=label,
+            std='errorbar',
             ax=ax,
         )
 
@@ -227,7 +231,7 @@ def plot_profiles(snap, profs):
     ax.grid()
 
     textstr = f't = {snap.properties["time"].to("years").m:.0f} years'
-    bbox = dict(boxstyle='round', facecolor='white', alpha=0.8)
+    bbox = dict(boxstyle='round', facecolor='white', edgecolor='grey', alpha=0.8)
     ax.text(
         0.97,
         0.97,
@@ -237,7 +241,7 @@ def plot_profiles(snap, profs):
         verticalalignment='top',
         bbox=bbox,
     )
-    ax.legend(framealpha=0.8, edgecolor='black')
+    ax.legend(framealpha=0.8, edgecolor='grey')
 
     return ax
 
@@ -254,7 +258,7 @@ if __name__ == '__main__':
 
     DUST_SPECIES_TO_PLOT = [0, 1, 2, 3, 4]
 
-    RADIUS_MIN = 10 * plonk.units['au']
+    RADIUS_MIN = 20 * plonk.units['au']
     RADIUS_MAX = 150 * plonk.units['au']
 
     SCALE_HEIGHT_FAC = 0.05

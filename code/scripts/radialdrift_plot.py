@@ -18,7 +18,11 @@ from plonk._units import Quantity
 
 
 def calculate_profiles(
-    snap: Snap, radius_min: Quantity, radius_max: Quantity, scale_height_fac: float
+    snap: Snap,
+    radius_min: Quantity,
+    radius_max: Quantity,
+    scale_height_fac: float,
+    n_bins: int = 50,
 ) -> Dict[str, List[Profile]]:
     """Calculate radial drift velocity profiles.
 
@@ -32,6 +36,8 @@ def calculate_profiles(
         The maximum radius for the profiles.
     scale_height_fac
         A factor of the scale height within which to average over.
+    n_bins
+        The number of bins in the profile. Default is 50.
 
     Returns
     -------
@@ -56,11 +62,11 @@ def calculate_profiles(
     cmin, cmax = radius_min, radius_max
     profs: Dict[str, List[Profile]] = {'gas': list(), 'dust': list()}
     profs['gas'] = [
-        plonk.load_profile(subsnaps['gas'], cmin=cmin, cmax=cmax, n_bins=50)
+        plonk.load_profile(subsnaps['gas'], cmin=cmin, cmax=cmax, n_bins=n_bins)
     ]
     for subsnap in subsnaps['dust']:
         profs['dust'].append(
-            plonk.load_profile(subsnap, cmin=cmin, cmax=cmax, n_bins=50)
+            plonk.load_profile(subsnap, cmin=cmin, cmax=cmax, n_bins=n_bins)
         )
 
     p = profs['gas'][0]
@@ -205,8 +211,9 @@ def plot_profiles(snap, profs):
         linestyle='',
         marker='o',
         markersize=4,
+        fillstyle='none',
         label='gas',
-        std='errorbar',
+        std='shading',
         ax=ax,
     )
     profs_to_plot = [
@@ -222,8 +229,9 @@ def plot_profiles(snap, profs):
             linestyle='',
             marker='o',
             markersize=4,
+            fillstyle='none',
             label=label,
-            std='errorbar',
+            std='shading',
             ax=ax,
         )
 
@@ -263,6 +271,8 @@ if __name__ == '__main__':
 
     SCALE_HEIGHT_FAC = 0.05
 
+    N_BINS = 25
+
     path = Path(DIRNAME).expanduser().resolve()
     if not path.exists():
         raise FileNotFoundError('DIRNAME does not exist')
@@ -279,6 +289,7 @@ if __name__ == '__main__':
     print(f'         radius min = {RADIUS_MIN:~}')
     print(f'         radius max = {RADIUS_MAX:~}')
     print(f'scale height factor = {SCALE_HEIGHT_FAC}')
+    print(f'             n_bins = {N_BINS}')
     print(f'              alpha = {ALPHA}')
 
     snap = plonk.load_snap(filename=snap_file)
@@ -288,6 +299,7 @@ if __name__ == '__main__':
         radius_min=RADIUS_MIN,
         radius_max=RADIUS_MAX,
         scale_height_fac=SCALE_HEIGHT_FAC,
+        n_bins=N_BINS,
     )
 
     ax = plot_profiles(snap=snap, profs=profs)

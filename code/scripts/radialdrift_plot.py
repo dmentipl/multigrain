@@ -227,7 +227,7 @@ def plot_profiles(snap, profs):
     ax.grid()
 
     textstr = f't = {snap.properties["time"].to("years").m:.0f} years'
-    bbox = dict(boxstyle='round', alpha=0.5)
+    bbox = dict(boxstyle='round', facecolor='white', alpha=0.8)
     ax.text(
         0.97,
         0.97,
@@ -237,7 +237,7 @@ def plot_profiles(snap, profs):
         verticalalignment='top',
         bbox=bbox,
     )
-    ax.legend(framealpha=0.5, edgecolor='black')
+    ax.legend(framealpha=0.8, edgecolor='black')
 
     return ax
 

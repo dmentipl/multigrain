@@ -5,10 +5,12 @@ See the following reference for more details.
 - Dipierro et al. (2018) MNRAS Volume 479, Issue 3, p.4187-4206
 """
 
+from pathlib import Path
 from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import phantomconfig
 import plonk
 from plonk import Profile
 from plonk import Snap
@@ -243,13 +245,13 @@ def plot_profiles(snap, profs, legend=None):
 
 if __name__ == '__main__':
 
-    FILENAME = 'test1/radialdrift_00210.h5'
+    DIRNAME = 'test1'
+    FILENAME = 'radialdrift_00210.h5'
+
     DEBUG = False
 
     UNITS = plonk.units_defaults()
     UNITS['position'] = 'au'
-
-    ALPHA = 0.74
 
     DUST_SPECIES_TO_PLOT = [0, 1, 2, 3, 4]
 
@@ -258,7 +260,25 @@ if __name__ == '__main__':
 
     SCALE_HEIGHT_FAC = 0.05
 
-    snap = plonk.load_snap(filename=FILENAME)
+    path = Path(DIRNAME).expanduser().resolve()
+    if not path.exists():
+        raise FileNotFoundError('DIRNAME does not exist')
+    infile = path / 'radialdrift.in'
+    if not infile.exists():
+        raise FileNotFoundError('{DIRNAME}/radialdrift.in does not exist')
+    snapfile = path / FILENAME
+    if not snapfile.exists():
+        raise FileNotFoundError('{DIRNAME}/{FILENAME} does not exist')
+
+    ALPHA = phantomconfig.read_config(path / 'radialdrift.in').config['alpha'].value
+
+    print(f'          file name = {DIRNAME}/{FILENAME}')
+    print(f'         radius min = {RADIUS_MIN:~}')
+    print(f'         radius max = {RADIUS_MAX:~}')
+    print(f'scale height factor = {SCALE_HEIGHT_FAC}')
+    print(f'              alpha = {ALPHA}')
+
+    snap = plonk.load_snap(filename=snapfile)
 
     profs = calculate_profiles(
         snap=snap,
@@ -266,4 +286,5 @@ if __name__ == '__main__':
         radius_max=RADIUS_MAX,
         scale_height_fac=SCALE_HEIGHT_FAC,
     )
+
     ax = plot_profiles(snap=snap, profs=profs)

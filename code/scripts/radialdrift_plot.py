@@ -263,14 +263,14 @@ if __name__ == '__main__':
     path = Path(DIRNAME).expanduser().resolve()
     if not path.exists():
         raise FileNotFoundError('DIRNAME does not exist')
-    infile = path / 'radialdrift.in'
-    if not infile.exists():
+    in_file = path / 'radialdrift.in'
+    if not in_file.exists():
         raise FileNotFoundError('{DIRNAME}/radialdrift.in does not exist')
-    snapfile = path / FILENAME
-    if not snapfile.exists():
+    snap_file = path / FILENAME
+    if not snap_file.exists():
         raise FileNotFoundError('{DIRNAME}/{FILENAME} does not exist')
 
-    ALPHA = phantomconfig.read_config(path / 'radialdrift.in').config['alpha'].value
+    ALPHA = phantomconfig.read_config(in_file).config['alpha'].value
 
     print(f'          file name = {DIRNAME}/{FILENAME}')
     print(f'         radius min = {RADIUS_MIN:~}')
@@ -278,7 +278,7 @@ if __name__ == '__main__':
     print(f'scale height factor = {SCALE_HEIGHT_FAC}')
     print(f'              alpha = {ALPHA}')
 
-    snap = plonk.load_snap(filename=snapfile)
+    snap = plonk.load_snap(filename=snap_file)
 
     profs = calculate_profiles(
         snap=snap,

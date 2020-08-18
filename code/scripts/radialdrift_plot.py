@@ -150,7 +150,7 @@ def calculate_profiles(
     return profs
 
 
-def plot_profiles(snap, profs, legend=None):
+def plot_profiles(snap, profs):
     """Plot radial drift velocity.
 
     Compares the numerical and analytical solutions.
@@ -161,8 +161,6 @@ def plot_profiles(snap, profs, legend=None):
         The Snap object from which the profiles are generated.
     profs
         A dictionary of lists of profiles. See calculate_profiles.
-    legend
-        If 'alt', add an alternate legend.
 
     Returns
     -------
@@ -228,18 +226,18 @@ def plot_profiles(snap, profs, legend=None):
     ax.set_ylabel(r'$v_R / |v_P|$')
     ax.grid()
 
-    if legend == 'alt':
-        ax.legend().remove()
-        textstr = '— analytical\n♢ numerical'
-        bbox = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        ax.text(
-            0.95,
-            0.05,
-            textstr,
-            transform=ax.transAxes,
-            horizontalalignment='right',
-            bbox=bbox,
-        )
+    textstr = f't = {snap.properties["time"].to("years").m:.0f} years'
+    bbox = dict(boxstyle='round', alpha=0.5)
+    ax.text(
+        0.97,
+        0.97,
+        textstr,
+        transform=ax.transAxes,
+        horizontalalignment='right',
+        verticalalignment='top',
+        bbox=bbox,
+    )
+    ax.legend(framealpha=0.5, edgecolor='black')
 
     return ax
 

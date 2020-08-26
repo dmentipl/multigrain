@@ -45,6 +45,9 @@ def calculate_profiles(
         A dictionary of list of profiles. The keys are 'gas' and 'dust'
         and the values are lists of profiles, one per sub-type.
     """
+    print('Calculating profiles...')
+
+    snap.add_quantities('disc')
     snap.set_gravitational_parameter(0)
     gamma = snap.properties['adiabatic_index']
     num_dust = snap.num_dust_species
@@ -93,7 +96,7 @@ def calculate_profiles(
 
     for idx, prof_dust in enumerate(profs['dust']):
         p[f'midplane_dust_to_gas_{idx+1:03}'] = prof_dust['density'] / p['density']
-        p[f'midplane_stokes_number_{idx+1:03}'] = (
+        p[f'_midplane_stokes_number_{idx+1:03}'] = (
             np.sqrt(np.pi * gamma / 8)
             * snap.properties['grain_density'][idx]
             * snap.properties['grain_size'][idx]
@@ -105,10 +108,10 @@ def calculate_profiles(
     l0 = np.zeros(len(p)) * plonk.units['dimensionless']
     l1 = np.zeros(len(p)) * plonk.units['dimensionless']
     for idx in range(num_dust):
-        St = p[f'midplane_stokes_number_{idx+1:03}']
+        St = p[f'_midplane_stokes_number_{idx+1:03}']
         eps = p[f'midplane_dust_to_gas_{idx+1:03}']
-        l0 += 1 / (1 + St ** 2) * eps
-        l1 += St / (1 + St ** 2) * eps
+        l0 = l0 + 1 / (1 + St ** 2) * eps
+        l1 = l1 + St / (1 + St ** 2) * eps
     p['lambda_0'] = l0
     p['lambda_1'] = l1
 
@@ -118,33 +121,33 @@ def calculate_profiles(
     l1 = p['lambda_1']
 
     # velocity_radial_gas is (11) in Dipierro+2018
-    p['velocity_radial_gas'] = (-l1 * v_P + (1 + l0) * v_visc) / (
+    p['gas_velocity_radial'] = (-l1 * v_P + (1 + l0) * v_visc) / (
         (1 + l0) ** 2 + l1 ** 2
     )
 
     # velocity_azimuthal_gas is (12) in Dipierro+2018
-    p['velocity_azimuthal_gas'] = (
+    p['gas_velocity_azimuthal'] = (
         1 / 2 * (v_P * (1 + l0) + v_visc * l1) / ((1 + l0) ** 2 + l1 ** 2)
     )
 
     # velocity_radial_dust_i is (13) in Dipierro+2018
     # velocity_azimuthal_dust_i is (14) in Dipierro+2018
     for idx in range(num_dust):
-        St = p[f'midplane_stokes_number_{idx+1:03}']
+        St = p[f'_midplane_stokes_number_{idx+1:03}']
         eps = p[f'midplane_dust_to_gas_{idx+1:03}']
         numerator_R = v_P * ((1 + l0) * St - l1) + v_visc * (1 + l0 + St * l1)
         numerator_phi = 0.5 * v_P * (1 + l0 + St * l1) - v_visc * ((1 + l0) * St - l1)
         denominator = ((1 + l0) ** 2 + l1 ** 2) * (1 + St ** 2)
-        p[f'velocity_radial_dust_{idx+1:03}'] = numerator_R / denominator
-        p[f'velocity_azimuthal_dust_{idx+1:03}'] = numerator_phi / denominator
+        p[f'dust_velocity_radial_{idx+1:03}'] = numerator_R / denominator
+        p[f'dust_velocity_azimuthal_{idx+1:03}'] = numerator_phi / denominator
 
     # Divide by |v_P| for comparison with Figure B1 in Dipierro+2018
     # "Analytical" solution
-    v_R = p['velocity_radial_gas']
-    p['velocity_radial_gas_analytical'] = v_R / np.abs(v_P)
+    v_R = p['gas_velocity_radial']
+    p['gas_velocity_radial_analytical'] = v_R / np.abs(v_P)
     for idx in range(num_dust):
-        v_R = p[f'velocity_radial_dust_{idx+1:03}']
-        p[f'velocity_radial_dust_{idx+1:03}_analytical'] = v_R / np.abs(v_P)
+        v_R = p[f'dust_velocity_radial_{idx+1:03}']
+        p[f'dust_velocity_radial_analytical_{idx+1:03}'] = v_R / np.abs(v_P)
 
     # "Numerical" solution
     v_R = p['velocity_radial_cylindrical']
@@ -160,7 +163,7 @@ def calculate_profiles(
     return profs
 
 
-def plot_profiles(snap, profs):
+def plot_profiles(snap, profs, dust_species_to_plot, debug=False):
     """Plot radial drift velocity.
 
     Compares the numerical and analytical solutions.
@@ -171,20 +174,32 @@ def plot_profiles(snap, profs):
         The Snap object from which the profiles are generated.
     profs
         A dictionary of lists of profiles. See calculate_profiles.
+    dust_species_to_plot
+        The indices of the dust species to plot.
+    debug
+        A debug flag.
 
     Returns
     -------
     AxesSubplot
         A matplotlib AxesSubplot object.
     """
+    print('Plotting profiles...')
+
+    units = {
+        'position': 'au',
+        'gas_velocity_radial_analytical': 'dimensionless',
+        'dust_velocity_radial_analytical': 'dimensionless',
+        'velocity_radial_numerical': 'dimensionless',
+    }
     p = profs['gas'][0]
 
-    if DEBUG:
+    if debug:
         num_dust = snap.num_dust_species
-        ax = p.plot(x='radius', y=['velocity_pressure', 'velocity_visc'], units=UNITS)
-        y = ['velocity_radial_gas']
-        y += [f'velocity_radial_dust_{idx+1:03}' for idx in range(num_dust)]
-        ax = p.plot(x='radius', y=y, units=UNITS)
+        ax = p.plot(x='radius', y=['velocity_pressure', 'velocity_visc'], units=units)
+        y = ['gas_velocity_radial']
+        y += [f'dust_velocity_radial_{idx+1:03}' for idx in range(num_dust)]
+        ax = p.plot(x='radius', y=y, units=units)
         ax.legend().remove()
 
     fig, ax = plt.subplots()
@@ -192,21 +207,21 @@ def plot_profiles(snap, profs):
     # Plot "analytical" radial drift velocity / velocity pressure component
     p.plot(
         x='radius',
-        y='velocity_radial_gas_analytical',
-        units=UNITS,
+        y='gas_velocity_radial_analytical',
+        units=units,
         color='black',
         label='',
         ax=ax,
     )
-    y = [f'velocity_radial_dust_{idx+1:03}_analytical' for idx in DUST_SPECIES_TO_PLOT]
-    p.plot(x='radius', y=y, units=UNITS, label='', ax=ax)
+    y = [f'dust_velocity_radial_analytical_{idx+1:03}' for idx in dust_species_to_plot]
+    p.plot(x='radius', y=y, units=units, label='', ax=ax)
     colors = [line.get_color() for line in ax.lines[1:]]
 
     # Plot "numerical" radial drift velocity / velocity pressure component
     p.plot(
         x='radius',
         y='velocity_radial_numerical',
-        units=UNITS,
+        units=units,
         color='black',
         linestyle='',
         marker='o',
@@ -217,14 +232,14 @@ def plot_profiles(snap, profs):
         ax=ax,
     )
     profs_to_plot = [
-        prof for idx, prof in enumerate(profs['dust']) if idx in DUST_SPECIES_TO_PLOT
+        prof for idx, prof in enumerate(profs['dust']) if idx in dust_species_to_plot
     ]
-    for species, prof, color in zip(DUST_SPECIES_TO_PLOT, profs_to_plot, colors):
+    for species, prof, color in zip(dust_species_to_plot, profs_to_plot, colors):
         label = f'{snap.properties["grain_size"][species].to("cm"):.1f~P}'
         prof.plot(
             x='radius',
             y='velocity_radial_numerical',
-            units=UNITS,
+            units=units,
             color=color,
             linestyle='',
             marker='o',
@@ -261,13 +276,10 @@ if __name__ == '__main__':
 
     DEBUG = False
 
-    UNITS = plonk.units_defaults()
-    UNITS['position'] = 'au'
+    DUST_SPECIES_TO_PLOT = [0, 1, 2, 3, 4]
 
-    DUST_SPECIES_TO_PLOT = [1, 2, 3, 4]
-
-    RADIUS_MIN = 25 * plonk.units['au']
-    RADIUS_MAX = 125 * plonk.units['au']
+    RADIUS_MIN = 25 * plonk.units.au
+    RADIUS_MAX = 140 * plonk.units.au
 
     SCALE_HEIGHT_FAC = 0.05
 
@@ -302,4 +314,6 @@ if __name__ == '__main__':
         n_bins=N_BINS,
     )
 
-    ax = plot_profiles(snap=snap, profs=profs)
+    ax = plot_profiles(
+        snap=snap, profs=profs, dust_species_to_plot=DUST_SPECIES_TO_PLOT, debug=DEBUG
+    )

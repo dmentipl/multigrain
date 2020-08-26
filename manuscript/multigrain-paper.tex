@@ -1011,7 +1011,7 @@ length, with 8192 particles for each species (128 particles in the wave
 direction). We use constant drag, \(K_i\), for each dust species, where \(K_i =
 \rho_{\dd_i} / t_{s_i}\), and \(\rho_{\dd_i}\) and \(t_{s_i}\) from
 Table~\ref{tab:wave} (following \citealt{Benitez-Llambay2019ApJS..241...25B}).
-We turned off the SPH viscosity, i.e. set \(\alpha_{AV}\) to zero in
+We turned off the SPH viscosity, i.e. set \(\alpha_{\rm AV}\) to zero in
 \textsc{Phantom}.
 
 Figure~\ref{fig:dustywave} shows the time evolution of the normalised velocity
@@ -1123,7 +1123,7 @@ dust species test. The right (post-shock) asymptotic values are given by
 %
 where \(j\) represents both gas and all dust species, \(N\) is the number of
 dust species, and the superscripts L and R represent left and right asymptotic
-states, respectively. We set \(\alpha_{AV}\) to 1.
+states, respectively. We set \(\alpha_{\rm AV}\) to 1.
 
 We set up initial conditions such that the velocities are constant with their
 asymptotic values on either side of the shock at \(x_{\rm shock} = 0\). We set
@@ -1208,22 +1208,64 @@ Section~\ref{sec:discussion} below.
 We tested the method against the steady-state radial drift solution for a
 protoplanetary disc with multiple dust species calculated in
 \citet{Bai2010ApJ...722.1437B, Dipierro2018MNRAS.479.4187D} as a generalisation
-of the single species solution in \citet{Nakagawa1986Icar...67..375N}.
+of the single species solution in \citet{Nakagawa1986Icar...67..375N}. Following
+\citet{Dipierro2018MNRAS.479.4187D}, the gas radial drift velocity \(v^{\rm
+g}_R\) is given by
+%
+\begin{align}
+   \label{eqn:radialdrift-gas}
+   v^{\rm g}_R = \frac{\lambda_1 v_{\rm P} + (1 + \lambda_0) v_{\rm visc}}
+      {(1 + \lambda_0)^2 + \lambda_1^2},
+\end{align}
+%
+and the dust radial drift velocity \(v^{\rm d_i}_R\) is given by
+%
+\begin{align}
+   \label{eqn:radialdrift-dust}
+   v^{\rm d_i}_R = \frac{v_{\rm P} [(1 + \lambda_0) \mathrm{St}_i - \lambda_1]
+      + v_{\rm visc} (1 + \lambda_0 + \mathrm{St}_i \lambda_1)}
+      {[(1 + \lambda_0)^2 + \lambda_1^2] (1 + \mathrm{St}_i^2)},
+\end{align}
+%
+where \(v_{\rm P}\), the dust drift velocity due to the gas being
+pressure-supported, is
+%
+\begin{align}
+   v_{\rm P} = \frac{1}{\rho_g \Omega_k} \frac{\partial P}{\partial R},
+\end{align}
+%
+and \(v_{\rm visc}\), the gas radial velocity due to viscous spreading, is
+\begin{align}
+   v_{\rm visc} = \left[R \rho_g \frac{\partial}{\partial R} \left(R^2 \Omega_k\right) \right]^{-1}
+      \frac{\partial}{\partial R} \left( \eta R^3 \frac{\partial \Omega_k}{\partial R} \right),
+\end{align}
+%
+with \(\eta = \nu \rho_g = \alpha c_s H \rho_g\) (where \(\alpha\) is the
+\citet{Shakura1973A&A....24..337S} viscosity parameter) and \(\lambda_k\) is
+given by
+%
+\begin{align}
+   \lambda_k = \sum_i \frac{\mathrm{St}^k_i}{1 + \mathrm{St}_i^2} \epsilon_i.
+\end{align}
+%
+We used Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust} to
+validate our numerical method for the radial drift test.
 
 We set up a 3-dimensional, locally isothermal protoplanetary disc around a star
 of \(1~M_{\odot}\). We used 10 dust species logarithmically distributed in size
 from 1~cm to \(10^4\)~cm. The gas mass was \(0.05~M_{\odot}\) and the total
-dust-to-gas ratio was 0.5. The dust sub-disc for each species scaled with the
-grain size. We used \(10^6\) gas particles and \(10^6\) dust particles with
+dust-to-gas ratio was 0.5. The dust sub-disc mass for each species scaled with
+the grain size. We used \(10^6\) gas particles and \(10^6\) dust particles with
 \(10^5\) per species. We used a dust grain material density of 3~g/cm\({}^3\).
 The disc extends from 1~au to 150~au. The radial profile of the surface density
 was given by \(\Sigma(R) \propto R^{-1}\). The radial profile for the gas
 temperature was given by \(T(R) \propto R^{-0.5}\) with the aspect ratio \(H/R =
 0.05\) at \(R=1\)~au. We used an artificial viscosity parameter \(\alpha=0.74\).
 We set the initial radial velocities to zero. We set the orbital velocities to
-account for the pressure gradient (see Section~3.3 of
-\citet{Price2018PASA...35...31P}). Initially, the dust sub-discs are co-located
-with the gas disc.
+account for the pressure gradient; see Section~3.3 of
+\citet{Price2018PASA...35...31P} for details. Initially, the dust sub-discs are
+co-located with the gas disc.
+
 
 \section{Discussion}%
 \label{sec:discussion}

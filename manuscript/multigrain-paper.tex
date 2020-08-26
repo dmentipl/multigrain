@@ -800,7 +800,7 @@ drag}\) of 0.9.
          error matches the line of slope 2 (indicating second-order
          convergence). For smaller timesteps the error is dominated by kernel
          bias. The diamond and square markers represent numerical solutions with
-         $\eta=1.0$ and $\eta=2.5$, respectively.%
+         \(\eta=1.0\) and \(\eta=2.5\) respectively.%
          \label{fig:dustybox-accuracy}}
    \end{center}
 \end{figure}
@@ -1205,6 +1205,25 @@ Section~\ref{sec:discussion} below.
    \end{center}
 \end{figure}
 
+We tested the method against the steady-state radial drift solution for a
+protoplanetary disc with multiple dust species calculated in
+\citet{Bai2010ApJ...722.1437B, Dipierro2018MNRAS.479.4187D} as a generalisation
+of the single species solution in \citet{Nakagawa1986Icar...67..375N}.
+
+We set up a 3-dimensional, locally isothermal protoplanetary disc around a star
+of \(1~M_{\odot}\). We used 10 dust species logarithmically distributed in size
+from 1~cm to \(10^4\)~cm. The gas mass was \(0.05~M_{\odot}\) and the total
+dust-to-gas ratio was 0.5. The dust sub-disc for each species scaled with the
+grain size. We used \(10^6\) gas particles and \(10^6\) dust particles with
+\(10^5\) per species. We used a dust grain material density of 3~g/cm\({}^3\).
+The disc extends from 1~au to 150~au. The radial profile of the surface density
+was given by \(\Sigma(R) \propto R^{-1}\). The radial profile for the gas
+temperature was given by \(T(R) \propto R^{-0.5}\) with the aspect ratio \(H/R =
+0.05\) at \(R=1\)~au. We used an artificial viscosity parameter \(\alpha=0.74\).
+We set the initial radial velocities to zero. We set the orbital velocities to
+account for the pressure gradient (see Section~3.3 of
+\citet{Price2018PASA...35...31P}). Initially, the dust sub-discs are co-located
+with the gas disc.
 
 \section{Discussion}%
 \label{sec:discussion}

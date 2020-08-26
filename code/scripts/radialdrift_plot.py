@@ -10,11 +10,68 @@ from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
-import phantomconfig
 import plonk
 from plonk import Profile
 from plonk import Snap
 from plonk._units import Quantity
+
+
+PARAMETERS = {
+    'dirname': '~/runs/multigrain/radialdrift/test1',
+    'filename': 'radialdrift_00200.h5',
+    'debug': False,
+    'dust_species_to_plot': [0, 1, 2, 3, 4],
+    'radius_min': 25 * plonk.units.au,
+    'radius_max': 140 * plonk.units.au,
+    'scale_height_fac': 0.05,
+    'n_bins': 25,
+}
+
+
+def main(parameters):
+
+    dirname = parameters['dirname']
+    filename = parameters['filename']
+    debug = parameters['debug']
+    dust_species_to_plot = parameters['dust_species_to_plot']
+    radius_min = parameters['radius_min']
+    radius_max = parameters['radius_max']
+    scale_height_fac = parameters['scale_height_fac']
+    n_bins = parameters['n_bins']
+
+    path = Path(dirname).expanduser().resolve()
+    if not path.exists():
+        raise FileNotFoundError(f'{dirname} does not exist')
+    in_file = path / 'radialdrift.in'
+    if not in_file.exists():
+        raise FileNotFoundError('{dirname}/radialdrift.in does not exist')
+    snap_file = path / filename
+    if not snap_file.exists():
+        raise FileNotFoundError('{dirname}/{filename} does not exist')
+
+    print(f'          file name = {dirname}/{filename}')
+    print(f'         radius min = {radius_min:~}')
+    print(f'         radius max = {radius_max:~}')
+    print(f'scale height factor = {scale_height_fac}')
+    print(f'             n_bins = {n_bins}')
+
+    snap = plonk.load_snap(filename=snap_file)
+
+    profs = calculate_profiles(
+        snap=snap,
+        radius_min=radius_min,
+        radius_max=radius_max,
+        scale_height_fac=scale_height_fac,
+        n_bins=n_bins,
+    )
+
+    ax = plot_profiles(
+        snap=snap, profs=profs, dust_species_to_plot=dust_species_to_plot, debug=debug
+    )
+
+    plt.show()
+
+    return snap, profs, ax
 
 
 def calculate_profiles(
@@ -80,7 +137,7 @@ def calculate_profiles(
     )
 
     # shear_viscosity is between (16) an (17) in Dipierro+2018
-    p['shear_viscosity'] = ALPHA * p['sound_speed'] * p['scale_height'] * p['density']
+    p['shear_viscosity'] = p['disc_viscosity'] * p['density']
 
     # velocity_visc is (16) in Dipierro+2018
     p['velocity_visc'] = np.gradient(
@@ -270,50 +327,4 @@ def plot_profiles(snap, profs, dust_species_to_plot, debug=False):
 
 
 if __name__ == '__main__':
-
-    DIRNAME = 'test1'
-    FILENAME = 'radialdrift_00210.h5'
-
-    DEBUG = False
-
-    DUST_SPECIES_TO_PLOT = [0, 1, 2, 3, 4]
-
-    RADIUS_MIN = 25 * plonk.units.au
-    RADIUS_MAX = 140 * plonk.units.au
-
-    SCALE_HEIGHT_FAC = 0.05
-
-    N_BINS = 25
-
-    path = Path(DIRNAME).expanduser().resolve()
-    if not path.exists():
-        raise FileNotFoundError('DIRNAME does not exist')
-    in_file = path / 'radialdrift.in'
-    if not in_file.exists():
-        raise FileNotFoundError('{DIRNAME}/radialdrift.in does not exist')
-    snap_file = path / FILENAME
-    if not snap_file.exists():
-        raise FileNotFoundError('{DIRNAME}/{FILENAME} does not exist')
-
-    ALPHA = phantomconfig.read_config(in_file).config['alpha'].value
-
-    print(f'          file name = {DIRNAME}/{FILENAME}')
-    print(f'         radius min = {RADIUS_MIN:~}')
-    print(f'         radius max = {RADIUS_MAX:~}')
-    print(f'scale height factor = {SCALE_HEIGHT_FAC}')
-    print(f'             n_bins = {N_BINS}')
-    print(f'              alpha = {ALPHA}')
-
-    snap = plonk.load_snap(filename=snap_file)
-
-    profs = calculate_profiles(
-        snap=snap,
-        radius_min=RADIUS_MIN,
-        radius_max=RADIUS_MAX,
-        scale_height_fac=SCALE_HEIGHT_FAC,
-        n_bins=N_BINS,
-    )
-
-    ax = plot_profiles(
-        snap=snap, profs=profs, dust_species_to_plot=DUST_SPECIES_TO_PLOT, debug=DEBUG
-    )
+    snap, profs, ax = main(PARAMETERS)

@@ -105,7 +105,8 @@ multigrain dust with separate sets of particles}
    the differential backreaction of multiple dust species on the gas. This
    effect is greater for large dust-to-gas ratios that may be expected in the
    later stages of the protoplanetary disc life. We benchmark the method against
-   analytic solutions for linear waves, drag and shocks in dust-gas mixtures.
+   analytic solutions for linear waves, drag and shocks in dust-gas mixtures,
+   and radial drift in a protoplanetary disc.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -753,7 +754,9 @@ solutions. The dusty box test (Section~\ref{subsec:box}) validates the drag
 force coupling in the absence of spatial gradients. The dusty wave test
 (Section~\ref{subsec:wave}) validates the method with spatial gradients in a
 linear regime. The dusty shock test (Section~\ref{subsec:shock}) validates the
-method in a challenging non-linear regime.
+method in a challenging non-linear regime. The radial drift test
+(Section~\ref{subsec:radialdrift}) validates the method is the context of a
+global 3-dimensional protoplanetary disc model.
 
 The tests all have analytical solutions in one spatial dimension. We performed
 each of the tests in three dimensions, and then reduced the data to one
@@ -1183,6 +1186,26 @@ species case. We discuss the implications of this in
 Section~\ref{sec:discussion} below.
 
 
+\subsection{Radial drift}%
+\label{subsec:radialdrift}
+
+\begin{figure}
+   \begin{center}
+      \includegraphics[width=\columnwidth]{figs/radialdrift.pdf}
+      \caption{Azimuthally-averaged radial drift velocity profiles for gas
+      (black) and five dust species (other colours). The circle markers
+      represent the drift velocities measured directly on the particles with
+      shading indicating the standard deviation from radial binning. The solid
+      line corresponds to the analytical solution from
+      \citet{Dipierro2018MNRAS.479.4187D}. The numerical and analytical
+      solutions agree within the variation due to binning. The error in the
+      1.6~cm and 4.0~cm grains for radius \(\gtrsim\)~90~au is due to the
+      depletion of those grains at those radii.%
+      \label{fig:radialdrift}}
+   \end{center}
+\end{figure}
+
+
 \section{Discussion}%
 \label{sec:discussion}
 
@@ -1315,12 +1338,13 @@ scheme, it becomes inefficient for grain sizes with small Stokes number, i.e.
 \(\lesssim 0.05\).
 
 We have implemented this method in the SPH code \textsc{Phantom}. We have
-demonstrated that the method is accurate by testing it on three test problems
+demonstrated that the method is accurate by testing it on four test problems
 with analytical solutions: a dusty box, to test the drag coupling and time
 stepping in the absence of spatial gradients; a dusty wave, to test those
-factors with spatial gradients in a linear regime; and a dusty shock, to test
-those factors in a highly non-linear regime. In all cases we show the method is
-accurate.
+factors with spatial gradients in a linear regime; a dusty shock, to test those
+factors in a highly non-linear regime; and a radial drift test to test the
+method is the context of a global 3-dimensional protoplanetary disc model. In
+all cases we show the method is accurate.
 
 We suggest that dust particles may require a larger number of particle
 neighbours in computing SPH sums than the gas. This is due to the lack of

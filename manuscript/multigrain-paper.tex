@@ -1232,11 +1232,13 @@ where \(v_{\rm P}\), the dust drift velocity due to the gas being
 pressure-supported, is
 %
 \begin{align}
+   \label{eqn:radialdrift-pressure}
    v_{\rm P} = \frac{1}{\rho_g \Omega_k} \frac{\partial P}{\partial R},
 \end{align}
 %
 and \(v_{\rm visc}\), the gas radial velocity due to viscous spreading, is
 \begin{align}
+   \label{eqn:radialdrift-visc}
    v_{\rm visc} = \left[R \rho_g \frac{\partial}{\partial R} \left(R^2 \Omega_k\right) \right]^{-1}
       \frac{\partial}{\partial R} \left( \eta R^3 \frac{\partial \Omega_k}{\partial R} \right),
 \end{align}
@@ -1246,6 +1248,7 @@ with \(\eta = \nu \rho_g = \alpha c_s H \rho_g\) (where \(\alpha\) is the
 given by
 %
 \begin{align}
+   \label{eqn:radialdrift-lambda}
    \lambda_k = \sum_i \frac{\mathrm{St}^k_i}{1 + \mathrm{St}_i^2} \epsilon_i.
 \end{align}
 %
@@ -1269,9 +1272,29 @@ zero. We set the orbital velocities to account for the pressure gradient
 are co-located with the gas disc. We used individual timestepping
 \citep[Section~2.3.4]{Price2018PASA...35...31P}.
 
-We compute ...
+After evolving the disc for 3674 years, we binned the particles into 25 radial
+bins. For the analysis, we considered only particles within 0.05 gas scale
+height of the midplane. We computed the mass-weighted average of the radial
+velocities in the each annular cylinder for the gas and each dust species. To
+compare with the analytical solution
+(Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}) we computed
+the each of the terms
+(Equations~\ref{eqn:radialdrift-pressure}--\ref{eqn:radialdrift-lambda}) using
+the same set of particles.
 
-Figure~\ref{fig:radialdrift} shows...
+Figure~\ref{fig:radialdrift} shows this comparison of the radial drift
+velocities for the 5 smallest dust species. The drift velocities are scaled by
+\(v_{\rm P}\). We omit the largest grains for clarity; in addition each of the
+drift velocities for those grains is close to zero over the radial extent of the
+disc. The circle markers represent the drift velocities computed directly from
+the particle motion for the gas (black) and each dust species (other colours).
+The shading represents the standard deviation from the binning procedure. The
+solid lines represent the drift velocities computed from
+Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}. We see that
+for most of the radial extent of the disc the drift velocities match to within
+the error introduced by binning. The deviation for the 1.6~cm and 4~cm grains
+for radius \(\gtrsim\)~90~au is due to depletion of those grains via radial
+drift.
 
 
 \section{Discussion}%

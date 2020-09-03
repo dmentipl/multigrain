@@ -1060,6 +1060,19 @@ damping effect, and within a few wave periods the wave dissipates.
    \end{center}
 \end{figure*}
 
+\begin{figure*}
+   \begin{center}
+      \includegraphics[width=\textwidth]{figs/dustyshock_hfact.pdf}
+      \caption{The effect of \(\eta\) in the dusty shock test problem.
+         The lines and markers are the same as used in
+         Figure~\ref{fig:dustyshock_final}. From left to right: \(\eta =
+         1.2, 1.5, 1.8\), corresponding to \(\overline{N}_{\rm neigh} = 195,
+         381, 660\). For the single dust species case we require 381 neighbours.
+         For the three dust species case we require 660 neighbours.%
+         \label{fig:dustyshock_hfact}}
+   \end{center}
+\end{figure*}
+
 We performed a multiple species version of the isothermal steady state single
 species dusty shock test with exact solution described in
 \citet{Lehmann2018MNRAS.476.3185L}. This is a J-type shock.
@@ -1272,22 +1285,22 @@ zero. We set the orbital velocities to account for the pressure gradient
 are co-located with the gas disc. We used individual timestepping
 \citep[Section~2.3.4]{Price2018PASA...35...31P}.
 
-After evolving the disc for 3674 years, we binned the particles into 25 radial
-bins. For the analysis, we considered only particles within 0.05 gas scale
-height of the midplane. We computed the mass-weighted average of the radial
-velocities in the each annular cylinder for the gas and each dust species. To
-compare with the analytical solution
-(Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}) we computed
-the each of the terms
-(Equations~\ref{eqn:radialdrift-pressure}--\ref{eqn:radialdrift-lambda}) using
-the same set of particles.
+After evolving the disc for 3674 years, we binned the particles into 25 equally
+spaced radial bins between 25~au and 140~au. For the analysis, we considered
+only particles within 0.05 times the gas scale height of the midplane. We
+computed the mass-weighted average of the radial velocities in the each annular
+cylinder for the gas and each dust species. To compare with the analytical
+solution (Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}) we
+computed the each of the terms
+(Equations~\ref{eqn:radialdrift-pressure}--\ref{eqn:radialdrift-lambda}) on the
+radial bins. We computed the gradients terms used a second-order finite
+difference approximation.
 
 Figure~\ref{fig:radialdrift} shows this comparison of the radial drift
 velocities for the 5 smallest dust species. The drift velocities are scaled by
-\(v_{\rm P}\). We omit the largest grains for clarity; in addition each of the
-drift velocities for those grains is close to zero over the radial extent of the
-disc. The circle markers represent the drift velocities computed directly from
-the particle motion for the gas (black) and each dust species (other colours).
+\(v_{\rm P}\). We omit grains larger than 63.1~cm as they are consistent with
+zero radial drift. The circle markers represent the mass-weighted average drift
+velocities of the gas (black) and each dust species (other colours) in the bins.
 The shading represents the standard deviation from the binning procedure. The
 solid lines represent the drift velocities computed from
 Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}. We see that
@@ -1299,19 +1312,6 @@ drift.
 
 \section{Discussion}%
 \label{sec:discussion}
-
-\begin{figure*}
-   \begin{center}
-      \includegraphics[width=\textwidth]{figs/dustyshock_hfact.pdf}
-      \caption{The effect of \(\eta\) in the dusty shock test problem.
-         The lines and markers are the same as used in
-         Figure~\ref{fig:dustyshock_final}. From left to right: \(\eta =
-         1.2, 1.5, 1.8\), corresponding to \(\overline{N}_{\rm neigh} = 195,
-         381, 660\). For the single dust species case we require 381 neighbours.
-         For the three dust species case we require 660 neighbours.%
-         \label{fig:dustyshock_hfact}}
-   \end{center}
-\end{figure*}
 
 In deriving our method we made no assumptions on the size of the dust grains.
 This is unlike the method described in \citet{Hutchison2018MNRAS.476.2186H}

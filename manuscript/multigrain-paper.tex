@@ -127,37 +127,52 @@ extent of the dust disc scales inversely with wavelength
 hydrodynamics with multiple dust species---one of the grand challenges in
 protoplanetary disc modelling \citep{Haworth2016PASA...33...53H}. In particular,
 it is important to capture the collective backreaction of multiple dust species
-on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, the inward drift of
-small grains can be reversed by the inward drift of large grains
-\citep{Laibe2014MNRAS.444.1940L}.
+on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, small grains are
+well coupled the gas and follow its inward or outward motion. Larger grains
+drift inwards due to the differential velocity between the pressure-supported
+gas, and, due to conservation of angular momentum, the gas drifts outwards
+dragging the small grains with it \citep{Laibe2014MNRAS.444.1940L}.
 
-Grains of multiple sizes emit at the same wavelength. In order to interpret dust
-continuum emission, for example in ALMA observations showing gaps and rings
-\citep{ALMAPartnership2015ApJ...808L...3A, Andrews2016ApJ...820L..40A}, we must
-model planet-disc interactions including multiple species. Spectral index maps
-can put constraints on the size distribution of dust grains within gaps
+In order to interpret dust continuum emission, for example in ALMA observations
+showing gaps and rings \citep{ALMAPartnership2015ApJ...808L...3A,
+Andrews2016ApJ...820L..40A}, we must model planet-disc interactions including
+multiple species. At any continuum wavelength grains of multiple sizes
+contribute to the observed emission. In addition, spectral index maps can put
+constraints on the size distribution of dust grains within gaps
 \citep{Huang2018ApJ...852..122H}. Multi-species dust models allow us to test the
 underlying disc models by producing synthetic spectral index maps to compare
 with observations \citep{Casassus2015ApJ...812..126C, Pinte2016ApJ...816...25P}.
 
-Discs containing dust asymmetries and spiral arms around central cavities can
-show greater concentration at different wavelengths
-\citep{Casassus2015ApJ...812..126C, van-der-Marel2015ApJ...810L...7V}.
-Previous work has suggested that the cause of these features is a (possibly
-unseen) companion in the cavity \citep{Price2018MNRAS.477.1270P,
-Poblete2019MNRAS.489.2204P,Calcino2019MNRAS.490.2579C}. The ability to perform
+Radiative transfer calculations offer a way to validate hydrodynamical models of
+protoplanetary discs by producing synthetic observations for comparison with
+observations. These calculations require knowledge of the distribution of many
+dust species from the hydrodynamical simulation. The ability to perform
 multi-wavelength synthetic observations in single species dust-gas
 hydrodynamical models is compromised. One option is to stack, in
 post-processing, multiple single dust species simulations
 \citep{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M}. However, due
 to back reaction, there may be a phase difference in the location of the
-concentration making this procedure unreliable.
+concentration making this procedure unreliable. For example, discs containing
+dust asymmetries and spiral arms around central cavities can show greater
+concentration at different wavelengths \citep{Casassus2015ApJ...812..126C,
+van-der-Marel2015ApJ...810L...7V}. Previous work has suggested that the cause of
+these features is a (possibly unseen) companion in the cavity
+\citep{Price2018MNRAS.477.1270P,
+Poblete2019MNRAS.489.2204P,Calcino2019MNRAS.490.2579C}. Due to the potential for
+a phase difference in these single-species simulations, to produce
+multi-wavelength synthetic observations requires multiple dust species within
+the same hydrodynamical simulation.
 
 Several groups have developed methods for simulating the hydrodynamics of
 dust-gas mixtures with multiple dust species with both grid and particle
 methods, e.g. \citet{Bai2010ApJS..190..297B, Porth2014ApJS..214....4P,
 Hutchison2018MNRAS.476.2186H, Benitez-Llambay2019ApJS..241...25B,
-Lebreuilly2019A&A...626A..96L, Li2019ApJ...878...39L}.
+Lebreuilly2019A&A...626A..96L, Li2019ApJ...878...39L}. The methods of
+\citet{Benitez-Llambay2019ApJS..241...25B,
+Lebreuilly2019A&A...626A..96L, Li2019ApJ...878...39L} are limited by their use of
+the single fluid approach (discussed below). \citet{Bai2010ApJS..190..297B,
+Porth2014ApJS..214....4P} are grid codes which can introduce grid-alignment
+issues.
 
 Smoothed particle hydrodynamics (SPH) is a particle method for solving the
 equations of hydrodynamics \citep{Monaghan1992ARA&A..30..543M,
@@ -166,12 +181,12 @@ gas, is discretised onto a set of particles rather than a grid. There are two
 approaches to modelling of dust-gas mixtures in SPH: (i) the dust and gas are
 represented by separate sets of SPH particles
 \citep{Monaghan1995CoPhC..87..225M, Laibe2012MNRAS.420.2345L,
-Laibe2012MNRAS.420.2365L}. In this approach the dust and gas SPH particles
-interact via a drag coupling term. In the other approach, (ii) the dust and gas
+Laibe2012MNRAS.420.2365L}. In this approach, the dust and gas SPH particles
+interact via a drag coupling term. In the other approach, (ii), the dust and gas
 are modelled by a single set of SPH particles representing the mixture
 \citep{Laibe2014MNRAS.444.1940L, Laibe2014MNRAS.440.2147L,
 Laibe2014MNRAS.440.2136L, Price2015MNRAS.451..813P,
-Ballabio2018MNRAS.477.2766B}. In this approach the dust fraction is stored on
+Ballabio2018MNRAS.477.2766B}. In this approach, the dust fraction is stored on
 the particles and evolved in time.
 
 Typically, in both of these methods, an explicit timestepping scheme is used.
@@ -194,9 +209,8 @@ this method and tested this in the \textsc{Phantom} SPH code
 \citep{Price2018PASA...35...31P}. The single fluid approach is limited in that
 particles are not allowed to stream past each other as expected for large,
 weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}. The methods of
-\citet{Benitez-Llambay2019ApJS..241...25B,
-Lebreuilly2019A&A...626A..96L,Li2019ApJ...878...39L} are based on the single
-fluid approach.
+\citet{Benitez-Llambay2019ApJS..241...25B, Lebreuilly2019A&A...626A..96L,
+Li2019ApJ...878...39L} are based on the single fluid approach.
 
 In this paper we extend method (i), in which dust is represented by separate
 sets of particles, from a single species to multiple species. We present the

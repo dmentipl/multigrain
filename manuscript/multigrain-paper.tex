@@ -397,12 +397,13 @@ grain size case:
       {\Sigma_{\g} \left(1 + \sum_i \varepsilon_i \right)},
 \end{align}
 %
-where \(\Sigma_{\g}\) is the gas surface density and \(\varepsilon_i\) is the
-dust-to-gas ratio for each dust species. Again we see the combination of grain
-properties, size and material density, and the disc surface density fixing the
-Stokes number. Given that we assume the material density is the same for all
-species, we see that the grain size of the species, for any fixed location in
-the disc, gives the variation in Stokes number between species.
+where \(\Sigma_{\g}\) is the gas surface density and \(\varepsilon_i =
+\rho_{\dd_i} / \rho_{\g}\) is the dust-to-gas ratio for each dust species. Again
+we see the combination of grain properties, size and material density, and the
+disc surface density fixing the Stokes number. Given that we assume the material
+density is the same for all species, we see that the grain size of the species,
+for any fixed location in the disc, gives the variation in Stokes number between
+species.
 
 The Stokes number controls the dynamics of dust grains in protoplanetary discs
 \citep{Weidenschilling1977MNRAS.180...57W, Takeuchi2002ApJ...581.1344T},
@@ -510,10 +511,9 @@ conservation of linear and angular momentum, and energy
    \end{split}
 \end{align}
 %
-where \(K_{ab}\) is the drag coefficient between particles \(a\) and \(b\),
-\(P_a\) refers to the pressure on particle \(a\), and \(h_{\max} = \max(h_a,
-h_b)\) is the maximum smoothing length between any pair of particles.
-\(\Omega^{\g}_a\) is a term related to the variable smoothing length given by
+where \(K_{ab}\), \(D_{ab}\), \(h_{\max}\) and \(\vec{v}^{*}_{ab}\) are defined
+below. \(P_a\) refers to the pressure on particle \(a\), \(\Omega^{\g}_a\) is a
+term related to the variable smoothing length given by
 %
 \begin{align}
    \Omega^{\g}_a = 1 - \frac{\partial h_a}{\partial \rho_a}
@@ -541,7 +541,11 @@ is the normalised separation vector, \(\vec{v}_{ab} = \vec{v}_a -
 \end{align}
 %
 where \(\alpha_a^{\rm AV}\) and \(\beta^{\rm AV}\) are parameters controlling
-the artificial viscosity strength.
+the artificial viscosity strength. The first term in
+Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH discretisation of
+the pressure gradient force on a particle, labelled by \(a\). The sum, denoted
+by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled by \(b\). The
+second term is discussed in Section~\ref{sec:drag-kernel}.
 
 The equation of motion for each dust species, \(\dd_i\), is given by
 %
@@ -552,13 +556,12 @@ The equation of motion for each dust species, \(\dd_i\), is given by
       (\vec{v}^{*}_{ab} \cdot \hat{\vec{r}}_{ab}) \hat{\vec{r}}_{ab} D_{ab}(h_{\max}),
 \end{align}
 %
-The first term in Equation~\ref{eqn:sph-gas-velocity} represents the usual SPH
-discretisation of the pressure gradient force on a particle, labelled by \(a\).
-The sum, denoted by \(\sum_{b \in g}\), is a sum over gas neighbours, labelled
-by \(b\). The \(*\)-superscript on \(\vec{v}_{ab}\) refers to a higher-order
-reconstructed velocity for the particle pair \(a\) and \(b\)
-\citep{Price2020MNRAS.495.3929P}. This avoids the ``overdamping'' problem
-described by \citet{Laibe2012MNRAS.420.2345L}.
+where \(K_{ab}\) is the drag coefficient between particles \(a\) and \(b\),
+\(D_{ab}\) is the drag kernel (Section~\ref{sec:drag-kernel}), \(h_{\max} =
+\max(h_a, h_b)\) is the maximum smoothing length between any pair of particles,
+and \(\vec{v}^{*}_{ab}\) refers to a higher-order reconstructed velocity for the
+particle pair \(a\) and \(b\) \citep{Price2020MNRAS.495.3929P}. This avoids the
+``overdamping'' problem described by \citet{Laibe2012MNRAS.420.2345L}.
 
 
 \subsubsection{Drag kernel and drag coefficient}
@@ -567,14 +570,12 @@ described by \citet{Laibe2012MNRAS.420.2345L}.
 The second term in Equation~\ref{eqn:sph-gas-velocity} represents the cumulative
 drag force from each dust species on particle \(a\) (with \(i \in \{1, \ldots,
 N\}\) representing each species). For each species, the sum, denoted by
-\(\sum_{b \in d_i}\), is a sum over dust neighbours, labelled by \(b\). The
-terms \(K_{ab}\), \(\vec{v}_{ab}\), and \(\hat{\vec{r}}_{ab}\) are the drag
-coefficient, relative velocity, and a unit vector in the direction of the
-displacement vector, between the particles, where here the \(a\) index refers to
-the gas particle and the \(b\) index refers to its dust neighbours. Similarly,
-the sum on the right hand side of Equation~\ref{eqn:sph-dust-velocity}
-represents the drag force from the gas on the particular dust species, where
-\(a\) refers to a dust (SPH) particle and \(b\) refers to its gas neighbours.
+\(\sum_{b \in d_i}\), is a sum over dust neighbours, labelled by \(b\), where
+here the \(a\) index refers to the gas particle and the \(b\) index refers to
+its dust neighbours. Similarly, the sum on the right hand side of
+Equation~\ref{eqn:sph-dust-velocity} represents the drag force from the gas on
+the particular dust species, where \(a\) refers to a dust (SPH) particle and
+\(b\) refers to its gas neighbours.
 
 Equations~\ref{eqn:sph-gas-velocity} and~\ref{eqn:sph-dust-velocity} are a
 straightforward generalisation of \citet{Laibe2012MNRAS.420.2345L} to multiple
@@ -588,10 +589,10 @@ where \(c_{s,a}\) is the sound speed on the gas particle and \(f_{ab}\)
 supersonic correction factor (Equation~\ref{eqn:supersonic}) between the two
 particles.
 
-The typical bell-shaped kernel used in SPH to estimate density (denoted by
-\(W_{ab}\)) is not appropriate for the drag force summation. Rather, a
-``double-hump'' kernel was found to be 10x more accurate
-\citep{Laibe2012MNRAS.420.2345L}.
+The typical bell-shaped kernel used in SPH to estimate density, denoted by
+\(W_{ab}\), is not appropriate for the drag force summation. Rather, we use a
+separate drag kernel, \(D_{ab}\), with a ``double-hump''. This was found to be
+10x more accurate \citep{Laibe2012MNRAS.420.2345L}.
 
 \subsection{Time stepping}
 
@@ -721,15 +722,14 @@ using the alternative stopping time
 (defined in Equation~\ref{eqn:alternative-stopping-time}) as
 %
 \begin{align}
-   \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\},
+   \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\}.
 \end{align}
 %
-where \(\varepsilon_i = \rho_{\dd_i} / \rho_{\g}\) is the dust-to-gas ratio for
-each dust species. This is useful because in evolving the momentum equations we
-use the drag coefficient on a dust (or gas) particle over its gas (or dust)
-neighbours, without reference to the other dust species. Given that
-\(\varepsilon_i > 0\), for simplicity, we take the more restrictive constraint
-of setting \(\varepsilon_i = 0\), i.e.
+This is useful because in evolving the momentum equations we use the drag
+coefficient on a dust (or gas) particle over its gas (or dust) neighbours,
+without reference to the other dust species. Given that \(\varepsilon_i > 0\),
+for simplicity, we take the more restrictive constraint of setting
+\(\varepsilon_i = 0\), i.e.
 %
 \begin{align}
    \label{eqn:sph-timestep-constraint}

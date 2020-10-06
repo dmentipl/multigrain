@@ -718,8 +718,11 @@ expect the stability constraint to remain the same.
 \subsubsection{Time step constraint for SPH}
 
 We can rewrite the time step constraint in Equation~\ref{eqn:timestep-dust}
-using the alternative stopping time
-(defined in Equation~\ref{eqn:alternative-stopping-time}) as
+using the alternative stopping time, \(t'_{s_i}\) (defined in
+Equation~\ref{eqn:alternative-stopping-time}). First we note that \(t_{s_i} / (1
+- \epsilon) = \rho_{d_i} / K_i\) and \(t'_{s_i} (1 + \varepsilon_i) = \rho_{d_i}
+/ K_i\). Then, given that \(1 - \epsilon\) does not depend upon the index \(i\),
+we can bring it under the min operator to give
 %
 \begin{align}
    \Delta t < 2 \min_i \{t'_{s_i} (1 + \varepsilon_i)\}.

@@ -740,7 +740,7 @@ for simplicity, we take the more restrictive constraint of setting
 \end{align}
 %
 Even though using a factor in Equation~\ref{eqn:sph-timestep-constraint} of 2
-provides an numerically stable timestepping scheme (in the von Neumann sense),
+provides a numerically stable timestepping scheme (in the von Neumann sense),
 numerical experimentation showed that any value greater than 1.0 led to
 inaccurate results. We use \(C_{\rm drag}\) to refer to this factor.
 
@@ -888,9 +888,10 @@ first set had a total dust-to-gas ratio of 0.01, and the second set 0.5. The
 tests within each set had 1, 2, and 5 dust species, respectively, with grain
 sizes given in Table~\ref{tab:box}. Each test had equal mass in each grain size
 bin. The gas is initially motionless, and each dust species has uniform velocity
-in the positive x-direction. We used a quintic kernel with \(\eta=1.0\). We
-turned off the SPH viscosity, i.e.\@ set \(\alpha_{\rm AV}\) to zero in
-\textsc{Phantom}. We set \(C_{\rm drag} = 0.2\).
+in the positive x-direction. We turned off the SPH viscosity, i.e.\@ set
+\(\alpha_{\rm AV}\) to zero in \textsc{Phantom}. We set \(C_{\rm drag} = 0.2\)
+for computational reasons (to allow \textsc{Phantom} to output data more
+frequently while still restricting the timestep via the drag force).
 
 For each test problem, we set up each of the gas and dust fluids on a
 close-packed lattice, using dense-sphere packing, such that there were 648

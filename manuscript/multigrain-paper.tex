@@ -1140,16 +1140,32 @@ the densities:
 %
 where the index \(j\) refers to either \(\g\) or \(\dd_i\).
 
+\begin{table}
+   \centering
+   \begin{tabular}{cccccccc}
+      \hline
+      \hline
+      Fluids & \(K_1\) & \(K_2\) & \(K_3\) & \(\rho^-\) & \(\rho^+\) & \(\omega^-\) & \(\omega^+\) \\
+      \hline
+      2 & 1.0 & - & - & 1.0 & 8.0 & 1.0 & 0.125 \\
+      4 & 1.0 & 3.0 & 5.0 & 1.0 & 16.0 & 1.0 & 0.0625 \\
+      \hline
+   \end{tabular}
+   \caption{Dusty shock parameters. Same as \citet{Benitez-Llambay2019ApJS..241...25B}.}%
+   \label{tab:shock}
+\end{table}
+
 We set up two tests. One test with a single dust species to validate against
 previous single dust species tests. And another test with three dust species to
 validate our multiple dust species method. We used that same parameters as shown
-in Table~3 in \citet{Benitez-Llambay2019ApJS..241...25B}. For both tests we
-chose \(\mathcal{M} = 2\), \(c_s = 1\), and \(\varepsilon_i = 1\) for all dust
-species. The left (pre-shock) velocities are set be the Mach number, i.e. \(v_j=
-2\), where \(j\) represents both gas and all dust species. We set the left
-(pre-shock) gas density \(\rho_{\g}\) to 1. We set the drag coefficients \(K_i\)
-to: 1.0 for the single dust species test, and 1.0, 3.0, and 5.0 for the three
-dust species test. The right (post-shock) asymptotic values are given by
+in Table~3 in \citet{Benitez-Llambay2019ApJS..241...25B} reproduced here in
+Table~\ref{tab:shock} for completeness. For both tests we chose \(\mathcal{M} =
+2\), \(c_s = 1\), and \(\varepsilon_i = 1\) for all dust species. The left
+(pre-shock) velocities are set be the Mach number, i.e. \(v_j= 2\), where \(j\)
+represents both gas and all dust species. We set the left (pre-shock) gas
+density \(\rho_{\g}\) to 1. We set the drag coefficients \(K_i\) to: 1.0 for the
+single dust species test, and 1.0, 3.0, and 5.0 for the three dust species test.
+The right (post-shock) asymptotic values are given by
 %
 \begin{align}
    \rho_{j}^{\rm R} &=

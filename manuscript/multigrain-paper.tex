@@ -1207,9 +1207,12 @@ at \(t = 300\) which is long enough so that any transient behaviour has died
 out. We have binned the particles into 40 bins in the x-direction and calculated
 a mass-weighted average for both density and velocity. We have over-plotted the
 analytical solution for comparison. Note that the shock position has drifted
-from its initial position. We have shifted the analytical solution shock
-position to minimise the error. Our numerical method reproduces the exact
-solution in this non-linear test problem.
+from its initial position, perhaps, due to numerical dissipation. We have
+shifted the analytical solution shock position to minimise the error, as in
+\citet{Benitez-Llambay2019ApJS..241...25B}. Note that this drift has velocity
+\(\sim 0.5\%\) of the pre-shock velocity, and \(\sim 5\%\) of the post-shock
+velocity. Our numerical method reproduces the exact solution in this non-linear
+test problem.
 
 To achieve an accurate solution we used a larger number of particle neighbours
 in the SPH density sum than is typical in dust-gas simulations with

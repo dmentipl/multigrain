@@ -243,7 +243,7 @@ density and velocity, and \(\rho_{\dd_i}\) and \(\vec{v}_{\dd_i}\) are the dust
 density and velocity.
 
 We assume the fluids are inviscid, that the dust is pressureless, and that each
-dust species is homogeneous, i.e.\ has the same mass, size, and intrinsic
+dust species is homogeneous, i.e.\ has the same grain size, mass, and intrinsic
 density. The equations of conservation of momentum for the mixture are given by
 %
 \begin{align}
@@ -261,8 +261,9 @@ dust species, \(i\). Note that each dust fluid has one gas drag interaction
 term, whereas the gas momentum equation has a sum of interactions over each dust
 species. Also note that the dust has no pressure gradient force term. In
 general, the drag coefficient could be a complicated expression. We assume that
-the drag coefficient is linear with respect to the differential velocity,
-\(\Delta \vec{v}_i = \vec{v}_{\dd_i} - \vec{v}_{\g} \).
+the drag force is linear with respect to the differential velocity, \(\Delta
+\vec{v}_i = \vec{v}_{\dd_i} - \vec{v}_{\g} \). Thus the drag coefficient is
+constant in differential velocity.
 
 The gas and dust exchange momentum via drag which leads to frictional heating.
 Under the assumption that the gas and dust grains are at the same temperature,
@@ -316,7 +317,7 @@ an effective material density, \(\varrho_{\mathrm{eff}}\), given by
 %
 \begin{align}
    \label{eqn:supersonic}
-   f = \sqrt{1 + \frac{9\pi}{128}} \frac{\Delta v^2}{c_s^2}.
+   f = \sqrt{1 + \frac{9\pi}{128} \frac{\Delta v^2}{c_s^2}}.
 \end{align}
 %
 
@@ -324,9 +325,9 @@ As discussed in \citet{Hutchison2018MNRAS.476.2186H}, a straightforward
 generalisation of the stopping time for multiple dust species is not available.
 Each dust species is separately coupled to the gas by the drag force. However,
 the dust species are indirectly coupled to each other via backreaction, as
-required conservation of momentum. Considering the multiple dust species case,
-and ignoring the supersonic correction factor, the drag coefficient, \(K_i\), is
-now
+required by conservation of momentum. Considering the multiple dust species
+case, and ignoring the supersonic correction factor, the drag coefficient,
+\(K_i\), is now
 %
 \begin{align}
    \label{eqn:drag-coefficient}
@@ -362,8 +363,8 @@ time for the dust mixture as
 %
 By combining
 Equations~\ref{eqn:single-stopping-time}~\&~\ref{eqn:single-drag-coefficient} we
-can see the expression for the multigrain effective stopping time, \(T_{s_i}\),
-is analogous to the single dust species case, \(t_s\).
+can see the expression for the multigrain effective stopping time, \(T_s\), is
+analogous to the single dust species case, \(t_s\).
 
 \subsubsection{Stokes number}
 
@@ -386,12 +387,13 @@ of a protoplanetary disc is given by
 Considering the multiple dust species case, we can define an effective midplane
 Stokes number for the mixture using the effective stopping time
 (Equation~\ref{eqn:effective-stopping-time}) as \(\mathrm{St}_{\mathrm{eff}} =
-\varrho_{\mathrm{eff}} s_{\mathrm{eff}} / \Sigma \). An alternative is to define
-a per species midplane Stokes number in analogy with the single grain size case:
+\sqrt{2\pi} \varrho_{\mathrm{eff}} s_{\mathrm{eff}} / \Sigma \). An alternative
+is to define a per species midplane Stokes number in analogy with the single
+grain size case:
 %
 \begin{align}
    \label{eqn:stokes}
-   \mathrm{St}_i = \frac{\varrho_{\mathrm{eff}} s_i}
+   \mathrm{St}_i = \frac{\sqrt{2\pi} \varrho_{\mathrm{eff}} s_i}
       {\Sigma_{\g} \left(1 + \sum_i \varepsilon_i \right)},
 \end{align}
 %
@@ -410,9 +412,10 @@ encapsulates the dynamics of each dust species. We can distinguish between three
 regimes of dust dynamics:
 %
 \begin{enumerate}
-   \item small grains, i.e.\ those with \(\mathrm{St} \ll 1\),
-   \item intermediate-sized grains, i.e.\ those with \(\mathrm{St} \sim 1\), and
-   \item large grains, i.e.\ those with \(\mathrm{St} \gg 1\).
+   \item small grains, i.e.\ those with \(\mathrm{St_i} \ll 1\),
+   \item intermediate-sized grains, i.e.\ those with \(\mathrm{St_i} \sim 1\),
+      and
+   \item large grains, i.e.\ those with \(\mathrm{St_i} \gg 1\).
 \end{enumerate}
 %
 Small grains have short stopping time, i.e.\ differential velocity decays faster
@@ -422,11 +425,12 @@ stopping time, i.e.\ differential velocity decays more slowely than the orbital
 time, and are thus weakly coupled to the gas. Intermediate-sized grains are
 marginally coupled to the gas. These grains experience the fastest radial drift
 velocities \citep{Takeuchi2002ApJ...581.1344T,Ayliffe2012MNRAS.423.1450A}. For a
-typical protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\),
-small grains are \(\lesssim 10 \mu\mathrm{m}\), and large grains are \(\gtrsim 1
-\mathrm{mm}\). Note that for other physical systems the terms small and large
-grains have different meaning. For example, in the ISM large grains might be any
-grains \(> 10 \mu\mathrm{m}\).
+typical protoplanetary disc, with surface density \(\approx 1\)~g cm\({}^{-2}\)
+and intrinsic grain density \(\approx 1\)~g cm\({}^{-3}\), small grains are
+\(\lesssim 10 \mu\mathrm{m}\), and large grains are \(\gtrsim 1 \mathrm{mm}\).
+Note that for other physical systems the terms small and large grains have
+different meaning. For example, in the ISM large grains might be any grains \(>
+10 \mu\mathrm{m}\).
 
 Several works describe the behaviour of these dust species as independently
 coupled to the gas \citep{Nakagawa1986Icar...67..375N,

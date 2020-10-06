@@ -932,7 +932,7 @@ error is given by
       \left(V_{i,j}^{\Delta t} - v_{j}(t_i) \right)^2 },
 \end{align}
 %
-where the indicies i and j represent time and dust species, respectively,
+where the indices i and j represent time and dust species, respectively,
 \(V_{i,j}^{\Delta t}\) is the numerical solution for a particular \(\Delta t\)
 (or equivalently \(C_{\rm drag}\)), and \(v_{j}(t_i)\) represents the exact
 solution. For large timesteps the error matches the gray, dashed line of slope 2
@@ -1343,13 +1343,13 @@ well-coupled grains \citep{Youdin2005ApJ...620..459Y}.
 However, we use an explicit timestepping scheme
 \citep{Price2018PASA...35...31P}. In addition to the usual
 Courant–Friedrichs–Lewy (CFL) time step constraint
-\citep{Courant1928MatAn.100...32C}, which is SPH form is \(\Delta t_{\rm CFL} <
+\citep{Courant1928MatAn.100...32C}, which in SPH form is \(\Delta t_{\rm CFL} <
 C_{\rm Cour} h/c_s\) \citep{Price2018PASA...35...31P}, there is an extra
 constraint given in Equation~\ref{eqn:timestep-dust}. This restricts the minimum
 stopping time of grains that can be simulated. To get an estimate on this
 restriction we compare this constraint with the CFL constraint. If we require
-that the stopping time constrained time step is less restrictive then we get
-that
+that the stopping time constrained time step is less restrictive than the CFL
+constraint then we get that
 %
 \begin{align}
    t_{s_i} > \frac{C_{\rm Cour} h (1 - \varepsilon)}{C_{\rm drag} c_s}.

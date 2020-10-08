@@ -24,19 +24,11 @@ def get_dust_properties(snap):
     stopping_time
         The stopping time for each dust species.
     """
-    try:
-        snap.physical_units()
-    except ValueError:
-        pass
     subsnaps = [snap['gas']] + snap['dust']
     density = np.array(
         [subsnap['density'].to('g/cm^3').magnitude.mean() for subsnap in subsnaps]
     )
-    c_s = (
-        (np.sqrt(snap.properties['polytropic_constant']) * snap.units['velocity'])
-        .to('cm/s')
-        .magnitude
-    )
+    c_s = np.mean(snap['sound_speed'].to('cm/s').magnitude)
     ɣ = snap.properties['adiabatic_index']
     s = snap.properties['grain_size'].to('cm').magnitude
     rho_m = snap.properties['grain_density'].to('g/cm^3').magnitude
@@ -69,10 +61,6 @@ def calculate_differential_velocity(sim):
     # Velocity differential: simulation data
     data = np.zeros((len(time), n_dust))
     for idx, snap in enumerate(sim.snaps):
-        try:
-            snap.physical_units()
-        except ValueError:
-            pass
         subsnaps = [snap['gas']] + snap['dust']
         vx = np.array(
             [subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps]
@@ -113,10 +101,6 @@ def calculate_differential_velocity_exact(
 
     # Velocity differential: initial data
     snap = sim.snaps[0]
-    try:
-        snap.physical_units()
-    except ValueError:
-        pass
     subsnaps = [snap['gas']] + snap['dust']
     vx = np.array(
         [subsnap['velocity_x'].to('cm/s').magnitude.mean() for subsnap in subsnaps]
@@ -162,7 +146,7 @@ def calculate_error(sim, relative=False):
     _exact = calculate_differential_velocity_exact(sim, times=time)
     exact = [_exact[col].to_numpy() for col in _exact.columns if col.startswith('d')]
     if relative:
-        error = np.array([np.abs((yd - ye)/ye) for yd, ye in zip(data, exact)]).T
+        error = np.array([np.abs((yd - ye) / ye) for yd, ye in zip(data, exact)]).T
     else:
         error = np.array([np.abs(yd - ye) for yd, ye in zip(data, exact)]).T
     n_dust = len(data)
@@ -293,7 +277,9 @@ def plot_error(df, plot_type, ax):
     return ax
 
 
-def plot_error_all(dataframes, plot_type='log', ncols=3, figsize=(15, 8), transpose=False):
+def plot_error_all(
+    dataframes, plot_type='log', ncols=3, figsize=(15, 8), transpose=False
+):
     """Plot differential velocity error for each simulation.
 
     Parameters

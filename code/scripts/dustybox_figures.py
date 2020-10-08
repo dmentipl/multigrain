@@ -40,7 +40,7 @@ def _calculate_velocity_differential(same_times=False):
     print('Calculate velocity differential time evolution...')
     for name, path in paths.items():
         print(f'Running analysis for {name}...')
-        sim = plonk.load_sim(prefix='dustybox', directory=path)
+        sim = plonk.load_simulation(prefix='dustybox', directory=path)
         data[name] = dustybox.calculate_differential_velocity(sim)
         times = None
         if same_times:
@@ -104,7 +104,7 @@ def time_evolution_error():
 
     for name, path in paths.items():
         print(f'Calculating error for {name}...')
-        sim = plonk.load_sim(prefix='dustybox', directory=path)
+        sim = plonk.load_simulation(prefix='dustybox', directory=path)
         error[name] = dustybox.calculate_error(sim)
 
     print('Plotting figure...')
@@ -125,7 +125,7 @@ def accuracy():
 
     for name, path in paths.items():
         print(f'Calculating error for {name}...')
-        sim = plonk.load_sim(prefix='dustybox', directory=path)
+        sim = plonk.load_simulation(prefix='dustybox', directory=path)
         error[name] = dustybox.calculate_error(sim)
 
     print('Plotting figure...')

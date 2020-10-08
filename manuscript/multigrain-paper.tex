@@ -807,10 +807,22 @@ drag}\) of 0.9.
          into account, respectively. In the top row, the solid and dash lines
          lie on top of each other. In the bottom row, the numerical solution
          matches the analytical solution including backreaction. Each colour
-         represents the differential velocity of a dust species.%
+         represents the differential velocity of a dust species increasing in
+         size from bottom to top. For the specific grain sizes, see
+         Table~\ref{tab:box}.%
          \label{fig:dustybox}}
    \end{center}
 \end{figure*}
+
+\begin{figure}
+   \begin{center}
+      \includegraphics[width=\columnwidth]{figs/dustybox_differential_velocity_comparison_zoomed.pdf}
+      \caption{Zoomed in version of bottom right panel in
+         Figure~\ref{fig:dustybox}. The smallest dust grains (in blue) show a
+         negative differential velocity.%
+         \label{fig:dustybox-zoomed}}
+   \end{center}
+\end{figure}
 
 \begin{figure}
    \begin{center}
@@ -902,10 +914,12 @@ test problem. We set the dust grain material density for all species to
 
 Figure~\ref{fig:dustybox} shows the time evolution of the mean velocity
 differential between the gas and each dust species, compared with analytical
-solutions. Given that there are no spatial gradients in the problem, all
-particles follow the mean velocity. The dashed lines represent the analytical
-solution without backreaction from the dust on the gas. The solid lines
-represent the analytical solution including backreaction.
+solutions. The time is a dimensionless time scaled by the stopping time,
+\(t_{s_i}\), of the smallest grain size. Given that there are no spatial
+gradients in the problem, all particles follow the mean velocity. The dashed
+lines represent the analytical solution without backreaction from the dust on
+the gas. The solid lines represent the analytical solution including
+backreaction.
 
 For low dust-to-gas ratio (0.01) both analytical solutions give the same decay
 of differential velocity, with which the \textsc{Phantom} simulation agrees. For
@@ -914,13 +928,15 @@ differs from the single-species solution, and the \textsc{Phantom} simulation
 data follows the backreaction-inclusive solution. In all cases, the numerical
 solution matches the analytical solution with relative error less than 0.01.
 
-For large dust-to-gas ratio we see that the smallest grains (0.01 cm) rapidly
-slow and the differential velocity reverses sign. That is the small grains slow
-to the gas velocity; then, as the larger grains speed up the gas via drag, the
-gas drags the small grains along with it. This shows that the behaviour of
-multiple dust species for large dust-to-gas ratios requires taking back reaction
-into consideration to capture the physics of dust drag accurately
-\citep{Gonzalez2017MNRAS.467.1984G,Dipierro2018MNRAS.479.4187D}.
+Figure~\ref{fig:dustybox-zoomed} shows a zoomed version of the bottom right
+panel in Figure~\ref{fig:dustybox}. For large dust-to-gas ratio we see that the
+smallest grains (0.01 cm) rapidly slow and the differential velocity reverses
+sign. That is the small grains slow to the gas velocity; then, as the larger
+grains speed up the gas via drag, the gas drags the small grains along with it.
+This shows that the behaviour of multiple dust species for large dust-to-gas
+ratios requires taking back reaction into consideration to capture the physics
+of dust drag accurately \citep{Gonzalez2017MNRAS.467.1984G,
+Dipierro2018MNRAS.479.4187D}.
 
 Figure~\ref{fig:dustybox-accuracy} shows that the method is second-order
 accurate with respect to the timestep. Each marker represents the L2-norm error,

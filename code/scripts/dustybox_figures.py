@@ -51,6 +51,11 @@ def _calculate_velocity_differential(same_times=False):
         exact2[name] = dustybox.calculate_differential_velocity_exact(
             sim, times=times, backreaction=False
         )
+        # Scale time by the shortest stopping time
+        _, stopping_time = dustybox.get_dust_properties(sim.snaps[0])
+        data[name]['time'] = data[name]['time'] / stopping_time[0]
+        exact1[name]['time'] = exact1[name]['time'] / stopping_time[0]
+        exact2[name]['time'] = exact2[name]['time'] / stopping_time[0]
 
     return data, exact1, exact2
 

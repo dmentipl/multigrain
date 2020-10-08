@@ -228,7 +228,7 @@ def plot_differential_velocity_all(
     """
     nrows = int(np.ceil(len(data) / ncols))
     fig, axs = plt.subplots(
-        ncols=ncols, nrows=nrows, sharex=True, sharey=True, figsize=figsize
+        ncols=ncols, nrows=nrows, sharex=False, sharey=True, figsize=figsize
     )
     fig.subplots_adjust(hspace=0.1, wspace=0.1)
     if transpose:

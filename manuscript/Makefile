@@ -5,6 +5,9 @@
 
 manuscript: multigrain-paper.pdf
 
+diff:
+	@bash diff.sh
+
 multigrain-paper.pdf: multigrain-paper.tex
 	@latexmk multigrain-paper.tex
 

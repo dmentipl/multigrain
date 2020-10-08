@@ -1430,11 +1430,14 @@ requiring seven 64-bit floating point numbers per particle. This is in contrast
 to the mixture method. In that method there is only a single set of particles
 (representing the mixture) and for each dust species an additional four 64-bit
 floating point numbers are required: one for the dust fraction, and three for
-the velocity differential \citep{Hutchison2018MNRAS.476.2186H}. In practice, we
-use fewer dust SPH particles than gas; see, for example,
+the velocity differential \citep{Hutchison2018MNRAS.476.2186H}. So it seems that
+the method described here is more expensive in memory and storage requirements
+than \citet{Hutchison2018MNRAS.476.2186H}. However, this is not so. In practice,
+we use fewer dust SPH particles than gas; see, for example,
 \citet{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M,
 Calcino2019MNRAS.490.2579C}. This is to prevent the dust from becoming trapped
-under the gas resolution scale \citep{Laibe2012MNRAS.420.2345L}.
+under the gas resolution scale \citep{Laibe2012MNRAS.420.2345L}. In either case
+the additional memory and storage requirement is not prohibitive.
 
 We represent each dust species as a pressureless fluid that interacts with gas
 via the drag force and with massive objects such as stars and planets
@@ -1469,10 +1472,10 @@ be a short range one. It is not clear at what distance it should activate. Any
 such prescription would be a sub-grid model and resolution dependent.
 
 In the limit of small drag coefficient, or large stopping time, our scheme
-degenerates to an N-body integrator, which preserves the orbital parameters
-exactly. As the method is Lagrangian, we can track particles throughout time.
-This allows for coupling with, for example, chemistry codes that require
-knowledge of the thermal history of the dust.
+reduces to an N-body integrator, which preserves the orbital parameters exactly.
+As the method is Lagrangian, we can track particles throughout time. This allows
+for coupling with, for example, chemistry codes that require knowledge of the
+thermal history of the dust.
 
 
 \section{Conclusions}

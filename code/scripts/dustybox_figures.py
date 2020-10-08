@@ -32,7 +32,7 @@ def _get_paths(name, glob):
     return paths
 
 
-def _calculate_velocity_differential(same_times=False):
+def _calculate_velocity_differential_all(same_times=False):
     paths = _get_paths(name='time_evolution', glob='f_*-N_*')
 
     data, exact1, exact2 = dict(), dict(), dict()
@@ -40,22 +40,30 @@ def _calculate_velocity_differential(same_times=False):
     print('Calculate velocity differential time evolution...')
     for name, path in paths.items():
         print(f'Running analysis for {name}...')
-        sim = plonk.load_simulation(prefix='dustybox', directory=path)
-        data[name] = dustybox.calculate_differential_velocity(sim)
-        times = None
-        if same_times:
-            times = data['time'].to_numpy()
-        exact1[name] = dustybox.calculate_differential_velocity_exact(
-            sim, times=times, backreaction=True
+        data[name], exact1[name], exact2[name] = _calculate_velocity_differential(
+            path, same_times=False
         )
-        exact2[name] = dustybox.calculate_differential_velocity_exact(
-            sim, times=times, backreaction=False
-        )
-        # Scale time by the shortest stopping time
-        _, stopping_time = dustybox.get_dust_properties(sim.snaps[0])
-        data[name]['time'] = data[name]['time'] / stopping_time[0]
-        exact1[name]['time'] = exact1[name]['time'] / stopping_time[0]
-        exact2[name]['time'] = exact2[name]['time'] / stopping_time[0]
+
+    return data, exact1, exact2
+
+
+def _calculate_velocity_differential(path, same_times=False):
+    sim = plonk.load_simulation(prefix='dustybox', directory=path)
+    data = dustybox.calculate_differential_velocity(sim)
+    times = None
+    if same_times:
+        times = data['time'].to_numpy()
+    exact1 = dustybox.calculate_differential_velocity_exact(
+        sim, times=times, backreaction=True
+    )
+    exact2 = dustybox.calculate_differential_velocity_exact(
+        sim, times=times, backreaction=False
+    )
+    # Scale time by the shortest stopping time
+    _, stopping_time = dustybox.get_dust_properties(sim.snaps[0])
+    data['time'] = data['time'] / stopping_time[0]
+    exact1['time'] = exact1['time'] / stopping_time[0]
+    exact2['time'] = exact2['time'] / stopping_time[0]
 
     return data, exact1, exact2
 
@@ -66,7 +74,7 @@ def time_evolution():
     print('---------------------------------------')
     print('')
 
-    data, exact1, exact2 = _calculate_velocity_differential()
+    data, exact1, exact2 = _calculate_velocity_differential_all()
 
     print('Plotting figure...')
     fig = dustybox.plot_differential_velocity_all(data, exact1, exact2, figsize=(15, 8))
@@ -94,6 +102,26 @@ def time_evolution():
             bbox=props,
         )
     name = 'dustybox_differential_velocity_comparison.pdf'
+    print(f'Saving figure to {name}')
+    fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
+
+
+def time_evolution_zoomed():
+    print('')
+    print('Time evolution of velocity differential zoomed')
+    print('----------------------------------------------')
+    print('')
+
+    paths = _get_paths(name='time_evolution', glob='f_*-N_*')
+    data, exact1, exact2 = _calculate_velocity_differential(paths['f_0.50-N_5'])
+
+    print('Plotting figure...')
+    fig, ax = plt.subplots()
+    dustybox.plot_differential_velocity(data, exact1, exact2, ax)
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Differential velocity')
+    ax.set_ylim([-0.05, 0.1])
+    name = 'dustybox_differential_velocity_comparison_zoomed.pdf'
     print(f'Saving figure to {name}')
     fig.savefig(name, bbox_inches='tight', pad_inches=0.05)
 
@@ -209,5 +237,6 @@ def _error_norm_fn(errors, method=2):
 
 if __name__ == "__main__":
     time_evolution()
+    time_evolution_zoomed()
     # time_evolution_error()
     accuracy()

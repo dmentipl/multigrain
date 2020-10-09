@@ -106,7 +106,8 @@ multigrain dust with separate sets of particles}
    effect is greater for large dust-to-gas ratios that may be expected in the
    later stages of the protoplanetary disc life. We benchmark the method against
    analytic solutions for linear waves, drag and shocks in dust-gas mixtures,
-   and radial drift in a protoplanetary disc.
+   and radial drift in a protoplanetary disc showing that the method is robust
+   and accurate.
 \end{abstract}
 
 % Select between one and six entries from the list of approved keywords.
@@ -121,18 +122,6 @@ hydrodynamics -- methods: numerical -- protoplanetary discs
 
 \section{Introduction}
 
-Multi-wavelength observations of protoplanetary discs show that the radial
-extent of the dust disc scales inversely with wavelength
-\citep{Andrews2015PASP..127..961A}. Modelling this requires dust and gas
-hydrodynamics with multiple dust species---one of the grand challenges in
-protoplanetary disc modelling \citep{Haworth2016PASA...33...53H}. In particular,
-it is important to capture the collective backreaction of multiple dust species
-on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, small grains are
-well coupled the gas and follow its inward or outward motion. Larger grains
-drift inwards due to the differential velocity between the pressure-supported
-gas, and, due to conservation of angular momentum, the gas drifts outwards
-dragging the small grains with it \citep{Laibe2014MNRAS.444.1940L}.
-
 In order to interpret dust continuum emission, for example in ALMA observations
 showing gaps and rings \citep{ALMAPartnership2015ApJ...808L...3A,
 Andrews2016ApJ...820L..40A}, we must model planet-disc interactions including
@@ -142,6 +131,19 @@ constraints on the size distribution of dust grains within gaps
 \citep{Huang2018ApJ...852..122H}. Multi-species dust models allow us to test the
 underlying disc models by producing synthetic spectral index maps to compare
 with observations \citep{Casassus2015ApJ...812..126C, Pinte2016ApJ...816...25P}.
+
+Multi-wavelength observations of protoplanetary discs show that the radial
+extent of the dust disc scales inversely with wavelength, i.e.\ inversely with
+dust grain size \citep{Andrews2015PASP..127..961A}. Modelling this requires dust
+and gas hydrodynamics with multiple dust species---one of the grand challenges
+in protoplanetary disc modelling \citep{Haworth2016PASA...33...53H}. In
+particular, it is important to capture the collective backreaction of multiple
+dust species on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, small
+grains are well coupled to the gas and follow its inward or outward motion
+\citep{Weidenschilling1977MNRAS.180...57W}. Larger grains drift inwards due to
+the differential velocity between the pressure-supported gas, and, due to
+conservation of angular momentum, the gas drifts outwards dragging the small
+grains with it \citep{Laibe2014MNRAS.444.1940L}.
 
 Radiative transfer calculations offer a way to validate hydrodynamical models of
 protoplanetary discs by producing synthetic observations for comparison with
@@ -202,15 +204,16 @@ Stoyanovskaya2018A&C....25...25S}.
 
 In the description for both of these approaches (the dust as separate particles
 method and the single SPH fluid mixture method) the methods are applicable to a
-single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L}
-described a multiple species approach for the single SPH fluid method.
-\citet{Hutchison2018MNRAS.476.2186H} provided an algorithmic implementation of
-this method and tested this in the \textsc{Phantom} SPH code
-\citep{Price2018PASA...35...31P}. The single fluid approach is limited in that
-particles are not allowed to stream past each other as expected for large,
-weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}. The methods of
-\citet{Benitez-Llambay2019ApJS..241...25B, Lebreuilly2019A&A...626A..96L,
-Li2019ApJ...878...39L} are based on the single fluid approach.
+single species of dust with fixed size. \citet{Laibe2014MNRAS.444.1940L} and
+\citet{Hutchison2018MNRAS.476.2186H} described a multiple species approach for
+the single SPH fluid method. \citet{Hutchison2018MNRAS.476.2186H} derived the
+version using the terminal velocity approximation, and tested this in the
+\textsc{Phantom} SPH code \citep{Price2018PASA...35...31P}. The single fluid
+approach is limited in that particles are not allowed to stream past each other
+as expected for large, weakly-coupled grains \citep{Laibe2014MNRAS.440.2147L}.
+The methods of \citet{Benitez-Llambay2019ApJS..241...25B,
+Lebreuilly2019A&A...626A..96L, Li2019ApJ...878...39L} are based on the single
+fluid approach.
 
 In this paper we extend method (i), in which dust is represented by separate
 sets of particles, from a single species to multiple species. We present the
@@ -281,7 +284,7 @@ gas are at the same temperature.
 
 Equations~\ref{eqn:conserve-gas-mass}--\ref{eqn:conserve-energy} are \(2N + 3\)
 equations describing the evolution of a mixture of gas and \(N\) dust species.
-We discuss discretising these equations with smoothed particle hydrodynamics in
+We discretise these equations with smoothed particle hydrodynamics in
 Section~\ref{subsec:sph}.
 
 \subsection{Drag timescale}
@@ -334,7 +337,7 @@ case, and ignoring the supersonic correction factor, the drag coefficient,
    K_i = \frac{\rho_{\g} \rho_{\dd_i} c_s}{\varrho_{\mathrm{eff}} s_i}.
 \end{align}
 %
-In analogy with Equation~\ref{eqn:single-stopping-time} we can define a
+By analogy with Equation~\ref{eqn:single-stopping-time} we can define a
 ``stopping time'', \(t'_{s_i}\), as
 %
 \begin{align}
@@ -354,7 +357,7 @@ all dust species. Then we can define another ``stopping time'', \(t_{s_i}\), as
 Considering the mixture of dust and gas as a whole, we define the weighted sum
 \(s_{\mathrm{eff}} = \sum_i \rho_{\dd_i} s_i / \sum_i \rho_{\dd_i}\) as an
 effective grain size for the mixture. Then we can define an effective stopping
-time for the dust mixture as
+time for the dust mixture, assuming Epstein drag, as
 %
 \begin{align}
    \label{eqn:effective-stopping-time}
@@ -436,8 +439,8 @@ different meaning. For example, in the ISM large grains might be any grains \(>
 Several works describe the behaviour of these dust species as independently
 coupled to the gas \citep{Nakagawa1986Icar...67..375N,
 Dipierro2017MNRAS.469.1932D, Kanagawa2017ApJ...844..142K}.
-\citet{Dipierro2018MNRAS.479.4187D} extend the analysis to consider the full
-backreaction of all species onto the gas. They show that the cumulative
+\citet{Dipierro2018MNRAS.479.4187D} extended the analysis to consider the full
+backreaction of all species onto the gas. They showed that the cumulative
 backreaction from multiple dust species can strongly affect the gas flow, even
 for low dust-to-gas ratio, and that, for large dust-to-gas ratio, the small
 grains can drift outwards, as opposed to the typical inwards drift. This gives
@@ -489,8 +492,9 @@ relative motion. If dust particles become concentrated and remain motionless
 with respect to the local gas distribution there is no pressure force to stop
 further collapse. This can lead to unphysical clumping of dust which can mimic
 physical clumping of dust that might be expected, in, for example,
-protoplanetary discs or molecular clouds. (See \citet{Tricco2017MNRAS.471L..52T}
-for a discussion of this in the context of molecular clouds.)
+protoplanetary discs or molecular clouds. (See
+\citealt{Tricco2017MNRAS.471L..52T} for a discussion of this in the context of
+molecular clouds.)
 
 \subsubsection{SPH equation of motion with multiple dust species}
 
@@ -711,9 +715,9 @@ This timestep constraint is not the same as the one derived in
 time step constraint is the stopping time itself, and does not depend on the
 dust fraction. Note that we have shown that Equation~\ref{eqn:timestep-dust} is
 the stability constraint for the forward Euler discretisation of the drag terms
-to first order in \(\Delta t\). However, we have not derived the stability
-constraint for the leapfrog scheme we use in our numerical tests below, but we
-expect the stability constraint to remain the same.
+to first order in \(\Delta t\). We have not derived the stability constraint for
+the leapfrog scheme we use in our numerical tests below, but we expect the
+stability constraint to remain the same.
 
 \subsubsection{Time step constraint for SPH}
 
@@ -809,7 +813,8 @@ drag}\) of 0.9.
          matches the analytical solution including backreaction. Each colour
          represents the differential velocity of a dust species increasing in
          size from bottom to top. For the specific grain sizes, see
-         Table~\ref{tab:box}.%
+         Table~\ref{tab:box}. Time is dimensionless, scaled by the shortest
+         stopping time.%
          \label{fig:dustybox}}
    \end{center}
 \end{figure*}
@@ -1067,7 +1072,7 @@ where the zero subscript represents the initial value. The solid lines represent
 the analytical solution from \citet{Benitez-Llambay2019ApJS..241...25B} and the
 open circles represent the numerical solution from \textsc{Phantom}. We see that
 the numerical solution accurately reproduces the analytical solution, i.e.\@ the
-relative error is everywhere less than 0.01. We see, in both cases, the wave
+relative error is everywhere less than 0.01. In both cases we see the wave
 damping effect, and within a few wave periods the wave dissipates.
 
 \subsection{Dusty shock}%
@@ -1116,9 +1121,11 @@ damping effect, and within a few wave periods the wave dissipates.
 We performed a multiple species version of the isothermal steady state single
 species dusty shock test, with exact solution given in
 \citet{Lehmann2018MNRAS.476.3185L}.\footnote{The solution is described as a
-J-type shock.} \citet{Benitez-Llambay2019ApJS..241...25B} generalised that
-solution to multiple dust species. The solution, in steady state, for this shock
-is described by the following set of equations:
+J-type shock in which the fluid variables undergo a jump discontinuity, rather
+than the properties being continuous across the front (as in a C-type shock).}
+\citet{Benitez-Llambay2019ApJS..241...25B} generalised that solution to multiple
+dust species. The solution, in steady state, for this shock is described by the
+following set of equations:
 %
 \begin{align}
    \frac{\partial}{\partial x} \left( \rho_{\g} v_{\g} \right)
@@ -1205,7 +1212,7 @@ using a logistic function, i.e.
 %
 where \(\rho_{\rm L}\) and \(\rho_{\rm R}\) are the density on the left and
 right of the shock, respectively, and \(k\) is a factor determining the width of
-the smoothing. We set \(k\) to \(2 x_{\rm sep}\), where \(x_{\rm sep} =
+the smoothing. We set \(k^{-1}\) to \(2 x_{\rm sep}\), where \(x_{\rm sep} =
 0.1953125\) is the (resolution-dependent) separation between particles in the
 x-direction in the low density region. This is due to the large (in principle,
 infinite) gradient in density at the shock boundary leading to an
@@ -1416,7 +1423,7 @@ dust grain size; one that is dependent on the disc parameters too. Considering a
 disc with surface density \(\Sigma \approx 1\)~g/cm\({}^2\) and effective grain
 size \(\varrho_{\rm eff} = 3\)~g/cm\({}^3\) we find that the minimum grain size
 is approximately 0.2~mm. Note that this is \emph{not} a minimum grain size that
-can be represented, however, using smaller grains is inefficient given the
+can be represented. Using smaller grains is merely inefficient given the
 explicit time stepping scheme. The single fluid method is more efficient for
 these smaller grains, which satisfy the terminal velocity approximation.
 \citet{Cuello2019MNRAS.483.4114C} show that the two methods overlap and give the
@@ -1450,7 +1457,7 @@ initialised in a ``pathological'' arrangement, e.g.\@ such that particles are
 almost on top of each other or randomised, they will rearrange into a
 quasi-regular lattice. This rearrangement leads to an improved density estimate
 \citep{Price2012JCoPh.231..759P}. The lack of rearranging due to the lack of a
-pressure gradient force can lead to noisy density estimates.
+pressure gradient force in the dust can lead to noisy density estimates.
 
 In calculating the density we sum over neighbours of the same type. So the gas
 and each dust species has a smoothing length per particle independent of each
@@ -1459,11 +1466,11 @@ other species. In \textsc{Phantom}, the smoothing length proportionality factor
 \(\overline{N}_{\rm neigh}\) is the same for both the gas and dust. Given that
 the dust particle arrangement does not re-mesh, unlike the gas, using a larger
 number of neighbours may improve the density estimate for the dust. One possible
-approach, not explored in this study, is to set \(\eta\) independently for the
-gas and dust. The dusty shock test (Section~\ref{subsec:shock}) provides some
-evidence for this. In that test the gas density was accurate for \(\eta = 1.2\).
-However, the dust density required \(\eta = 1.8\) in the three dust species
-case.
+approach, not explored in this study, would be to set \(\eta\) independently for
+the gas and dust. The dusty shock test (Section~\ref{subsec:shock}) provides
+some evidence for this. In that test the gas density was accurate for \(\eta =
+1.2\). However, the dust density required \(\eta = 1.8\) in the three dust
+species case.
 
 An alternative approach would be to provide a pressure gradient force for the
 dust. This would provide for a rearrangement of particles to improve the density

@@ -142,24 +142,23 @@ dust species on the gas \citep{Dipierro2018MNRAS.479.4187D}. For example, small
 grains are well coupled to the gas and follow its inward or outward motion
 \citep{Weidenschilling1977MNRAS.180...57W}. Larger grains drift inwards due to
 the differential velocity between the pressure-supported gas, and, due to
-conservation of angular momentum, the gas drifts outwards dragging the small
-grains with it \citep{Laibe2014MNRAS.444.1940L}.
+conservation of angular momentum, the gas might drift outwards dragging the
+small grains with it \citep{Laibe2014MNRAS.444.1940L}.
 
 Radiative transfer calculations offer a way to validate hydrodynamical models of
 protoplanetary discs by producing synthetic observations for comparison with
 observations. These calculations require knowledge of the distribution of many
 dust species from the hydrodynamical simulation. The ability to perform
 multi-wavelength synthetic observations in single species dust-gas
-hydrodynamical models is compromised. One option is to stack, in
-post-processing, multiple single dust species simulations
-\citep{Dipierro2015MNRAS.453L..73D, Mentiplay2019MNRAS.484L.130M}. However, due
-to back reaction, there may be a phase difference in the location of the
-concentration making this procedure unreliable. For example, discs containing
-dust asymmetries and spiral arms around central cavities can show greater
-concentration at different wavelengths \citep{Casassus2015ApJ...812..126C,
-van-der-Marel2015ApJ...810L...7V}. Previous work has suggested that the cause of
-these features is a (possibly unseen) companion in the cavity
-\citep{Price2018MNRAS.477.1270P,
+hydrodynamical models is limited. One option is to stack, in post-processing,
+multiple single dust species simulations \citep{Dipierro2015MNRAS.453L..73D,
+Mentiplay2019MNRAS.484L.130M}. However, due to back reaction, there may be a
+phase difference in the location of the concentration making this procedure
+unreliable. For example, discs containing dust asymmetries and spiral arms
+around central cavities can show greater concentration at different wavelengths
+\citep{Casassus2015ApJ...812..126C, van-der-Marel2015ApJ...810L...7V}. Previous
+work has suggested that the cause of these features is a (possibly unseen)
+companion in the cavity \citep{Price2018MNRAS.477.1270P,
 Poblete2019MNRAS.489.2204P,Calcino2019MNRAS.490.2579C}. Due to the potential for
 a phase difference in these single-species simulations, to produce
 multi-wavelength synthetic observations requires multiple dust species within
@@ -1355,11 +1354,15 @@ are co-located with the gas disc. We used individual timestepping
 
 After evolving the disc for 3674 years, we binned the particles into 25 equally
 spaced radial bins between 25~au and 140~au. For the analysis, we considered
-only particles within 0.05 times the gas scale height of the midplane. We
-computed the mass-weighted average of the radial velocities in the each annular
-cylinder for the gas and each dust species. To compare with the analytical
-solution (Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}) we
-computed each of the terms
+only particles within 0.05 times the gas scale height of the midplane. The
+Stokes number is exponentially dependent on the height above the midplane
+(\(\mathrm{St_i} \sim \rho_g^{-1} \sim e^{z^2}\)). Averaging, within a radial
+bin, by including particles above the midplane (\(\gtrsim 0.05\ H_{\rm g}\))
+produces a poor estimate of the midplane Stokes number. We computed the
+mass-weighted average of the radial velocities in the each annular cylinder for
+the gas and each dust species. To compare with the analytical solution
+(Equations~\ref{eqn:radialdrift-gas}~\&~\ref{eqn:radialdrift-dust}) we computed
+each of the terms
 (Equations~\ref{eqn:radialdrift-pressure}--\ref{eqn:radialdrift-lambda}) on the
 radial bins. We computed the gradient terms using a second-order finite
 difference approximation.

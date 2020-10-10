@@ -22,10 +22,11 @@ dependencies:
   - pylint
   - scipy
   - scikit-image>=0.16
+  - toml
   - tomlkit
   - tqdm
   - pip:
     - phantombuild>=0.2.0
     - phantomconfig>=0.3.3
-    - plonk>=0.5.1
+    - plonk>=0.7.3
     - phantomsetup

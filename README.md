@@ -1,9 +1,9 @@
 A smoothed particle hydrodynamics algorithm for multigrain dust with separate sets of particles
 ===
 
-by Daniel Mentiplay, Daniel Price, and Christophe Pinte
+by Daniel Mentiplay, Daniel Price, Christophe Pinte, and Guillaume Laibe
 
-Manuscript to be submitted to *Monthly Notices of the Royal Astronomical Society*.
+Manuscript accepted for publication in the *Monthly Notices of the Royal Astronomical Society*.
 
 > CITATION GOES HERE
 
@@ -11,17 +11,15 @@ Manuscript to be submitted to *Monthly Notices of the Royal Astronomical Society
 
 > FIGSHARE LINK GOES HERE
 
-We aim to describe multigrain dust methods in smoothed particle hydrodynamics using separate sets of particles for each dust species. We test these methods against standard dust-gas hydrodynamics tests, including a dusty-box, a dusty-wave, and a dusty-shock.
-
 Abstract
 --------
 
-> We present a method for simulating the dynamics of a mixture of gas and multiple species of large Stokes number dust grains, typical of evolved protoplanetary discs and debris discs. The method improves upon earlier methods, in which only a single grain size could be represented, by capturing the differential backreaction of multiple dust species on the gas. We benchmark the method against analytic solutions for linear waves, drag and shocks in dust-gas mixtures. This effect is greater for large dust-to-gas ratios that may be expected in the later stages of the protoplanetary disc life.
+> We present a method for simulating the dynamics of a mixture of gas and multiple species of large Stokes number dust grains, typical of evolved protoplanetary discs and debris discs. The method improves upon earlier methods, in which only a single grain size could be represented, by capturing the differential backreaction of multiple dust species on the gas. This effect is greater for large dust-to-gas ratios that may be expected in the later stages of the protoplanetary disc life. We benchmark the method against analytic solutions for linear waves, drag and shocks in dust-gas mixtures, and radial drift in a protoplanetary disc showing that the method is robust and accurate.
 
 Software
 --------
 
-We implemented the multigrain dust methods in [Phantom](https://github.com/danieljprice/phantom). In fact, this method for multigrain dust has been in the Phantom master branch since [`64dbd2b1`](https://github.com/danieljprice/phantom/commit/64dbd2b124ca74051eed920d6cad0a2e83157478), September 18, 2018. For this manuscript, the focus is writing test problems.
+We implemented the multigrain dust methods in [Phantom](https://github.com/danieljprice/phantom). In fact, this method for multigrain dust has been in the Phantom master branch since [`64dbd2b1`](https://github.com/danieljprice/phantom/commit/64dbd2b124ca74051eed920d6cad0a2e83157478), September 18, 2018. For this manuscript, the focus is testing the method.
 
 ### Setting up the environment
 
@@ -87,6 +85,16 @@ Note: not all runs listed in `dustyshock.toml.j2` are required in order to repro
 
 *Dusty-shock with 1 and 3 dust species.*
 
+#### Radial drift
+
+The radial drift test is slow (approx. two weeks) and should be run on a cluster. The total data generated is about 20 GB in size.
+
+The Phantom .in and .setup files are in [`code/initial-conditions/radialdrift/test1`](https://github.com/dmentipl/multigrain/tree/master/code/initial-conditions/radialdrift/test1).
+
+![Radial drift](radialdrift.png)
+
+*Radial drift test.*
+
 ### Performing analysis on the tests
 
 There are notebooks in [`code/notebooks`](https://github.com/dmentipl/multigrain/tree/master/code/notebooks) to perform analysis on the Phantom output.
@@ -98,6 +106,7 @@ Python scripts for generating the manuscript figures (after running the tests ab
 - `dustybox_figures.py`
 - `dustywave_figures.py`
 - `dustyshock_figures.py`
+- `radialdrift_figures.py`
 
 Manuscript
 ----------

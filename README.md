@@ -7,9 +7,11 @@ Manuscript accepted for publication in the *Monthly Notices of the Royal Astrono
 
 > CITATION GOES HERE
 
-**This repository contains the data and code used to produce all results and figures shown in the paper.** An archived version of this repository will be available at Figshare.
+**This repository contains the data and code used to produce all results and figures shown in the paper.**
 
-> FIGSHARE LINK GOES HERE
+An archived version of this repository is available at Figshare.
+
+> <https://doi.org/10.6084/m9.figshare.13076435>
 
 Abstract
 --------

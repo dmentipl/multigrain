@@ -5,13 +5,13 @@ by Daniel Mentiplay, Daniel Price, Christophe Pinte, and Guillaume Laibe
 
 Manuscript accepted for publication in the *Monthly Notices of the Royal Astronomical Society*.
 
-> CITATION GOES HERE
+- DOI: [10.1093/mnras/staa3171](http://dx.doi.org/10.1093/mnras/staa3171)
+- ADS: **[TODO: ADD WHEN AVAILABLE]**
+- arXiv: [2010.06074](https://arxiv.org/abs/2010.06074)
 
 **This repository contains the data and code used to produce all results and figures shown in the paper.**
 
-An archived version of this repository is available at Figshare.
-
-> <https://doi.org/10.6084/m9.figshare.13076435>
+An archived version of this repository is available at Figshare at [10.6084/m9.figshare.13076435](https://doi.org/10.6084/m9.figshare.13076435).
 
 Abstract
 --------

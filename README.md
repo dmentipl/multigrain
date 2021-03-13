@@ -6,7 +6,7 @@ by Daniel Mentiplay, Daniel Price, Christophe Pinte, and Guillaume Laibe
 Manuscript accepted for publication in the *Monthly Notices of the Royal Astronomical Society*.
 
 - DOI: [10.1093/mnras/staa3171](http://dx.doi.org/10.1093/mnras/staa3171)
-- ADS: **[TODO: ADD WHEN AVAILABLE]**
+- ADS: [2020MNRAS.499.3806M](https://ui.adsabs.harvard.edu/abs/2020MNRAS.499.3806M/abstract)
 - arXiv: [2010.06074](https://arxiv.org/abs/2010.06074)
 
 **This repository contains the data and code used to produce all results and figures shown in the paper.**
